@@ -2,34 +2,35 @@
 
 Smarter anatomy. Better recall.
 
-ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the University of Uyo. It ships in a free local-first mode by default: SQLite for data, local filesystem storage for uploaded materials, free local OCR for images, and grounded local question generation when no external AI key is provided.
+ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the University of Uyo. It is now set up for a remote free-tier deployment path by default: Vercel for the app, Supabase Postgres for data, Supabase Storage for uploaded materials, and a grounded in-app question generator when no paid AI provider is configured.
 
 ## Included
 
 - Public topic explorer for Human Anatomy only
 - Hidden faculty dashboard at `/upload`
 - Upload support for PDF, text notes, and image diagrams
-- Local filesystem storage by default
-- SQLite database by default
+- Supabase Storage by default
+- Supabase Postgres by default
 - Semantic chunking and knowledge graph storage
 - Grounded MCQ, short answer, and theory generation
 - Session-only results with no student persistence
 - Public non-personal analytics
 - Optional OpenAI enhancement if you later decide to add a key
 
-## Default Free Stack
+## Default Remote Free Stack
 
 - Frontend: Next.js 16 App Router, Tailwind CSS 4, Framer Motion
+- Full stack runtime: Vercel
 - Backend: Next.js Route Handlers
-- Database: SQLite via Prisma
-- Storage: local filesystem
+- Database: Supabase Postgres via Prisma
+- Storage: Supabase Storage
 - OCR: `pdf-parse` for PDFs and `tesseract.js` for images
 - Question generation: local grounded generator by default
 
 ## Optional Upgrades
 
 - OpenAI can still be added later for enhanced extraction and question phrasing
-- S3 can still be added later for cloud file storage
+- S3 can still be wired in later if you ever move off the free-tier default
 
 ## Pages
 
@@ -44,7 +45,7 @@ ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the
 - `GET /api/topics`
 - `GET /api/analytics`
 - `GET /api/admin-overview`
-- `GET /api/material-file/[...key]`
+- `GET /api/material-file/[...key]` for optional local-only development mode
 - `POST /api/upload-material`
 - `POST /api/process-material`
 - `POST /api/generate-questions`
@@ -53,13 +54,17 @@ ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the
 
 ## Environment
 
-The repo now includes a committed `.env` for the requested local-first setup.
+The committed `.env` keeps safe local defaults for development, and `.env.example` shows the full remote setup you should copy into Vercel and Supabase.
 
 ```bash
-DATABASE_URL="file:./dev.db"
+DATABASE_URL="postgresql://postgres.your-project-ref:your-password@aws-0-your-region.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
+DIRECT_URL="postgresql://postgres.your-project-ref:your-password@db.your-project-ref.supabase.co:5432/postgres"
 ADMIN_UPLOAD_KEY="19/BM/ANM/617/2204"
-STORAGE_MODE="local"
-LOCAL_STORAGE_DIR="storage"
+STORAGE_MODE="supabase"
+SUPABASE_URL="https://your-project-ref.supabase.co"
+NEXT_PUBLIC_SUPABASE_URL="https://your-project-ref.supabase.co"
+SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
+SUPABASE_STORAGE_BUCKET="anatomiq-materials"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
@@ -72,7 +77,16 @@ OPENAI_EXTRACTION_MODEL="gpt-5-mini"
 OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
 ```
 
-## Local Setup
+## Remote Setup
+
+1. Create a free Supabase project
+2. Create a public storage bucket named `anatomiq-materials`
+3. Add the values from `.env.example` to Vercel
+4. Add the same database and storage values to your local `.env` if you want local admin uploads to hit the remote services too
+
+ANATOMIQ automatically prepares the remote database during `npm run build` when both `DATABASE_URL` and `DIRECT_URL` are present. That step runs `prisma db push` and then seeds the anatomy taxonomy before the Next.js build continues.
+
+## Local Verification
 
 1. Install dependencies
 
@@ -80,25 +94,13 @@ OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
 npm install
 ```
 
-2. Create the local database schema
-
-```bash
-npm run db:push
-```
-
-3. Seed the anatomy taxonomy
-
-```bash
-npm run db:seed
-```
-
-4. Start development
+2. Start development
 
 ```bash
 npm run dev
 ```
 
-5. Run verification
+3. Run verification
 
 ```bash
 npm run lint
@@ -121,17 +123,17 @@ npm run build
 
 ## Storage Behavior
 
-- In local mode, uploaded files are written under the configured `storage` directory
-- Files are served back through `GET /api/material-file/[...key]`
+- In the default remote mode, uploaded files are written to Supabase Storage and saved with public object URLs
+- The optional `GET /api/material-file/[...key]` route remains available only if you explicitly set `STORAGE_MODE=local`
 - If you later set `STORAGE_MODE=s3` with S3 credentials, the same app can switch to bucket storage
 
 ## Testing
 
 - `npm test` runs the standard unit suite
-- `npm run test:regression` runs regression coverage for local storage safety
+- `npm run test:regression` runs regression coverage for storage safety and path normalization
 
 ## Notes
 
 - Question generation remains grounded in uploaded chunks only
-- When no OpenAI key is present, the app still works using local generation and OCR paths
-- Scanned image-heavy PDFs are best enhanced later with an external extraction model, but standard PDFs and images work in the free local-first path
+- When no OpenAI key is present, the app still works using grounded in-app generation and free OCR paths
+- Public pages now fall back safely instead of crashing if the remote database is temporarily unreachable during setup

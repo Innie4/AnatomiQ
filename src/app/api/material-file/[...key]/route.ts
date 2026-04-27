@@ -3,6 +3,7 @@ import path from "node:path";
 
 import { NextResponse } from "next/server";
 
+import { usesLocalStorage } from "@/lib/env";
 import { resolveLocalStoragePath } from "@/lib/storage";
 
 function detectContentType(filePath: string) {
@@ -30,6 +31,10 @@ export async function GET(
   { params }: { params: Promise<{ key: string[] }> },
 ) {
   const { key } = await params;
+
+  if (!usesLocalStorage) {
+    return NextResponse.json({ error: "Local material serving is disabled." }, { status: 404 });
+  }
 
   try {
     const filePath = resolveLocalStoragePath(key.join("/"));
