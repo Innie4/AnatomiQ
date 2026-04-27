@@ -1,0 +1,193 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum MaterialStatus {
+  UPLOADED
+  PROCESSING
+  READY
+  FAILED
+}
+
+enum MaterialKind {
+  PDF
+  NOTE
+  IMAGE
+}
+
+enum QuestionType {
+  MCQ
+  SHORT_ANSWER
+  THEORY
+}
+
+enum Difficulty {
+  FOUNDATIONAL
+  INTERMEDIATE
+  ADVANCED
+}
+
+enum CounterMetric {
+  TOPIC_STUDY
+  QUESTION_GENERATION
+  EXAM_START
+}
+
+model Course {
+  id          String     @id @default(cuid())
+  name        String
+  slug        String     @unique
+  department  String     @default("Human Anatomy")
+  description String?
+  topics      Topic[]
+  materials   Material[]
+  questions   Question[]
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+}
+
+model Topic {
+  id            String             @id @default(cuid())
+  name          String
+  slug          String             @unique
+  summary       String?
+  level         Int                @default(0)
+  isSystem      Boolean            @default(false)
+  courseId      String
+  parentTopicId String?
+  course        Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  parentTopic   Topic?             @relation("TopicHierarchy", fields: [parentTopicId], references: [id], onDelete: SetNull)
+  childTopics   Topic[]            @relation("TopicHierarchy")
+  materials     Material[]         @relation("MaterialTopic")
+  subMaterials  Material[]         @relation("MaterialSubtopic")
+  chunks        ContentChunk[]     @relation("ChunkTopic")
+  subChunks     ContentChunk[]     @relation("ChunkSubtopic")
+  concepts      Concept[]          @relation("ConceptTopic")
+  subConcepts   Concept[]          @relation("ConceptSubtopic")
+  questions     Question[]         @relation("QuestionTopic")
+  subQuestions  Question[]         @relation("QuestionSubtopic")
+  counters      AnalyticsCounter[]
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@unique([courseId, name, parentTopicId])
+}
+
+model Material {
+  id              String         @id @default(cuid())
+  title           String
+  fileName        String
+  fileType        String
+  mimeType        String
+  kind            MaterialKind
+  courseId        String
+  topicId         String
+  subtopicId      String?
+  storageKey      String
+  storageUrl      String
+  extractedText   String?
+  extractedHash   String?
+  status          MaterialStatus @default(UPLOADED)
+  processingNotes String?
+  metadata        String?
+  sourcePages     Int?
+  course          Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topic           Topic          @relation("MaterialTopic", fields: [topicId], references: [id], onDelete: Restrict)
+  subtopic        Topic?         @relation("MaterialSubtopic", fields: [subtopicId], references: [id], onDelete: SetNull)
+  chunks          ContentChunk[]
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+}
+
+model ContentChunk {
+  id             String        @id @default(cuid())
+  materialId     String
+  topicId        String
+  subtopicId     String?
+  sequence       Int
+  heading        String?
+  text           String
+  conceptSummary String?
+  tokenEstimate  Int?
+  sourceHash     String
+  embedding      String?
+  citations      String?
+  material       Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  topic          Topic         @relation("ChunkTopic", fields: [topicId], references: [id], onDelete: Restrict)
+  subtopic       Topic?        @relation("ChunkSubtopic", fields: [subtopicId], references: [id], onDelete: SetNull)
+  conceptFacts   ConceptFact[]
+  createdAt      DateTime      @default(now())
+
+  @@unique([materialId, sequence])
+}
+
+model Concept {
+  id          String        @id @default(cuid())
+  name        String
+  slug        String
+  scopeKey    String        @unique
+  description String?
+  aliases     String?
+  topicId     String
+  subtopicId  String?
+  topic       Topic         @relation("ConceptTopic", fields: [topicId], references: [id], onDelete: Restrict)
+  subtopic    Topic?        @relation("ConceptSubtopic", fields: [subtopicId], references: [id], onDelete: SetNull)
+  facts       ConceptFact[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+}
+
+model ConceptFact {
+  id            String       @id @default(cuid())
+  conceptId     String
+  chunkId       String
+  fact          String
+  sourceSnippet String?
+  concept       Concept      @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  chunk         ContentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+}
+
+model Question {
+  id             String       @id @default(cuid())
+  courseId       String
+  topicId        String
+  subtopicId     String?
+  type           QuestionType
+  stem           String
+  options        String?
+  answer         String
+  explanation    String?
+  difficulty     Difficulty
+  sourceChunkIds String
+  sourceSnippet  String
+  questionHash   String       @unique
+  textFingerprint String?
+  embedding      String?
+  course         Course       @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  topic          Topic        @relation("QuestionTopic", fields: [topicId], references: [id], onDelete: Restrict)
+  subtopic       Topic?       @relation("QuestionSubtopic", fields: [subtopicId], references: [id], onDelete: SetNull)
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+
+  @@index([topicId, type])
+  @@index([subtopicId, type])
+}
+
+model AnalyticsCounter {
+  id           String        @id @default(cuid())
+  key          String        @unique
+  metric       CounterMetric
+  topicId      String?
+  questionType QuestionType?
+  count        Int           @default(0)
+  topic        Topic?        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
