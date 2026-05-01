@@ -29,6 +29,11 @@ export const metadata: Metadata = {
   },
   description:
     "ANATOMIQ is a public AI-powered anatomy learning and exam generation platform for the University of Uyo Human Anatomy department.",
+  icons: {
+    icon: "/anatomiQ.png",
+    shortcut: "/anatomiQ.png",
+    apple: "/anatomiQ.png",
+  },
 };
 
 export default function RootLayout({

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 
 import { APP_NAME } from "@/lib/constants";
 
@@ -13,8 +14,15 @@ export function SiteHeader() {
     <header className="sticky top-0 z-40 border-b border-white/50 bg-white/70 backdrop-blur-xl">
       <div className="mx-auto flex w-full max-w-7xl items-center justify-between px-4 py-4 sm:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[linear-gradient(145deg,#2d8cff,#18b08f)] text-sm font-semibold tracking-[0.24em] text-white shadow-lg shadow-cyan-200/60">
-            AQ
+          <div className="relative h-11 w-11">
+            <Image
+              src="/anatomiQ.png"
+              alt={APP_NAME}
+              width={44}
+              height={44}
+              className="object-contain"
+              priority
+            />
           </div>
           <div>
             <div className="text-sm font-semibold tracking-[0.22em] text-slate-500">{APP_NAME}</div>
