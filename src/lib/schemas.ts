@@ -11,6 +11,13 @@ export const processMaterialSchema = z.object({
   materialId: z.string().cuid(),
 });
 
+export const uploadManualQuestionBatchSchema = z.object({
+  materialId: z.string().cuid(),
+  type: z.enum(["MCQ", "SHORT_ANSWER", "THEORY"]),
+  defaultDifficulty: z.enum(["FOUNDATIONAL", "INTERMEDIATE", "ADVANCED"]).default("INTERMEDIATE"),
+  input: z.string().min(10),
+});
+
 export const generateQuestionSchema = z.object({
   topicSlug: z.string().min(1),
   subtopicSlug: z.string().optional(),

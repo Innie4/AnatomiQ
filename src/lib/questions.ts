@@ -18,6 +18,7 @@ import { db } from "@/lib/db";
 import { env, hasDatabase, hasOpenAi } from "@/lib/env";
 import { parseJsonString, toJsonString } from "@/lib/json";
 import { generateLocalQuestionDrafts } from "@/lib/local-question-generator";
+import { parseManualQuestionBatch } from "@/lib/manual-question-batch";
 import { aiQuestionsSchema } from "@/lib/schemas";
 import { cosineSimilarity, createSourceSnippet, extractJson, tokenSimilarity } from "@/lib/text";
 import { sampleArray, sha256 } from "@/lib/utils";
@@ -106,6 +107,16 @@ async function getExistingQuestions(selection: TopicSelection, type?: QuestionTy
     where: {
       topicId: selection.topicId,
       ...(selection.subtopicId ? { subtopicId: selection.subtopicId } : {}),
+      ...(type ? { type } : {}),
+    },
+    orderBy: { createdAt: "desc" },
+  });
+}
+
+async function getExistingQuestionsForMaterial(materialId: string, type?: QuestionType) {
+  return db.question.findMany({
+    where: {
+      materialId,
       ...(type ? { type } : {}),
     },
     orderBy: { createdAt: "desc" },
@@ -241,7 +252,7 @@ export async function ensureQuestionBank(params: {
     getExistingQuestions(selection, params.type),
   ]);
 
-  if (!chunks.length) {
+  if (!chunks.length && !existing.length) {
     throw new Error("No processed material exists for this topic yet. Upload and process anatomy material first.");
   }
 
@@ -249,7 +260,7 @@ export async function ensureQuestionBank(params: {
 
   let attempts = 0;
 
-  while (available.length < params.count && attempts < 3) {
+  while (chunks.length && available.length < params.count && attempts < 3) {
     const target = params.count - available.length;
     const created = await generateQuestionsFromChunks({
       selection,
@@ -335,6 +346,173 @@ export async function buildExamSet(params: {
       answer: question.answer,
       explanation: question.explanation,
     })),
+  };
+}
+
+export async function getAdminMaterialOptions(search?: string) {
+  const materials = await db.material.findMany({
+    where: {
+      ...(search
+        ? {
+            OR: [
+              { title: { contains: search } },
+              { topic: { name: { contains: search } } },
+              { subtopic: { name: { contains: search } } },
+            ],
+          }
+        : {}),
+    },
+    select: {
+      id: true,
+      title: true,
+      status: true,
+      createdAt: true,
+      topic: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      subtopic: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      course: {
+        select: {
+          name: true,
+          slug: true,
+        },
+      },
+      _count: {
+        select: {
+          questions: true,
+        },
+      },
+    },
+    orderBy: [{ createdAt: "desc" }],
+    take: 100,
+  });
+
+  return materials.map((material) => ({
+    id: material.id,
+    title: material.title,
+    status: material.status,
+    courseName: material.course.name,
+    courseSlug: material.course.slug,
+    topicName: material.topic.name,
+    topicSlug: material.topic.slug,
+    subtopicName: material.subtopic?.name ?? null,
+    subtopicSlug: material.subtopic?.slug ?? null,
+    linkedQuestionCount: material._count.questions,
+    createdAt: material.createdAt.toISOString(),
+  }));
+}
+
+export async function createManualQuestionBank(params: {
+  materialId: string;
+  type: QuestionType;
+  defaultDifficulty: Difficulty;
+  input: string;
+}) {
+  if (!hasDatabase) {
+    throw new Error("Database is not configured.");
+  }
+
+  const material = await db.material.findUniqueOrThrow({
+    where: { id: params.materialId },
+    include: {
+      course: true,
+      topic: true,
+      subtopic: true,
+      chunks: {
+        select: {
+          id: true,
+        },
+        orderBy: { sequence: "asc" },
+      },
+    },
+  });
+
+  const parsedQuestions = parseManualQuestionBatch({
+    type: params.type,
+    defaultDifficulty: params.defaultDifficulty,
+    input: params.input,
+  });
+  const embeddings = await embedTexts(parsedQuestions.map((question) => question.stem));
+  const existing = await getExistingQuestionsForMaterial(params.materialId, params.type);
+  const existingComparable = existing.map((question) => ({
+    stem: question.stem,
+    hash: question.questionHash,
+    embedding: parseJsonString<number[] | null>(question.embedding, null),
+  }));
+  const created: Question[] = [];
+  const linkedChunkIds = material.chunks.map((chunk) => chunk.id);
+  const fallbackSourceSnippet =
+    material.extractedText?.slice(0, 220) ||
+    `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`;
+
+  for (let index = 0; index < parsedQuestions.length; index += 1) {
+    const candidate = parsedQuestions[index];
+    const hash = sha256(`${candidate.type}:${candidate.stem}`);
+    const embedding = embeddings[index];
+
+    if (
+      isDuplicateQuestion(
+        {
+          stem: candidate.stem,
+          hash,
+          embedding,
+        },
+        [
+          ...existingComparable,
+          ...created.map((question) => ({
+            stem: question.stem,
+            hash: question.questionHash,
+            embedding: parseJsonString<number[] | null>(question.embedding, null),
+          })),
+        ],
+      )
+    ) {
+      continue;
+    }
+
+    const question = await db.question.create({
+      data: {
+        courseId: material.courseId,
+        topicId: material.topicId,
+        subtopicId: material.subtopicId,
+        materialId: material.id,
+        type: candidate.type,
+        stem: candidate.stem,
+        options: candidate.options ? toJsonString(candidate.options) : undefined,
+        answer: candidate.answer,
+        explanation: candidate.explanation ?? undefined,
+        difficulty: candidate.difficulty,
+        authoringMode: "MANUAL",
+        sourceChunkIds: toJsonString(linkedChunkIds),
+        sourceSnippet: fallbackSourceSnippet,
+        questionHash: hash,
+        textFingerprint: candidate.stem.toLowerCase(),
+        embedding: embedding ? toJsonString(embedding) : undefined,
+      },
+    });
+
+    created.push(question);
+  }
+
+  return {
+    material: {
+      id: material.id,
+      title: material.title,
+      topicName: material.topic.name,
+      subtopicName: material.subtopic?.name ?? null,
+    },
+    createdCount: created.length,
+    skippedCount: parsedQuestions.length - created.length,
+    totalSubmitted: parsedQuestions.length,
+    questions: created,
   };
 }
 

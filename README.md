@@ -9,6 +9,7 @@ ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the
 - Public topic explorer for Human Anatomy only
 - Hidden faculty dashboard at `/upload`
 - Upload support for PDF, text notes, and image diagrams
+- Manual faculty-authored question bank upload tied to a selected material
 - Supabase Storage by default
 - Supabase Postgres by default
 - Semantic chunking and knowledge graph storage
@@ -44,8 +45,10 @@ ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the
 
 - `GET /api/topics`
 - `GET /api/analytics`
+- `GET /api/admin-materials`
 - `GET /api/admin-overview`
 - `GET /api/material-file/[...key]` for optional local-only development mode
+- `POST /api/upload-manual-questions`
 - `POST /api/upload-material`
 - `POST /api/process-material`
 - `POST /api/generate-questions`
@@ -57,8 +60,8 @@ ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the
 The committed `.env` keeps safe local defaults for development, and `.env.example` shows the full remote setup you should copy into Vercel and Supabase.
 
 ```bash
-DATABASE_URL="postgresql://postgres.your-project-ref:your-password@aws-0-your-region.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1"
-DIRECT_URL="postgresql://postgres.your-project-ref:your-password@db.your-project-ref.supabase.co:5432/postgres"
+DATABASE_URL="postgresql://postgres.your-project-ref:your-password@aws-0-your-region.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1&sslmode=require"
+DIRECT_URL="postgresql://postgres.your-project-ref:your-password@aws-0-your-region.pooler.supabase.com:5432/postgres?sslmode=require"
 ADMIN_UPLOAD_KEY="19/BM/ANM/617/2204"
 STORAGE_MODE="supabase"
 SUPABASE_URL="https://your-project-ref.supabase.co"
@@ -84,7 +87,7 @@ OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
 3. Add the values from `.env.example` to Vercel
 4. Add the same database and storage values to your local `.env` if you want local admin uploads to hit the remote services too
 
-ANATOMIQ automatically prepares the remote database during `npm run build` when both `DATABASE_URL` and `DIRECT_URL` are present. That step runs `prisma db push` and then seeds the anatomy taxonomy before the Next.js build continues.
+ANATOMIQ automatically prepares the remote database during `npm run build` when both `DATABASE_URL` and `DIRECT_URL` are present. That step runs Prisma migrations and then seeds the anatomy taxonomy before the Next.js build continues.
 
 ## Local Verification
 
@@ -103,6 +106,7 @@ npm run dev
 3. Run verification
 
 ```bash
+npm run verify:env
 npm run lint
 npm test
 npm run test:regression
@@ -130,7 +134,8 @@ npm run build
 ## Testing
 
 - `npm test` runs the standard unit suite
-- `npm run test:regression` runs regression coverage for storage safety and path normalization
+- `npm run test:regression` runs regression and integration coverage for storage safety, APIs, database behavior, and migrated schema checks
+- `npm run verify:env` validates the live Supabase database, storage bucket, app URL, and migration status using the active `.env`
 
 ## Notes
 
