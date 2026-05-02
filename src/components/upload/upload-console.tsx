@@ -6,6 +6,8 @@ import {
   AlertCircle,
   CheckCircle2,
   Database,
+  Eye,
+  EyeOff,
   FileChartColumn,
   FileImage,
   FilePlus2,
@@ -113,6 +115,7 @@ function detectFileIcon(fileName: string) {
 
 export function UploadConsole() {
   const [adminKey, setAdminKey] = useState("");
+  const [showAdminKey, setShowAdminKey] = useState(false);
   const [title, setTitle] = useState("");
   const [courseName, setCourseName] = useState("Human Anatomy");
   const [topicName, setTopicName] = useState("");
@@ -295,13 +298,23 @@ export function UploadConsole() {
             </div>
             <label className="mt-5 block space-y-2">
               <span className="text-sm font-semibold text-slate-700">Admin upload key</span>
-              <input
-                type="password"
-                value={adminKey}
-                onChange={(event) => setAdminKey(event.target.value)}
-                className="w-full rounded-2xl border border-white/80 bg-white px-4 py-3 outline-none"
-                placeholder="Enter ADMIN_UPLOAD_KEY"
-              />
+              <div className="relative">
+                <input
+                  type={showAdminKey ? "text" : "password"}
+                  value={adminKey}
+                  onChange={(event) => setAdminKey(event.target.value)}
+                  className="w-full rounded-2xl border border-white/80 bg-white px-4 py-3 pr-12 outline-none"
+                  placeholder="Enter ADMIN_UPLOAD_KEY"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowAdminKey(!showAdminKey)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+                  aria-label={showAdminKey ? "Hide admin key" : "Show admin key"}
+                >
+                  {showAdminKey ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
+                </button>
+              </div>
             </label>
             <div className="mt-4 flex flex-col gap-3 sm:flex-row">
               <button
