@@ -14,13 +14,13 @@ test("database migration exposes manual question columns", async () => {
     from information_schema.columns
     where table_schema = 'public'
       and table_name = 'Question'
-      and column_name in ('materialId', 'authoringMode')
+      and column_name in ('materialId', 'authoringMode', 'manualOrder')
     order by column_name
   `)) as Array<{ column_name: string }>;
 
   assert.deepEqual(
     columns.map((column) => column.column_name),
-    ["authoringMode", "materialId"],
+    ["authoringMode", "manualOrder", "materialId"].sort(),
   );
 });
 
@@ -47,7 +47,8 @@ Options:
 - Left ventricle
 - Right atrium
 - Left atrium
-Answer: Left ventricle`,
+Answer: Left ventricle
+Explanation: The apex is formed by the left ventricle.`,
     });
 
     assert.equal(result.createdCount, 1);
@@ -61,6 +62,7 @@ Answer: Left ventricle`,
     assert.equal(storedQuestions.length, 1);
     assert.equal(storedQuestions[0].authoringMode, QuestionAuthoringMode.MANUAL);
     assert.equal(storedQuestions[0].type, QuestionType.MCQ);
+    assert.equal(storedQuestions[0].manualOrder, 1);
 
     const materials = await getAdminMaterialOptions(material.title);
     const match = materials.find((item) => item.id === material.id);

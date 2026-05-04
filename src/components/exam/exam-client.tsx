@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, Clock3, FileQuestion, LoaderCircle } from "lucide-react";
 import { startTransition, useEffect, useEffectEvent, useState } from "react";
 
+import { QUESTION_COUNT_OPTIONS } from "@/lib/constants";
+
 type TopicCard = {
   id: string;
   name: string;
@@ -37,7 +39,8 @@ type GradeResponse = {
   percentage: number;
   breakdown: Array<{
     questionId: string;
-    selectedOption: string;
+    questionType: "MCQ" | "SHORT_ANSWER" | "THEORY";
+    submittedAnswer: string;
     correctAnswer: string;
     correct: boolean;
     explanation?: string | null;
@@ -158,30 +161,22 @@ export function ExamClient({
     setSubmitting(true);
 
     try {
-      const mcqAnswers = exam.questions
-        .filter((question) => question.type === "MCQ")
-        .map((question) => ({
-          questionId: question.id,
-          selectedOption: answers[question.id] ?? "",
-        }));
+      const gradeResponse = await fetch("/api/grade-exam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          answers: exam.questions.map((question) => ({
+            questionId: question.id,
+            response: answers[question.id] ?? "",
+          })),
+        }),
+      });
+      const gradePayload = (await gradeResponse.json()) as GradeResponse & { error?: string };
 
-      let grade: GradeResponse | null = null;
-
-      if (mcqAnswers.length) {
-        const gradeResponse = await fetch("/api/grade-mcq", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ answers: mcqAnswers }),
-        });
-        const gradePayload = await gradeResponse.json();
-
-        if (!gradeResponse.ok) {
-          throw new Error(gradePayload.error || "Could not grade the MCQ section.");
-        }
-
-        grade = gradePayload;
+      if (!gradeResponse.ok) {
+        throw new Error(gradePayload.error || "Could not grade this exam.");
       }
 
       sessionStorage.setItem(
@@ -199,7 +194,7 @@ export function ExamClient({
           selection: exam.selection,
           questions: exam.questions,
           answers,
-          grade,
+          grade: gradePayload,
         }),
       );
 
@@ -282,14 +277,17 @@ export function ExamClient({
 
           <label className="space-y-2">
             <span className="text-sm font-semibold text-slate-700">Questions</span>
-            <input
-              type="number"
-              min={1}
-              max={30}
+            <select
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
-            />
+            >
+              {QUESTION_COUNT_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
           </label>
 
           <label className="space-y-2">

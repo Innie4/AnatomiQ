@@ -167,6 +167,7 @@ model Question {
   topicId        String
   subtopicId     String?
   materialId     String?
+  manualOrder    Int?
   type           QuestionType
   stem           String
   options        String?
@@ -189,6 +190,8 @@ model Question {
   @@index([topicId, type])
   @@index([subtopicId, type])
   @@index([materialId, type])
+  @@index([materialId, manualOrder])
+  @@unique([materialId, manualOrder])
 }
 
 model AnalyticsCounter {

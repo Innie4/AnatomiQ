@@ -28,7 +28,8 @@ type StoredResult = {
     percentage: number;
     breakdown: Array<{
       questionId: string;
-      selectedOption: string;
+      questionType: "MCQ" | "SHORT_ANSWER" | "THEORY";
+      submittedAnswer: string;
       correctAnswer: string;
       correct: boolean;
       explanation?: string | null;
@@ -123,7 +124,9 @@ export function ResultsClient() {
               <div className="mt-5 grid gap-4 md:grid-cols-2">
                 <div className="rounded-2xl border border-slate-200 bg-white/90 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-slate-500">Your response</p>
-                  <p className="mt-2 text-slate-800">{userAnswer || "No answer submitted."}</p>
+                  <p className="mt-2 whitespace-pre-wrap text-slate-800">
+                    {review?.submittedAnswer || userAnswer || "No answer submitted."}
+                  </p>
                 </div>
                 <div className="rounded-2xl border border-emerald-100 bg-emerald-50/70 p-4">
                   <p className="text-xs font-semibold uppercase tracking-[0.16em] text-emerald-700">Reference answer</p>

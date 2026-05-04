@@ -22,6 +22,8 @@ export const EXAM_TYPE_OPTIONS = [
   { label: "Mixed mode", value: "MIXED" },
 ] as const;
 
+export const QUESTION_COUNT_OPTIONS = Array.from({ length: 30 }, (_, index) => index + 1);
+
 export const DEFAULT_ANATOMY_TOPICS = [
   {
     name: "General Anatomy",

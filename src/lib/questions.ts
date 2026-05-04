@@ -1,4 +1,5 @@
 import {
+  QuestionAuthoringMode,
   CounterMetric,
   Difficulty,
   QuestionType,
@@ -20,7 +21,13 @@ import { parseJsonString, toJsonString } from "@/lib/json";
 import { generateLocalQuestionDrafts } from "@/lib/local-question-generator";
 import { parseManualQuestionBatch } from "@/lib/manual-question-batch";
 import { aiQuestionsSchema } from "@/lib/schemas";
-import { cosineSimilarity, createSourceSnippet, extractJson, tokenSimilarity } from "@/lib/text";
+import {
+  cosineSimilarity,
+  createSourceSnippet,
+  extractJson,
+  tokenSimilarity,
+  tokenize,
+} from "@/lib/text";
 import { sampleArray, sha256 } from "@/lib/utils";
 
 type TopicSelection = {
@@ -30,6 +37,31 @@ type TopicSelection = {
   topicName: string;
   subtopicId?: string | null;
   subtopicName?: string | null;
+};
+
+type ManualQuestionPayload = {
+  manualOrder?: number;
+  type: QuestionType;
+  stem: string;
+  answer: string;
+  explanation: string;
+  difficulty: Difficulty;
+  options?: string[];
+};
+
+type ManualQuestionMaterial = {
+  id: string;
+  title: string;
+  courseId: string;
+  topicId: string;
+  subtopicId: string | null;
+  extractedText: string | null;
+  topic: {
+    name: string;
+  };
+  chunks: Array<{
+    id: string;
+  }>;
 };
 
 async function embedTexts(texts: string[]) {
@@ -68,6 +100,38 @@ function isDuplicateQuestion(
   }
 
   return false;
+}
+
+function normalizeComparableAnswer(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function isOpenResponseCorrect(expected: string, submitted: string) {
+  const normalizedExpected = normalizeComparableAnswer(expected);
+  const normalizedSubmitted = normalizeComparableAnswer(submitted);
+
+  if (!normalizedSubmitted) {
+    return false;
+  }
+
+  if (normalizedExpected === normalizedSubmitted) {
+    return true;
+  }
+
+  if (normalizedSubmitted.includes(normalizedExpected) || normalizedExpected.includes(normalizedSubmitted)) {
+    return true;
+  }
+
+  const similarity = tokenSimilarity(expected, submitted);
+  if (similarity >= 0.84) {
+    return true;
+  }
+
+  const expectedTokens = new Set(tokenize(expected));
+  const submittedTokens = new Set(tokenize(submitted));
+  const covered = [...expectedTokens].filter((token) => submittedTokens.has(token)).length;
+
+  return covered / Math.max(1, expectedTokens.size) >= 0.75;
 }
 
 async function findSelection(topicSlug: string, subtopicSlug?: string) {
@@ -113,14 +177,130 @@ async function getExistingQuestions(selection: TopicSelection, type?: QuestionTy
   });
 }
 
-async function getExistingQuestionsForMaterial(materialId: string, type?: QuestionType) {
+async function getManualQuestionsForMaterial(materialId: string) {
   return db.question.findMany({
     where: {
       materialId,
-      ...(type ? { type } : {}),
+      authoringMode: QuestionAuthoringMode.MANUAL,
     },
-    orderBy: { createdAt: "desc" },
+    orderBy: [{ manualOrder: "asc" }, { createdAt: "asc" }],
   });
+}
+
+async function ensureUniqueManualOrder(params: {
+  materialId: string;
+  manualOrder: number;
+  excludeQuestionId?: string;
+}) {
+  const existing = await db.question.findFirst({
+    where: {
+      materialId: params.materialId,
+      manualOrder: params.manualOrder,
+      ...(params.excludeQuestionId ? { id: { not: params.excludeQuestionId } } : {}),
+    },
+    select: { id: true },
+  });
+
+  if (existing) {
+    throw new Error(`Question number ${params.manualOrder} is already in use for this material.`);
+  }
+}
+
+async function getNextManualOrder(materialId: string) {
+  const latest = await db.question.findFirst({
+    where: {
+      materialId,
+      authoringMode: QuestionAuthoringMode.MANUAL,
+    },
+    orderBy: { manualOrder: "desc" },
+    select: { manualOrder: true },
+  });
+
+  return (latest?.manualOrder ?? 0) + 1;
+}
+
+function normalizeManualOptions(type: QuestionType, options?: string[]) {
+  if (type !== QuestionType.MCQ) {
+    return undefined;
+  }
+
+  const normalized = (options ?? []).map((option) => option.trim()).filter(Boolean).slice(0, 4);
+
+  if (normalized.length !== 4) {
+    throw new Error("MCQ questions require exactly four options.");
+  }
+
+  return normalized;
+}
+
+function ensureAnswerMatchesOptions(answer: string, options?: string[]) {
+  if (!options?.length) {
+    return answer;
+  }
+
+  const answerIndex = ["A", "B", "C", "D"].indexOf(answer.trim().toUpperCase());
+  const resolved = answerIndex >= 0 ? options[answerIndex] : answer.trim();
+
+  if (!options.some((option) => normalizeComparableAnswer(option) === normalizeComparableAnswer(resolved))) {
+    throw new Error("The answer must match one of the provided options.");
+  }
+
+  return resolved;
+}
+
+async function buildManualQuestionRecord(
+  material: ManualQuestionMaterial,
+  payload: ManualQuestionPayload,
+  manualOrder: number,
+  existingQuestions: Question[],
+  excludeQuestionId?: string,
+) {
+  const normalizedOptions = normalizeManualOptions(payload.type, payload.options);
+  const normalizedAnswer = ensureAnswerMatchesOptions(payload.answer, normalizedOptions);
+  const hash = sha256(`${payload.type}:${payload.stem}`);
+  const [embedding] = await embedTexts([payload.stem]);
+  const existingComparable = existingQuestions
+    .filter((question) => question.id !== excludeQuestionId)
+    .map((question) => ({
+      stem: question.stem,
+      hash: question.questionHash,
+      embedding: parseJsonString<number[] | null>(question.embedding, null),
+    }));
+
+  if (
+    isDuplicateQuestion(
+      {
+        stem: payload.stem,
+        hash,
+        embedding,
+      },
+      existingComparable,
+    )
+  ) {
+    throw new Error("A highly similar question already exists for this material.");
+  }
+
+  return {
+    courseId: material.courseId,
+    topicId: material.topicId,
+    subtopicId: material.subtopicId,
+    materialId: material.id,
+    manualOrder,
+    type: payload.type,
+    stem: payload.stem.trim(),
+    options: normalizedOptions ? toJsonString(normalizedOptions) : undefined,
+    answer: normalizedAnswer,
+    explanation: payload.explanation.trim(),
+    difficulty: payload.difficulty,
+    authoringMode: QuestionAuthoringMode.MANUAL,
+    sourceChunkIds: toJsonString(material.chunks.map((chunk) => chunk.id)),
+    sourceSnippet:
+      material.extractedText?.slice(0, 220) ||
+      `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`,
+    questionHash: hash,
+    textFingerprint: payload.stem.toLowerCase(),
+    embedding: embedding ? toJsonString(embedding) : undefined,
+  };
 }
 
 async function generateQuestionsFromChunks(params: {
@@ -410,6 +590,125 @@ export async function getAdminMaterialOptions(search?: string) {
   }));
 }
 
+export async function listManualQuestions(materialId: string) {
+  if (!hasDatabase) {
+    throw new Error("Database is not configured.");
+  }
+
+  const questions = await getManualQuestionsForMaterial(materialId);
+
+  return questions.map((question) => ({
+    id: question.id,
+    materialId: question.materialId,
+    manualOrder: question.manualOrder,
+    type: question.type,
+    stem: question.stem,
+    options: parseJsonString<string[] | null>(question.options, null),
+    answer: question.answer,
+    explanation: question.explanation,
+    difficulty: question.difficulty,
+    updatedAt: question.updatedAt.toISOString(),
+  }));
+}
+
+export async function createManualQuestion(params: {
+  materialId: string;
+  payload: ManualQuestionPayload;
+}) {
+  if (!hasDatabase) {
+    throw new Error("Database is not configured.");
+  }
+
+  const [material, existingQuestions] = await Promise.all([
+    db.material.findUniqueOrThrow({
+      where: { id: params.materialId },
+      include: {
+        topic: true,
+        chunks: {
+          select: { id: true },
+          orderBy: { sequence: "asc" },
+        },
+      },
+    }),
+    getManualQuestionsForMaterial(params.materialId),
+  ]);
+  const manualOrder = params.payload.manualOrder ?? (await getNextManualOrder(params.materialId));
+  await ensureUniqueManualOrder({ materialId: params.materialId, manualOrder });
+  const record = await buildManualQuestionRecord(material, params.payload, manualOrder, existingQuestions);
+  return db.question.create({ data: record });
+}
+
+export async function updateManualQuestion(params: {
+  questionId: string;
+  payload: ManualQuestionPayload;
+}) {
+  if (!hasDatabase) {
+    throw new Error("Database is not configured.");
+  }
+
+  const existingQuestion = await db.question.findUniqueOrThrow({
+    where: { id: params.questionId },
+    include: {
+      material: {
+        include: {
+          topic: true,
+          chunks: {
+            select: { id: true },
+            orderBy: { sequence: "asc" },
+          },
+        },
+      },
+    },
+  });
+
+  if (existingQuestion.authoringMode !== QuestionAuthoringMode.MANUAL || !existingQuestion.material) {
+    throw new Error("Only manual questions linked to a material can be edited.");
+  }
+
+  const manualOrder = params.payload.manualOrder ?? existingQuestion.manualOrder ?? 1;
+  await ensureUniqueManualOrder({
+    materialId: existingQuestion.materialId ?? "",
+    manualOrder,
+    excludeQuestionId: params.questionId,
+  });
+  const existingQuestions = await getManualQuestionsForMaterial(existingQuestion.materialId ?? "");
+  const record = await buildManualQuestionRecord(
+    existingQuestion.material,
+    params.payload,
+    manualOrder,
+    existingQuestions,
+    params.questionId,
+  );
+
+  return db.question.update({
+    where: { id: params.questionId },
+    data: record,
+  });
+}
+
+export async function deleteManualQuestion(questionId: string) {
+  if (!hasDatabase) {
+    throw new Error("Database is not configured.");
+  }
+
+  const question = await db.question.findUniqueOrThrow({
+    where: { id: questionId },
+    select: {
+      id: true,
+      authoringMode: true,
+      materialId: true,
+    },
+  });
+
+  if (question.authoringMode !== QuestionAuthoringMode.MANUAL || !question.materialId) {
+    throw new Error("Only manual questions linked to a material can be removed.");
+  }
+
+  await db.question.delete({
+    where: { id: questionId },
+  });
+}
+
 export async function createManualQuestionBank(params: {
   materialId: string;
   type: QuestionType;
@@ -440,66 +739,68 @@ export async function createManualQuestionBank(params: {
     defaultDifficulty: params.defaultDifficulty,
     input: params.input,
   });
-  const embeddings = await embedTexts(parsedQuestions.map((question) => question.stem));
-  const existing = await getExistingQuestionsForMaterial(params.materialId, params.type);
-  const existingComparable = existing.map((question) => ({
-    stem: question.stem,
-    hash: question.questionHash,
-    embedding: parseJsonString<number[] | null>(question.embedding, null),
-  }));
+  const existing = await getManualQuestionsForMaterial(params.materialId);
   const created: Question[] = [];
+  let updatedCount = 0;
+  let skippedCount = 0;
   const linkedChunkIds = material.chunks.map((chunk) => chunk.id);
   const fallbackSourceSnippet =
     material.extractedText?.slice(0, 220) ||
     `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`;
+  let nextManualOrder = await getNextManualOrder(params.materialId);
 
-  for (let index = 0; index < parsedQuestions.length; index += 1) {
-    const candidate = parsedQuestions[index];
-    const hash = sha256(`${candidate.type}:${candidate.stem}`);
-    const embedding = embeddings[index];
+  for (const candidate of parsedQuestions) {
+    const targetManualOrder = candidate.manualOrder ?? nextManualOrder;
+    const existingByOrder = existing.find((question) => question.manualOrder === targetManualOrder);
+    const payload = {
+      ...candidate,
+      manualOrder: targetManualOrder,
+      explanation: candidate.explanation,
+    } satisfies ManualQuestionPayload;
 
-    if (
-      isDuplicateQuestion(
-        {
-          stem: candidate.stem,
-          hash,
-          embedding,
+    if (existingByOrder) {
+      const record = await buildManualQuestionRecord(
+        material,
+        payload,
+        targetManualOrder,
+        existing,
+        existingByOrder.id,
+      );
+      await db.question.update({
+        where: { id: existingByOrder.id },
+        data: {
+          ...record,
+          sourceChunkIds: toJsonString(linkedChunkIds),
+          sourceSnippet: fallbackSourceSnippet,
         },
-        [
-          ...existingComparable,
-          ...created.map((question) => ({
-            stem: question.stem,
-            hash: question.questionHash,
-            embedding: parseJsonString<number[] | null>(question.embedding, null),
-          })),
-        ],
-      )
-    ) {
+      });
+      updatedCount += 1;
       continue;
     }
 
-    const question = await db.question.create({
-      data: {
-        courseId: material.courseId,
-        topicId: material.topicId,
-        subtopicId: material.subtopicId,
-        materialId: material.id,
-        type: candidate.type,
-        stem: candidate.stem,
-        options: candidate.options ? toJsonString(candidate.options) : undefined,
-        answer: candidate.answer,
-        explanation: candidate.explanation ?? undefined,
-        difficulty: candidate.difficulty,
-        authoringMode: "MANUAL",
-        sourceChunkIds: toJsonString(linkedChunkIds),
-        sourceSnippet: fallbackSourceSnippet,
-        questionHash: hash,
-        textFingerprint: candidate.stem.toLowerCase(),
-        embedding: embedding ? toJsonString(embedding) : undefined,
-      },
-    });
+    try {
+      const record = await buildManualQuestionRecord(material, payload, targetManualOrder, [
+        ...existing,
+        ...created,
+      ]);
+      const question = await db.question.create({
+        data: {
+          ...record,
+          sourceChunkIds: toJsonString(linkedChunkIds),
+          sourceSnippet: fallbackSourceSnippet,
+        },
+      });
 
-    created.push(question);
+      created.push(question);
+      nextManualOrder = Math.max(nextManualOrder, targetManualOrder + 1);
+    } catch (error) {
+      if (error instanceof Error && /highly similar question/i.test(error.message)) {
+        skippedCount += 1;
+        continue;
+      }
+
+      throw error;
+    }
   }
 
   return {
@@ -510,9 +811,53 @@ export async function createManualQuestionBank(params: {
       subtopicName: material.subtopic?.name ?? null,
     },
     createdCount: created.length,
-    skippedCount: parsedQuestions.length - created.length,
+    updatedCount,
+    skippedCount,
     totalSubmitted: parsedQuestions.length,
     questions: created,
+  };
+}
+
+export async function gradeExamAnswers(
+  answers: Array<{
+    questionId: string;
+    response: string;
+  }>,
+) {
+  const questions = await db.question.findMany({
+    where: {
+      id: {
+        in: answers.map((answer) => answer.questionId),
+      },
+    },
+  });
+
+  const answerMap = new Map(answers.map((answer) => [answer.questionId, answer.response]));
+  const breakdown = questions.map((question) => {
+    const response = answerMap.get(question.id) ?? "";
+    const correct =
+      question.type === QuestionType.MCQ
+        ? normalizeComparableAnswer(question.answer) === normalizeComparableAnswer(response)
+        : isOpenResponseCorrect(question.answer, response);
+
+    return {
+      questionId: question.id,
+      questionType: question.type,
+      submittedAnswer: response,
+      correctAnswer: question.answer,
+      correct,
+      explanation: question.explanation,
+      sourceSnippet: question.sourceSnippet,
+    };
+  });
+
+  const score = breakdown.filter((item) => item.correct).length;
+
+  return {
+    score,
+    total: breakdown.length,
+    percentage: breakdown.length ? Math.round((score / breakdown.length) * 100) : 0,
+    breakdown,
   };
 }
 

@@ -10,6 +10,7 @@ ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the
 - Hidden faculty dashboard at `/upload`
 - Upload support for PDF, text notes, and image diagrams
 - Manual faculty-authored question bank upload tied to a selected material
+- Manual question editing, deletion, and numbered bulk import from text/PDF
 - Supabase Storage by default
 - Supabase Postgres by default
 - Semantic chunking and knowledge graph storage
@@ -48,7 +49,12 @@ ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the
 - `GET /api/admin-materials`
 - `GET /api/admin-overview`
 - `GET /api/material-file/[...key]` for optional local-only development mode
+- `GET /api/material-questions`
+- `PATCH /api/material-questions/[questionId]`
+- `DELETE /api/material-questions/[questionId]`
+- `POST /api/grade-exam`
 - `POST /api/upload-manual-questions`
+- `POST /api/material-questions`
 - `POST /api/upload-material`
 - `POST /api/process-material`
 - `POST /api/generate-questions`
@@ -142,3 +148,4 @@ npm run build
 - Question generation remains grounded in uploaded chunks only
 - When no OpenAI key is present, the app still works using grounded in-app generation and free OCR paths
 - Public pages now fall back safely instead of crashing if the remote database is temporarily unreachable during setup
+- Manual question banks require an answer and explanation for every question so quizzes can be graded and reviewed immediately

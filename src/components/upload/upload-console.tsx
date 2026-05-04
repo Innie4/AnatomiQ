@@ -10,7 +10,6 @@ import {
   EyeOff,
   FileChartColumn,
   FileImage,
-  FilePlus2,
   FileText,
   Layers3,
   LoaderCircle,
@@ -21,7 +20,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 
-import { countManualQuestionBlocks } from "@/lib/manual-question-batch";
+import { MaterialQuestionManager } from "@/components/upload/material-question-manager";
 
 type UploadResult = {
   material: { id: string; title: string; status: string; storageUrl: string; topic: string; subtopic: string | null };
@@ -69,26 +68,6 @@ type AdminMaterialOption = {
   linkedQuestionCount: number;
 };
 
-type ManualUploadResult = {
-  material: { id: string; title: string; topicName: string; subtopicName: string | null };
-  createdCount: number;
-  skippedCount: number;
-  totalSubmitted: number;
-};
-
-const manualBatchTemplate = `Question: Which structure forms the apex of the heart?
-Options:
-- Right ventricle
-- Left ventricle
-- Right atrium
-- Left atrium
-Answer: Left ventricle
-Explanation: The left ventricle forms the apex of the heart.
-Difficulty: Foundational
----
-Question: State the nerve supply of the diaphragm.
-Answer: The phrenic nerve supplies the diaphragm.`;
-
 function statusClasses(status: string) {
   switch (status) {
     case "READY":
@@ -125,15 +104,8 @@ export function UploadConsole() {
   const [materials, setMaterials] = useState<AdminMaterialOption[]>([]);
   const [details, setDetails] = useState<ProcessResult["result"] | null>(null);
   const [message, setMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
-  const [manualMessage, setManualMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
   const [loading, setLoading] = useState(false);
   const [overviewLoading, setOverviewLoading] = useState(false);
-  const [manualLoading, setManualLoading] = useState(false);
-  const [materialSearch, setMaterialSearch] = useState("");
-  const [manualMaterialId, setManualMaterialId] = useState("");
-  const [manualType, setManualType] = useState<"MCQ" | "SHORT_ANSWER" | "THEORY">("MCQ");
-  const [manualDifficulty, setManualDifficulty] = useState<"FOUNDATIONAL" | "INTERMEDIATE" | "ADVANCED">("INTERMEDIATE");
-  const [manualInput, setManualInput] = useState("");
 
   async function loadMaterials(search?: string) {
     const query = search?.trim() ? `?q=${encodeURIComponent(search.trim())}` : "";
@@ -163,7 +135,7 @@ export function UploadConsole() {
         throw new Error(payload.error || "Could not load the admin dashboard.");
       }
       setOverview(payload);
-      await loadMaterials(materialSearch);
+      await loadMaterials();
     } catch (error) {
       setOverview(null);
       setMaterials([]);
@@ -225,55 +197,6 @@ export function UploadConsole() {
       setLoading(false);
     }
   }
-
-  async function handleManualUpload() {
-    if (!adminKey.trim()) {
-      setManualMessage({ tone: "error", text: "Enter the admin upload key before uploading a manual question bank." });
-      return;
-    }
-    if (!manualMaterialId) {
-      setManualMessage({ tone: "error", text: "Choose the material that should own this question bank." });
-      return;
-    }
-    if (!manualInput.trim()) {
-      setManualMessage({ tone: "error", text: "Paste the question bank content before uploading." });
-      return;
-    }
-    setManualLoading(true);
-    setManualMessage(null);
-    try {
-      const response = await fetch("/api/upload-manual-questions", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "x-admin-upload-key": adminKey },
-        body: JSON.stringify({
-          materialId: manualMaterialId,
-          type: manualType,
-          defaultDifficulty: manualDifficulty,
-          input: manualInput,
-        }),
-      });
-      const payload = (await response.json()) as ManualUploadResult & { error?: string };
-      if (!response.ok) {
-        throw new Error(payload.error || "Manual question upload failed.");
-      }
-      setManualInput("");
-      setManualMessage({
-        tone: "success",
-        text: `${payload.createdCount} of ${payload.totalSubmitted} questions linked to ${payload.material.title}. ${payload.skippedCount} duplicates were skipped.`,
-      });
-      await loadOverview();
-    } catch (error) {
-      setManualMessage({
-        tone: "error",
-        text: error instanceof Error ? error.message : "Manual question upload failed.",
-      });
-    } finally {
-      setManualLoading(false);
-    }
-  }
-
-  const selectedMaterial = materials.find((material) => material.id === manualMaterialId) ?? null;
-  const estimatedBlocks = manualInput.trim() ? countManualQuestionBlocks(manualInput) : 0;
 
   return (
     <div suppressHydrationWarning className="space-y-8">
@@ -390,63 +313,15 @@ export function UploadConsole() {
             </div>
           ) : null}
         </section>
-
-        <section className="glass-panel rounded-[2rem] border border-white/80 p-6">
-          <div className="flex items-start justify-between gap-4">
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Manual question upload</p>
-              <h2 className="mt-2 text-3xl font-semibold text-slate-950">Attach your own question bank</h2>
-            </div>
-            <FilePlus2 className="h-8 w-8 text-sky-700" />
-          </div>
-          <div className="mt-8 grid gap-4">
-            <div className="flex gap-3">
-              <input value={materialSearch} onChange={(event) => setMaterialSearch(event.target.value)} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Search materials by title or topic" />
-              <button onClick={() => void loadMaterials(materialSearch)} disabled={!adminKey.trim() || overviewLoading} className="rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 disabled:opacity-70">Search</button>
-            </div>
-            <select value={manualMaterialId} onChange={(event) => setManualMaterialId(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none">
-              <option value="">Select a material</option>
-              {materials.map((material) => (
-                <option key={material.id} value={material.id}>
-                  {material.title} - {material.topicName}{material.subtopicName ? ` / ${material.subtopicName}` : ""}
-                </option>
-              ))}
-            </select>
-            <div className="grid gap-4 md:grid-cols-2">
-              <select value={manualType} onChange={(event) => setManualType(event.target.value as "MCQ" | "SHORT_ANSWER" | "THEORY")} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none">
-                <option value="MCQ">MCQ</option>
-                <option value="SHORT_ANSWER">Short answer</option>
-                <option value="THEORY">Theory</option>
-              </select>
-              <select value={manualDifficulty} onChange={(event) => setManualDifficulty(event.target.value as "FOUNDATIONAL" | "INTERMEDIATE" | "ADVANCED")} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none">
-                <option value="FOUNDATIONAL">Foundational</option>
-                <option value="INTERMEDIATE">Intermediate</option>
-                <option value="ADVANCED">Advanced</option>
-              </select>
-            </div>
-            <textarea value={manualInput} onChange={(event) => setManualInput(event.target.value)} className="min-h-[320px] rounded-[1.5rem] border border-slate-200 bg-white px-4 py-4 font-mono text-sm outline-none" placeholder={manualBatchTemplate} />
-            <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4 text-sm text-slate-600">
-              Use one block per question and separate blocks with <span className="font-mono">---</span>. Every block needs <span className="font-mono">Question:</span> and <span className="font-mono">Answer:</span>. MCQ uploads also need exactly four <span className="font-mono">Options:</span>.
-            </div>
-            <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-              <div className="flex flex-wrap gap-3 text-sm text-slate-500">
-                <span className="rounded-full border border-slate-200 bg-white px-3 py-2">{estimatedBlocks} question block{estimatedBlocks === 1 ? "" : "s"}</span>
-                {selectedMaterial ? <span className="rounded-full border border-slate-200 bg-white px-3 py-2">{selectedMaterial.linkedQuestionCount} questions already linked</span> : null}
-              </div>
-              <button onClick={() => void handleManualUpload()} disabled={manualLoading} className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-semibold text-white disabled:opacity-70">
-                {manualLoading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <FilePlus2 className="h-5 w-5" />}
-                {manualLoading ? "Uploading question bank..." : "Upload manual question bank"}
-              </button>
-            </div>
-            {manualMessage ? (
-              <div className={`flex items-start gap-3 rounded-2xl px-4 py-3 text-sm ${manualMessage.tone === "error" ? "border border-rose-100 bg-rose-50 text-rose-700" : "border border-emerald-100 bg-emerald-50 text-emerald-700"}`}>
-                {manualMessage.tone === "error" ? <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" /> : <CheckCircle2 className="mt-0.5 h-5 w-5 shrink-0" />}
-                <span>{manualMessage.text}</span>
-              </div>
-            ) : null}
-          </div>
-        </section>
       </section>
+
+      <MaterialQuestionManager
+        adminKey={adminKey}
+        materials={materials}
+        onRefreshMaterials={loadMaterials}
+        onRefreshOverview={loadOverview}
+        overviewLoading={overviewLoading}
+      />
 
       <section className="grid gap-6 xl:grid-cols-[0.8fr_1.2fr]">
         <section className="glass-panel rounded-[2rem] border border-white/80 p-6">
