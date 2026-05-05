@@ -1,0 +1,24 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git rm *)",
+      "Bash(git add *)",
+      "Bash(git commit *)",
+      "Bash(git push *)",
+      "Bash(npm run *)",
+      "Bash(npm ci *)",
+      "Bash(npm test *)",
+      "Bash(tee baseline-test.txt)",
+      "Bash(npx tsc *)",
+      "Bash(tee baseline-tsc.txt)",
+      "Bash(tee baseline-lint.txt)",
+      "Bash(npm install *)",
+      "Bash(npx husky *)",
+      "Bash(npx prisma *)",
+      "Bash(git reset *)",
+      "Bash(npm list *)",
+      "Bash(node --test --import tsx tests/accessibility.test.ts)",
+      "Bash(npx playwright *)"
+    ]
+  }
+}
