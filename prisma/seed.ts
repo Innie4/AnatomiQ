@@ -1,5 +1,6 @@
 import { PrismaClient } from "@prisma/client";
 import slugify from "slugify";
+import bcrypt from "bcryptjs";
 
 const prisma = new PrismaClient();
 
@@ -47,6 +48,20 @@ const ANATOMY_TOPICS = [
 ];
 
 async function main() {
+  // Seed first admin user
+  const adminPasswordHash = await bcrypt.hash("admin123", 10);
+  await prisma.facultyUser.upsert({
+    where: { email: "admin@anatomiq.local" },
+    update: {},
+    create: {
+      email: "admin@anatomiq.local",
+      passwordHash: adminPasswordHash,
+      fullName: "Admin User",
+      department: "Human Anatomy",
+      isActive: true,
+    },
+  });
+
   const course = await prisma.course.upsert({
     where: { slug: "human-anatomy" },
     update: {},

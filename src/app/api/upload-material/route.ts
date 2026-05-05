@@ -2,18 +2,20 @@ import { randomUUID } from "node:crypto";
 
 import { handleRouteError, fail, ok } from "@/lib/api";
 import { MAX_UPLOAD_SIZE_BYTES, SUPPORTED_UPLOAD_MIME_TYPES } from "@/lib/constants";
-import { env } from "@/lib/env";
 import { createUploadedMaterial } from "@/lib/materials";
 import { uploadMaterialSchema } from "@/lib/schemas";
 import { uploadBufferToS3 } from "@/lib/storage";
 import { toSlug } from "@/lib/utils";
+import { authenticateRequest, logAudit } from "@/lib/auth";
+import { PrismaClient } from "@prisma/client";
 
 export async function POST(request: Request) {
+  const prisma = new PrismaClient();
   try {
-    const adminKey = request.headers.get("x-admin-upload-key");
-
-    if (!env.adminUploadKey || adminKey !== env.adminUploadKey) {
-      return fail("Invalid admin upload key.", 401);
+    // Authenticate using JWT or legacy key
+    const auth = await authenticateRequest(prisma);
+    if (!auth) {
+      return fail("Unauthorized", 401);
     }
 
     const formData = await request.formData();
@@ -58,6 +60,16 @@ export async function POST(request: Request) {
       subtopicName: parsed.subtopicName,
     });
 
+    // Log audit trail
+    await logAudit(
+      prisma,
+      auth.userId,
+      "upload_material",
+      "material",
+      material.id,
+      `Uploaded ${material.title} to ${parsed.topicName}${parsed.subtopicName ? ` / ${parsed.subtopicName}` : ""}`
+    );
+
     return ok({
       material: {
         id: material.id,
@@ -70,5 +82,7 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     return handleRouteError(error);
+  } finally {
+    await prisma.$disconnect();
   }
 }
