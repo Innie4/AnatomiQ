@@ -68,7 +68,7 @@ The committed `.env` keeps safe local defaults for development, and `.env.exampl
 ```bash
 DATABASE_URL="postgresql://postgres.your-project-ref:your-password@aws-0-your-region.pooler.supabase.com:6543/postgres?pgbouncer=true&connection_limit=1&sslmode=require"
 DIRECT_URL="postgresql://postgres.your-project-ref:your-password@aws-0-your-region.pooler.supabase.com:5432/postgres?sslmode=require"
-ADMIN_UPLOAD_KEY="19/BM/ANM/617/2204"
+ADMIN_UPLOAD_KEY="<YOUR_ADMIN_KEY>"
 STORAGE_MODE="supabase"
 SUPABASE_URL="https://your-project-ref.supabase.co"
 NEXT_PUBLIC_SUPABASE_URL="https://your-project-ref.supabase.co"

@@ -1,0 +1,8 @@
+# Block commits adding literal ADMIN_KEY values
+if git diff --cached | grep -E '^\+.*ADMIN_UPLOAD_KEY=".+"' | grep -vE '<YOUR_ADMIN_KEY>|\.husky/|/tests?/'; then
+  echo "❌ BLOCKED: Commit adds literal ADMIN_KEY value"
+  echo "Replace with placeholder: ADMIN_UPLOAD_KEY=\"<YOUR_ADMIN_KEY>\""
+  exit 1
+fi
+
+npm test

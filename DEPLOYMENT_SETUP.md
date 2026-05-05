@@ -17,7 +17,7 @@ The `ADMIN_UPLOAD_KEY` environment variable is not set in your Vercel deployment
 1. In the Settings page, click on "Environment Variables" in the left sidebar
 2. Add the following environment variable:
    - **Key**: `ADMIN_UPLOAD_KEY`
-   - **Value**: `19/BM/ANM/617/2204`
+   - **Value**: `<YOUR_ADMIN_KEY>`
    - **Environment**: Select all environments (Production, Preview, Development)
 3. Click "Save"
 
@@ -30,7 +30,7 @@ After adding the environment variable, you need to trigger a new deployment for 
 
 ### Step 4: Test
 1. Go to https://anatomi-q.vercel.app/upload
-2. Enter the admin upload key: `19/BM/ANM/617/2204`
+2. Enter your admin upload key
 3. Click "Unlock dashboard"
 4. You should now see the admin dashboard without any 401 errors
 
@@ -41,7 +41,7 @@ Make sure these are all set in Vercel:
 ```
 DATABASE_URL=<your-supabase-pooler-url>
 DIRECT_URL=<your-supabase-direct-url>
-ADMIN_UPLOAD_KEY=19/BM/ANM/617/2204
+ADMIN_UPLOAD_KEY=<YOUR_ADMIN_KEY>
 STORAGE_MODE=supabase
 SUPABASE_URL=<your-supabase-url>
 NEXT_PUBLIC_SUPABASE_URL=<your-supabase-url>
@@ -54,8 +54,18 @@ OPENAI_EXTRACTION_MODEL=gpt-5-mini
 OPENAI_EMBEDDING_MODEL=text-embedding-3-small
 ```
 
-## Security Note
+## Security Notice
+
+**CRITICAL**: Never commit literal credential values to version control.
+
 The admin upload key is sensitive. Make sure:
 - It's only known to authorized faculty members
 - It's never committed to the git repository (already handled via .gitignore)
 - Environment variables are only visible to project members in Vercel
+- Use placeholder `<YOUR_ADMIN_KEY>` in all documentation
+- A pre-commit hook blocks commits containing literal `ADMIN_KEY=` values
+
+If you accidentally commit credentials:
+1. Rotate the key immediately in Vercel and your local `.env`
+2. Use `git filter-repo` or contact your repository admin to purge the commit from history
+3. Treat the exposed key as compromised — never reuse it
