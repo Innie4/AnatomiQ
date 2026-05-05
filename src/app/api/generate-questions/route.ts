@@ -1,10 +1,28 @@
-import { handleRouteError, ok } from "@/lib/api";
+import { handleRouteError, ok, fail } from "@/lib/api";
 import { parseJsonString } from "@/lib/json";
 import { ensureQuestionBank } from "@/lib/questions";
 import { generateQuestionSchema } from "@/lib/schemas";
+import { rateLimit, getClientIP } from "@/lib/rate-limit";
 
 export async function POST(request: Request) {
   try {
+    // Apply rate limiting (20 requests per 15 minutes)
+    const clientIP = getClientIP(new Headers(request.headers));
+    const rateLimitResult = await rateLimit(clientIP, 'questionGeneration');
+
+    if (!rateLimitResult.success) {
+      return fail(
+        'Too many question generation requests. Please try again later.',
+        429,
+        {
+          'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+          'X-RateLimit-Limit': String(rateLimitResult.limit),
+          'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+          'X-RateLimit-Reset': String(rateLimitResult.reset),
+        }
+      );
+    }
+
     const payload = generateQuestionSchema.parse(await request.json());
     const result = await ensureQuestionBank(payload);
     return ok({

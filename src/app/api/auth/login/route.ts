@@ -1,11 +1,34 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { comparePassword, signToken } from "@/lib/auth";
+import { rateLimit, getClientIP } from "@/lib/rate-limit";
 
 const prisma = new PrismaClient();
 
 export async function POST(request: NextRequest) {
   try {
+    // Apply rate limiting (5 requests per 15 minutes)
+    const clientIP = getClientIP(request.headers);
+    const rateLimitResult = await rateLimit(clientIP, 'auth');
+
+    if (!rateLimitResult.success) {
+      return NextResponse.json(
+        {
+          error: 'Too many login attempts. Please try again later.',
+          retryAfter: Math.ceil((rateLimitResult.reset - Date.now()) / 1000),
+        },
+        {
+          status: 429,
+          headers: {
+            'Retry-After': String(Math.ceil((rateLimitResult.reset - Date.now()) / 1000)),
+            'X-RateLimit-Limit': String(rateLimitResult.limit),
+            'X-RateLimit-Remaining': String(rateLimitResult.remaining),
+            'X-RateLimit-Reset': String(rateLimitResult.reset),
+          },
+        }
+      );
+    }
+
     const body = await request.json();
     const { email, password } = body;
 
