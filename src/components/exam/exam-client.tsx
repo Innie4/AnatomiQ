@@ -299,6 +299,7 @@ export function ExamClient({
               value={durationMinutes}
               onChange={(event) => setDurationMinutes(Number(event.target.value))}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+              aria-label="Exam timer in minutes (0 for untimed)"
             />
           </label>
         </div>
@@ -363,6 +364,7 @@ export function ExamClient({
                         name={question.id}
                         checked={answers[question.id] === option}
                         onChange={() => setAnswer(question.id, option)}
+                        aria-label={`Option: ${option}`}
                       />
                       <span className="text-slate-700">{option}</span>
                     </label>
@@ -377,6 +379,8 @@ export function ExamClient({
                     question.type === "THEORY"
                       ? "Write your structured theory response..."
                       : "Write a concise answer..."
+                  }
+                  aria-label={`Answer for ${question.type === "THEORY" ? "theory" : "short answer"} question`
                   }
                   className="mt-5 w-full rounded-[1.5rem] border border-slate-200 bg-white/90 px-4 py-4 text-slate-900 outline-none placeholder:text-slate-400"
                 />

@@ -292,15 +292,15 @@ export function UploadConsole() {
             <UploadCloud className="h-8 w-8 text-sky-700" />
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
-            <input value={title} onChange={(event) => setTitle(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Title" />
-            <input value={courseName} onChange={(event) => setCourseName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course" />
-            <input value={topicName} onChange={(event) => setTopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Topic" />
-            <input value={subtopicName} onChange={(event) => setSubtopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Subtopic" />
-            <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="md:col-span-2 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-5 outline-none" />
+            <input value={title} onChange={(event) => setTitle(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Title" aria-label="Material title" />
+            <input value={courseName} onChange={(event) => setCourseName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course" aria-label="Course name" />
+            <input value={topicName} onChange={(event) => setTopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Topic" aria-label="Topic name" />
+            <input value={subtopicName} onChange={(event) => setSubtopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Subtopic" aria-label="Subtopic name (optional)" />
+            <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="md:col-span-2 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-5 outline-none" aria-label="Select file to upload (PDF, image, or text)" />
           </div>
           <div className="mt-6 flex items-center gap-3">
-            <button onClick={() => void handleUpload()} disabled={loading} className="inline-flex items-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#2d8cff,#18b08f)] px-6 py-4 text-sm font-semibold text-white disabled:opacity-70">
-              {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <UploadCloud className="h-5 w-5" />}
+            <button onClick={() => void handleUpload()} disabled={loading} className="inline-flex items-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#2d8cff,#18b08f)] px-6 py-4 text-sm font-semibold text-white disabled:opacity-70" aria-label={loading ? "Uploading material" : "Upload and process material"}>
+              {loading ? <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" /> : <UploadCloud className="h-5 w-5" aria-hidden="true" />}
               {loading ? "Uploading and processing..." : "Upload and process"}
             </button>
             <p className="text-sm text-slate-500">Files are stored, extracted, chunked, and indexed immediately.</p>
