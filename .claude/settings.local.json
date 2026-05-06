@@ -24,7 +24,8 @@
       "Bash(curl -s http://localhost:3000/api/health)",
       "Bash(curl -s -H \"x-admin-upload-key: 19/BM/ANM/617/2204\" http://localhost:3000/api/admin-overview)",
       "Bash(curl -s http://localhost:3000/exam)",
-      "Bash(curl *)"
+      "Bash(curl *)",
+      "Bash(tsx prisma/seed.ts)"
     ]
   }
 }

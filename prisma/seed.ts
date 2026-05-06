@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import slugify from "slugify";
 import bcrypt from "bcryptjs";
+import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
 
@@ -54,6 +55,7 @@ async function main() {
     where: { email: "admin@anatomiq.local" },
     update: {},
     create: {
+      id: randomUUID(),
       email: "admin@anatomiq.local",
       passwordHash: adminPasswordHash,
       fullName: "Admin User",
@@ -66,6 +68,7 @@ async function main() {
     where: { slug: "human-anatomy" },
     update: {},
     create: {
+      id: randomUUID(),
       name: "Human Anatomy",
       slug: "human-anatomy",
       description:
@@ -80,6 +83,7 @@ async function main() {
         summary: topic.summary,
       },
       create: {
+        id: randomUUID(),
         name: topic.name,
         slug: slugify(topic.name, { lower: true, strict: true }),
         summary: topic.summary,
@@ -94,6 +98,7 @@ async function main() {
         where: { slug: slugify(`${topic.name}-${childName}`, { lower: true, strict: true }) },
         update: {},
         create: {
+          id: randomUUID(),
           name: childName,
           slug: slugify(`${topic.name}-${childName}`, { lower: true, strict: true }),
           summary: `${childName} content within ${topic.name}.`,
