@@ -18,7 +18,13 @@
       "Bash(git reset *)",
       "Bash(npm list *)",
       "Bash(node --test --import tsx tests/accessibility.test.ts)",
-      "Bash(npx playwright *)"
+      "Bash(npx playwright *)",
+      "Bash(node --test --import tsx tests/friendly-errors.test.ts)",
+      "Bash(node --test --import tsx tests/exam-error-handling.test.ts)",
+      "Bash(curl -s http://localhost:3000/api/health)",
+      "Bash(curl -s -H \"x-admin-upload-key: 19/BM/ANM/617/2204\" http://localhost:3000/api/admin-overview)",
+      "Bash(curl -s http://localhost:3000/exam)",
+      "Bash(curl *)"
     ]
   }
 }

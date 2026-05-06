@@ -26,6 +26,9 @@ export async function getAdminOverview() {
   }
 
   try {
+    // Test database connection
+    await db.$connect();
+
     const [
       totalMaterials,
       readyMaterials,
@@ -112,5 +115,9 @@ export async function getAdminOverview() {
   } catch (error) {
     console.error("Falling back to an empty admin overview because the database is unavailable.", error);
     return emptyState;
+  } finally {
+    await db.$disconnect().catch(() => {
+      // Ignore disconnect errors
+    });
   }
 }

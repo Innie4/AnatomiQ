@@ -7,7 +7,7 @@
     "build": "node scripts/prepare-database.mjs && next build",
     "start": "next start",
     "lint": "eslint .",
-    "test": "node --test --import tsx tests/local-question-generator.test.ts tests/manual-question-batch.test.ts tests/exam-ui.test.ts tests/security.test.ts tests/auth.test.ts tests/accessibility.test.ts tests/cors.test.ts tests/rate-limit.test.ts tests/health-check.test.ts",
+    "test": "node --test --import tsx tests/local-question-generator.test.ts tests/manual-question-batch.test.ts tests/exam-ui.test.ts tests/security.test.ts tests/auth.test.ts tests/accessibility.test.ts tests/cors.test.ts tests/rate-limit.test.ts tests/health-check.test.ts tests/friendly-errors.test.ts tests/exam-error-handling.test.ts",
     "test:regression": "node --test --import tsx tests/storage.regression.test.ts tests/api.integration.test.ts tests/db.integration.test.ts",
     "test:e2e": "playwright test",
     "test:e2e:ui": "playwright test --ui",

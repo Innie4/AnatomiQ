@@ -22,7 +22,20 @@ export const EXAM_TYPE_OPTIONS = [
   { label: "Mixed mode", value: "MIXED" },
 ] as const;
 
-export const QUESTION_COUNT_OPTIONS = Array.from({ length: 30 }, (_, index) => index + 1);
+export const QUESTION_COUNT_OPTIONS = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100] as const;
+
+export const TIMER_OPTIONS = [
+  { label: "No timer", value: 0 },
+  { label: "20 minutes", value: 20 },
+  { label: "40 minutes", value: 40 },
+  { label: "60 minutes (1 hour)", value: 60 },
+  { label: "80 minutes", value: 80 },
+  { label: "100 minutes", value: 100 },
+  { label: "120 minutes (2 hours)", value: 120 },
+  { label: "140 minutes", value: 140 },
+  { label: "160 minutes", value: 160 },
+  { label: "180 minutes (3 hours)", value: 180 },
+] as const;
 
 export const DEFAULT_ANATOMY_TOPICS = [
   {

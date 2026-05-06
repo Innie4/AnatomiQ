@@ -5,7 +5,8 @@ import { useRouter } from "next/navigation";
 import { AlertCircle, Clock3, FileQuestion, LoaderCircle } from "lucide-react";
 import { startTransition, useEffect, useEffectEvent, useState } from "react";
 
-import { QUESTION_COUNT_OPTIONS } from "@/lib/constants";
+import { QUESTION_COUNT_OPTIONS, TIMER_OPTIONS } from "@/lib/constants";
+import { toFriendlyError } from "@/lib/friendly-errors";
 
 type TopicCard = {
   id: string;
@@ -140,7 +141,7 @@ export function ExamClient({
       setAnswers({});
       setTimeLeft(durationMinutes > 0 ? durationMinutes * 60 : null);
     } catch (requestError) {
-      setError(requestError instanceof Error ? requestError.message : "Could not start exam.");
+      setError(toFriendlyError(requestError));
     } finally {
       setLoading(false);
     }
@@ -202,7 +203,7 @@ export function ExamClient({
         router.push("/results");
       });
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : "Could not submit exam.");
+      setError(toFriendlyError(submitError));
     } finally {
       setSubmitting(false);
     }
@@ -291,16 +292,19 @@ export function ExamClient({
           </label>
 
           <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Timer (minutes)</span>
-            <input
-              type="number"
-              min={0}
-              max={180}
+            <span className="text-sm font-semibold text-slate-700">Timer</span>
+            <select
               value={durationMinutes}
               onChange={(event) => setDurationMinutes(Number(event.target.value))}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
-              aria-label="Exam timer in minutes (0 for untimed)"
-            />
+              aria-label="Exam timer"
+            >
+              {TIMER_OPTIONS.map((option) => (
+                <option key={option.value} value={option.value}>
+                  {option.label}
+                </option>
+              ))}
+            </select>
           </label>
         </div>
 

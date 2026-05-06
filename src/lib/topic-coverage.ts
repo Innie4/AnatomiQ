@@ -60,6 +60,9 @@ export async function getTopicCoverage(search?: string) {
   }
 
   try {
+    // Test database connection first
+    await db.$connect();
+
     const topics = await db.topic.findMany({
       where: {
         level: 0,
@@ -136,5 +139,10 @@ export async function getTopicCoverage(search?: string) {
   } catch (error) {
     console.error("Falling back to static anatomy topics because the database is unavailable.", error);
     return buildFallbackTopicCoverage(search);
+  } finally {
+    // Ensure connection is cleaned up
+    await db.$disconnect().catch(() => {
+      // Ignore disconnect errors
+    });
   }
 }

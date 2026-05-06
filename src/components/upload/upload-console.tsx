@@ -21,6 +21,7 @@ import {
 import { useState } from "react";
 
 import { MaterialQuestionManager } from "@/components/upload/material-question-manager";
+import { toFriendlyError } from "@/lib/friendly-errors";
 
 type UploadResult = {
   material: { id: string; title: string; status: string; storageUrl: string; topic: string; subtopic: string | null };
@@ -121,7 +122,7 @@ export function UploadConsole() {
 
   async function loadOverview() {
     if (!adminKey.trim()) {
-      setMessage({ tone: "error", text: "Enter the admin upload key to unlock the dashboard." });
+      setMessage({ tone: "error", text: "Please enter your access key to unlock the dashboard." });
       return;
     }
     setOverviewLoading(true);
@@ -139,7 +140,7 @@ export function UploadConsole() {
     } catch (error) {
       setOverview(null);
       setMaterials([]);
-      setMessage({ tone: "error", text: error instanceof Error ? error.message : "Could not load the admin dashboard." });
+      setMessage({ tone: "error", text: toFriendlyError(error) });
     } finally {
       setOverviewLoading(false);
     }
@@ -147,15 +148,15 @@ export function UploadConsole() {
 
   async function handleUpload() {
     if (!adminKey.trim()) {
-      setMessage({ tone: "error", text: "Enter the admin upload key before uploading." });
+      setMessage({ tone: "error", text: "Please enter your access key before uploading." });
       return;
     }
     if (!file) {
-      setMessage({ tone: "error", text: "Select a file before uploading." });
+      setMessage({ tone: "error", text: "Please select a file to upload." });
       return;
     }
     if (!topicName.trim()) {
-      setMessage({ tone: "error", text: "Enter a topic before uploading." });
+      setMessage({ tone: "error", text: "Please enter a topic name before uploading." });
       return;
     }
     setLoading(true);
@@ -192,7 +193,7 @@ export function UploadConsole() {
       setTitle("");
       await loadOverview();
     } catch (error) {
-      setMessage({ tone: "error", text: error instanceof Error ? error.message : "Upload failed." });
+      setMessage({ tone: "error", text: toFriendlyError(error) });
     } finally {
       setLoading(false);
     }
