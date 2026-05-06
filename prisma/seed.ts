@@ -49,67 +49,109 @@ const ANATOMY_TOPICS = [
 ];
 
 async function main() {
+  console.log("Starting database seed...");
+
   // Seed first admin user
   const adminPasswordHash = await bcrypt.hash("admin123", 10);
-  await prisma.facultyUser.upsert({
+
+  // Check if admin already exists
+  const existingAdmin = await prisma.facultyUser.findUnique({
     where: { email: "admin@anatomiq.local" },
-    update: {},
-    create: {
-      id: randomUUID(),
-      email: "admin@anatomiq.local",
-      passwordHash: adminPasswordHash,
-      fullName: "Admin User",
-      department: "Human Anatomy",
-      isActive: true,
-    },
   });
 
-  const course = await prisma.course.upsert({
-    where: { slug: "human-anatomy" },
-    update: {},
-    create: {
-      id: randomUUID(),
-      name: "Human Anatomy",
-      slug: "human-anatomy",
-      description:
-        "University of Uyo Human Anatomy knowledge base for topic-grounded learning and exam generation.",
-    },
-  });
-
-  for (const topic of ANATOMY_TOPICS) {
-    const parent = await prisma.topic.upsert({
-      where: { slug: slugify(topic.name, { lower: true, strict: true }) },
-      update: {
-        summary: topic.summary,
-      },
-      create: {
+  if (!existingAdmin) {
+    console.log("Creating admin user...");
+    await prisma.facultyUser.create({
+      data: {
         id: randomUUID(),
-        name: topic.name,
-        slug: slugify(topic.name, { lower: true, strict: true }),
-        summary: topic.summary,
-        level: 0,
-        isSystem: true,
-        courseId: course.id,
+        email: "admin@anatomiq.local",
+        passwordHash: adminPasswordHash,
+        fullName: "Admin User",
+        department: "Human Anatomy",
+        isActive: true,
       },
     });
+  } else {
+    console.log("Admin user already exists, skipping...");
+  }
 
-    for (const childName of topic.children) {
-      await prisma.topic.upsert({
-        where: { slug: slugify(`${topic.name}-${childName}`, { lower: true, strict: true }) },
-        update: {},
-        create: {
+  // Check if course exists
+  let course = await prisma.course.findUnique({
+    where: { slug: "human-anatomy" },
+  });
+
+  if (!course) {
+    console.log("Creating Human Anatomy course...");
+    course = await prisma.course.create({
+      data: {
+        id: randomUUID(),
+        name: "Human Anatomy",
+        slug: "human-anatomy",
+        description:
+          "University of Uyo Human Anatomy knowledge base for topic-grounded learning and exam generation.",
+      },
+    });
+  } else {
+    console.log("Human Anatomy course already exists, skipping...");
+  }
+
+  console.log("Seeding anatomy topics...");
+  for (const topic of ANATOMY_TOPICS) {
+    const topicSlug = slugify(topic.name, { lower: true, strict: true });
+
+    // Check if parent topic exists
+    let parent = await prisma.topic.findUnique({
+      where: { slug: topicSlug },
+    });
+
+    if (!parent) {
+      console.log(`Creating topic: ${topic.name}`);
+      parent = await prisma.topic.create({
+        data: {
           id: randomUUID(),
-          name: childName,
-          slug: slugify(`${topic.name}-${childName}`, { lower: true, strict: true }),
-          summary: `${childName} content within ${topic.name}.`,
-          level: 1,
+          name: topic.name,
+          slug: topicSlug,
+          summary: topic.summary,
+          level: 0,
           isSystem: true,
           courseId: course.id,
-          parentTopicId: parent.id,
         },
       });
+    } else {
+      // Update summary if topic exists
+      await prisma.topic.update({
+        where: { id: parent.id },
+        data: { summary: topic.summary },
+      });
+    }
+
+    for (const childName of topic.children) {
+      const childSlug = slugify(`${topic.name}-${childName}`, { lower: true, strict: true });
+
+      // Check if child topic exists
+      const existingChild = await prisma.topic.findUnique({
+        where: { slug: childSlug },
+      });
+
+      if (!existingChild) {
+        console.log(`Creating subtopic: ${childName}`);
+        await prisma.topic.create({
+          data: {
+            id: randomUUID(),
+            name: childName,
+            slug: childSlug,
+            summary: `${childName} content within ${topic.name}.`,
+            level: 1,
+            isSystem: true,
+            courseId: course.id,
+            parentTopicId: parent.id,
+          },
+        });
+      }
     }
   }
+
+  console.log("Database seed completed successfully!");
 }
 
 main()
