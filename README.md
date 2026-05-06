@@ -149,3 +149,4 @@ npm run build
 - When no OpenAI key is present, the app still works using grounded in-app generation and free OCR paths
 - Public pages now fall back safely instead of crashing if the remote database is temporarily unreachable during setup
 - Manual question banks require an answer and explanation for every question so quizzes can be graded and reviewed immediately
+
