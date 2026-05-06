@@ -1,12 +1,10 @@
 import { NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { authenticateRequest } from "@/lib/auth";
-
-const prisma = new PrismaClient();
+import { db } from "@/lib/db";
 
 export async function GET() {
   try {
-    const payload = await authenticateRequest(prisma);
+    const payload = await authenticateRequest(db);
 
     if (!payload) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -23,7 +21,5 @@ export async function GET() {
   } catch (error) {
     console.error("Verify error:", error);
     return NextResponse.json({ error: "Verification failed" }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

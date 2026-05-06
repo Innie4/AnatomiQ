@@ -7,13 +7,12 @@ import { uploadMaterialSchema } from "@/lib/schemas";
 import { uploadBufferToS3 } from "@/lib/storage";
 import { toSlug } from "@/lib/utils";
 import { authenticateRequest, logAudit } from "@/lib/auth";
-import { PrismaClient } from "@prisma/client";
+import { db } from "@/lib/db";
 
 export async function POST(request: Request) {
-  const prisma = new PrismaClient();
   try {
     // Authenticate using JWT or legacy key
-    const auth = await authenticateRequest(prisma);
+    const auth = await authenticateRequest(db, request);
     if (!auth) {
       return fail("Unauthorized", 401);
     }
@@ -62,7 +61,7 @@ export async function POST(request: Request) {
 
     // Log audit trail
     await logAudit(
-      prisma,
+      db,
       auth.userId,
       "upload_material",
       "material",
@@ -82,7 +81,5 @@ export async function POST(request: Request) {
     });
   } catch (error) {
     return handleRouteError(error);
-  } finally {
-    await prisma.$disconnect();
   }
 }

@@ -1,13 +1,18 @@
 import { Difficulty, QuestionType } from "@prisma/client";
 
-import { handleRouteError, ok } from "@/lib/api";
-import { assertAdminKey } from "@/lib/admin";
+import { handleRouteError, ok, fail } from "@/lib/api";
+import { authenticateRequest } from "@/lib/auth";
 import { createManualQuestion, listManualQuestions } from "@/lib/questions";
 import { createManualQuestionSchema, materialQuestionQuerySchema } from "@/lib/schemas";
+import { db } from "@/lib/db";
 
 export async function GET(request: Request) {
   try {
-    assertAdminKey(request.headers.get("x-admin-upload-key"));
+    const auth = await authenticateRequest(db, request);
+    if (!auth) {
+      return fail("Unauthorized", 401);
+    }
+
     const url = new URL(request.url);
     const query = materialQuestionQuerySchema.parse({
       materialId: url.searchParams.get("materialId"),
@@ -21,7 +26,11 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
   try {
-    assertAdminKey(request.headers.get("x-admin-upload-key"));
+    const auth = await authenticateRequest(db, request);
+    if (!auth) {
+      return fail("Unauthorized", 401);
+    }
+
     const payload = createManualQuestionSchema.parse(await request.json());
     const question = await createManualQuestion({
       materialId: payload.materialId,

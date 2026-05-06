@@ -1,10 +1,15 @@
-import { handleRouteError, ok } from "@/lib/api";
-import { assertAdminKey } from "@/lib/admin";
+import { handleRouteError, ok, fail } from "@/lib/api";
+import { authenticateRequest } from "@/lib/auth";
 import { getAdminMaterialOptions } from "@/lib/questions";
+import { db } from "@/lib/db";
 
 export async function GET(request: Request) {
   try {
-    assertAdminKey(request.headers.get("x-admin-upload-key"));
+    const auth = await authenticateRequest(db, request);
+    if (!auth) {
+      return fail("Unauthorized", 401);
+    }
+
     const url = new URL(request.url);
     const materials = await getAdminMaterialOptions(url.searchParams.get("q") ?? undefined);
     return ok({ materials });

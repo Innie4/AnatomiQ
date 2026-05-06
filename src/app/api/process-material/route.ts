@@ -1,11 +1,16 @@
-import { handleRouteError, ok } from "@/lib/api";
-import { assertAdminKey } from "@/lib/admin";
+import { handleRouteError, ok, fail } from "@/lib/api";
+import { authenticateRequest } from "@/lib/auth";
 import { processMaterial } from "@/lib/materials";
 import { processMaterialSchema } from "@/lib/schemas";
+import { db } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
-    assertAdminKey(request.headers.get("x-admin-upload-key"));
+    const auth = await authenticateRequest(db, request);
+    if (!auth) {
+      return fail("Unauthorized", 401);
+    }
+
     const payload = processMaterialSchema.parse(await request.json());
     const result = await processMaterial(payload.materialId);
     return ok({ result });

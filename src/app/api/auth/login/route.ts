@@ -1,9 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient } from "@prisma/client";
 import { comparePassword, signToken } from "@/lib/auth";
 import { rateLimit, getClientIP } from "@/lib/rate-limit";
-
-const prisma = new PrismaClient();
+import { db } from "@/lib/db";
 
 export async function POST(request: NextRequest) {
   try {
@@ -37,7 +35,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Find user
-    const user = await prisma.facultyUser.findUnique({
+    const user = await db.facultyUser.findUnique({
       where: { email },
     });
 
@@ -75,7 +73,5 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "Login failed" }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
   }
 }

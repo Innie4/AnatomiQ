@@ -53,39 +53,57 @@ export async function comparePassword(password: string, hash: string): Promise<b
  * Authenticate middleware - supports both JWT (new) and legacy ADMIN_KEY
  * Returns faculty user data or null if unauthorized
  */
-export async function authenticateRequest(prisma: PrismaClient): Promise<JWTPayload | null> {
-  const headersList = await headers();
+export async function authenticateRequest(
+  prisma: PrismaClient,
+  request?: Request
+): Promise<JWTPayload | null> {
+  try {
+    let authHeader: string | null = null;
+    let legacyKey: string | null = null;
 
-  // Try JWT first (new system)
-  const authHeader = headersList.get("authorization");
-  if (authHeader?.startsWith("Bearer ")) {
-    const token = authHeader.substring(7);
-    const payload = verifyToken(token);
-    if (payload) {
-      // Verify user still exists and is active
-      const user = await prisma.facultyUser.findUnique({
-        where: { id: payload.userId, isActive: true },
-      });
-      if (user) {
-        return payload;
+    if (request) {
+      // Extract from Request object directly (more reliable in production)
+      authHeader = request.headers.get("authorization");
+      legacyKey = request.headers.get("x-admin-upload-key");
+    } else {
+      // Fallback to Next.js headers() (for backward compatibility)
+      const headersList = await headers();
+      authHeader = headersList.get("authorization");
+      legacyKey = headersList.get("x-admin-upload-key");
+    }
+
+    // Try JWT first (new system)
+    if (authHeader?.startsWith("Bearer ")) {
+      const token = authHeader.substring(7);
+      const payload = verifyToken(token);
+      if (payload) {
+        // Verify user still exists and is active
+        const user = await prisma.facultyUser.findUnique({
+          where: { id: payload.userId, isActive: true },
+        });
+        if (user) {
+          return payload;
+        }
       }
     }
-  }
 
-  // Fallback to legacy ADMIN_KEY (for backwards compatibility)
-  const legacyKey = headersList.get("x-admin-upload-key");
-  const expectedKey = process.env.ADMIN_UPLOAD_KEY;
-  if (legacyKey && expectedKey && legacyKey === expectedKey) {
-    // Return a synthetic payload for the legacy key
-    return {
-      userId: "legacy-admin",
-      email: "admin@legacy",
-      fullName: "Legacy Admin",
-      department: "Human Anatomy",
-    };
-  }
+    // Fallback to legacy ADMIN_KEY (for backwards compatibility)
+    const expectedKey = process.env.ADMIN_UPLOAD_KEY;
+    if (legacyKey && expectedKey && legacyKey === expectedKey) {
+      // Return a synthetic payload for the legacy key
+      return {
+        userId: "legacy-admin",
+        email: "admin@legacy",
+        fullName: "Legacy Admin",
+        department: "Human Anatomy",
+      };
+    }
 
-  return null;
+    return null;
+  } catch (error) {
+    console.error("Authentication error:", error);
+    return null;
+  }
 }
 
 /**
