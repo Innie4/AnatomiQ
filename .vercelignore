@@ -1,0 +1,25 @@
+# Vercel ignore file
+# These files won't be uploaded to Vercel
+
+# Development
+.next/
+node_modules/
+.env.local
+
+# Testing
+tests/
+coverage/
+*.test.ts
+*.spec.ts
+
+# Documentation
+*.md
+!README.md
+
+# Editor
+.vscode/
+.idea/
+
+# Git
+.git/
+.gitignore
