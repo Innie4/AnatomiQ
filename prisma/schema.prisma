@@ -10,20 +10,20 @@ datasource db {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model AnalyticsCounter {
-  id           String        @id
+  id           String        @id @default(uuid())
   key          String        @unique
   metric       CounterMetric
   topicId      String?
   questionType QuestionType?
   count        Int           @default(0)
   createdAt    DateTime      @default(now())
-  updatedAt    DateTime
-  Topic        Topic?        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  updatedAt DateTime      @updatedAt
+  topic     Topic?        @relation(fields: [topicId], references: [id], onDelete: Cascade)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model AuditLog {
-  id            String      @id
+  id            String      @id @default(uuid())
   facultyUserId String
   action        String
   resource      String
@@ -31,8 +31,8 @@ model AuditLog {
   details       String?
   ipAddress     String?
   userAgent     String?
-  createdAt     DateTime    @default(now())
-  FacultyUser   FacultyUser @relation(fields: [facultyUserId], references: [id], onDelete: Cascade)
+  createdAt   DateTime    @default(now())
+  facultyUser FacultyUser @relation(fields: [facultyUserId], references: [id], onDelete: Cascade)
 
   @@index([action, createdAt])
   @@index([facultyUserId, createdAt])
@@ -41,7 +41,7 @@ model AuditLog {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Concept {
-  id                              String        @id
+  id                              String        @id @default(uuid())
   name                            String
   slug                            String
   scopeKey                        String        @unique
@@ -49,28 +49,28 @@ model Concept {
   aliases                         String?
   topicId                         String
   subtopicId                      String?
-  createdAt                       DateTime      @default(now())
-  updatedAt                       DateTime
-  Topic_Concept_subtopicIdToTopic Topic?        @relation("Concept_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  Topic_Concept_topicIdToTopic    Topic         @relation("Concept_topicIdToTopic", fields: [topicId], references: [id])
-  ConceptFact                     ConceptFact[]
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  subtopic    Topic?        @relation("Concept_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic       Topic         @relation("Concept_topicIdToTopic", fields: [topicId], references: [id])
+  ConceptFact ConceptFact[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ConceptFact {
-  id            String       @id
+  id            String       @id @default(uuid())
   conceptId     String
   chunkId       String
   fact          String
   sourceSnippet String?
-  createdAt     DateTime     @default(now())
-  ContentChunk  ContentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
-  Concept       Concept      @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+  chunk     ContentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  concept   Concept      @relation(fields: [conceptId], references: [id], onDelete: Cascade)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ContentChunk {
-  id                                   String        @id
+  id                                   String        @id @default(uuid())
   materialId                           String
   topicId                              String
   subtopicId                           String?
@@ -82,24 +82,24 @@ model ContentChunk {
   sourceHash                           String
   embedding                            String?
   citations                            String?
-  createdAt                            DateTime      @default(now())
-  ConceptFact                          ConceptFact[]
-  Material                             Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
-  Topic_ContentChunk_subtopicIdToTopic Topic?        @relation("ContentChunk_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  Topic_ContentChunk_topicIdToTopic    Topic         @relation("ContentChunk_topicIdToTopic", fields: [topicId], references: [id])
+  createdAt   DateTime      @default(now())
+  ConceptFact ConceptFact[]
+  material    Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  subtopic    Topic?        @relation("ContentChunk_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic       Topic         @relation("ContentChunk_topicIdToTopic", fields: [topicId], references: [id])
 
   @@unique([materialId, sequence])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Course {
-  id          String     @id
+  id          String     @id @default(uuid())
   name        String
   slug        String     @unique
   department  String     @default("Human Anatomy")
   description String?
   createdAt   DateTime   @default(now())
-  updatedAt   DateTime
+  updatedAt   DateTime   @updatedAt
   Material    Material[]
   Question    Question[]
   Topic       Topic[]
@@ -107,20 +107,20 @@ model Course {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model FacultyUser {
-  id           String     @id
+  id           String     @id @default(uuid())
   email        String     @unique
   passwordHash String
   fullName     String
   department   String     @default("Human Anatomy")
   isActive     Boolean    @default(true)
   createdAt    DateTime   @default(now())
-  updatedAt    DateTime
+  updatedAt    DateTime   @updatedAt
   AuditLog     AuditLog[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Material {
-  id                               String         @id
+  id                               String         @id @default(uuid())
   title                            String
   fileName                         String
   fileType                         String
@@ -138,17 +138,17 @@ model Material {
   metadata                         String?
   sourcePages                      Int?
   createdAt                        DateTime       @default(now())
-  updatedAt                        DateTime
-  ContentChunk                     ContentChunk[]
-  Course                           Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  Topic_Material_subtopicIdToTopic Topic?         @relation("Material_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  Topic_Material_topicIdToTopic    Topic          @relation("Material_topicIdToTopic", fields: [topicId], references: [id])
-  Question                         Question[]
+  updatedAt                        DateTime       @updatedAt
+  ContentChunk ContentChunk[]
+  course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  subtopic     Topic?         @relation("Material_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic        Topic          @relation("Material_topicIdToTopic", fields: [topicId], references: [id])
+  Question     Question[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Question {
-  id                               String                @id
+  id                               String                @id @default(uuid())
   courseId                         String
   topicId                          String
   subtopicId                       String?
@@ -166,12 +166,12 @@ model Question {
   textFingerprint                  String?
   embedding                        String?
   createdAt                        DateTime              @default(now())
-  updatedAt                        DateTime
-  manualOrder                      Int?
-  Course                           Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  Material                         Material?             @relation(fields: [materialId], references: [id])
-  Topic_Question_subtopicIdToTopic Topic?                @relation("Question_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  Topic_Question_topicIdToTopic    Topic                 @relation("Question_topicIdToTopic", fields: [topicId], references: [id])
+  updatedAt                        DateTime              @updatedAt
+  manualOrder Int?
+  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  material    Material? @relation(fields: [materialId], references: [id])
+  subtopic    Topic?    @relation("Question_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic       Topic     @relation("Question_topicIdToTopic", fields: [topicId], references: [id])
 
   @@unique([materialId, manualOrder])
   @@index([materialId, manualOrder])
@@ -182,7 +182,7 @@ model Question {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Topic {
-  id                                          String             @id
+  id                                          String             @id @default(uuid())
   name                                        String
   slug                                        String             @unique
   summary                                     String?
@@ -191,19 +191,19 @@ model Topic {
   courseId                                    String
   parentTopicId                               String?
   createdAt                                   DateTime           @default(now())
-  updatedAt                                   DateTime
+  updatedAt                                   DateTime           @updatedAt
   AnalyticsCounter                            AnalyticsCounter[]
-  Concept_Concept_subtopicIdToTopic           Concept[]          @relation("Concept_subtopicIdToTopic")
-  Concept_Concept_topicIdToTopic              Concept[]          @relation("Concept_topicIdToTopic")
-  ContentChunk_ContentChunk_subtopicIdToTopic ContentChunk[]     @relation("ContentChunk_subtopicIdToTopic")
-  ContentChunk_ContentChunk_topicIdToTopic    ContentChunk[]     @relation("ContentChunk_topicIdToTopic")
-  Material_Material_subtopicIdToTopic         Material[]         @relation("Material_subtopicIdToTopic")
-  Material_Material_topicIdToTopic            Material[]         @relation("Material_topicIdToTopic")
-  Question_Question_subtopicIdToTopic         Question[]         @relation("Question_subtopicIdToTopic")
-  Question_Question_topicIdToTopic            Question[]         @relation("Question_topicIdToTopic")
-  Course                                      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  Topic                                       Topic?             @relation("TopicToTopic", fields: [parentTopicId], references: [id])
-  other_Topic                                 Topic[]            @relation("TopicToTopic")
+  conceptsAsSubtopic                          Concept[]          @relation("Concept_subtopicIdToTopic")
+  conceptsAsTopic                             Concept[]          @relation("Concept_topicIdToTopic")
+  chunksAsSubtopic                            ContentChunk[]     @relation("ContentChunk_subtopicIdToTopic")
+  chunksAsTopic                               ContentChunk[]     @relation("ContentChunk_topicIdToTopic")
+  materialsAsSubtopic                         Material[]         @relation("Material_subtopicIdToTopic")
+  materials                                   Material[]         @relation("Material_topicIdToTopic")
+  questionsAsSubtopic                         Question[]         @relation("Question_subtopicIdToTopic")
+  questions                                   Question[]         @relation("Question_topicIdToTopic")
+  course                                      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  parentTopic                                 Topic?             @relation("TopicToTopic", fields: [parentTopicId], references: [id])
+  childTopics                                 Topic[]            @relation("TopicToTopic")
 
   @@unique([courseId, name, parentTopicId])
 }

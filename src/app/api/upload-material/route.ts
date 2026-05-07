@@ -75,8 +75,8 @@ export async function POST(request: Request) {
         title: material.title,
         status: material.status,
         storageUrl: material.storageUrl,
-        topic: material.topic.name,
-        subtopic: material.subtopic?.name ?? null,
+        topic: parsed.topicName,
+        subtopic: parsed.subtopicName,
       },
     });
   } catch (error) {

@@ -59,7 +59,7 @@ type ManualQuestionMaterial = {
   topic: {
     name: string;
   };
-  chunks: Array<{
+  ContentChunk: Array<{
     id: string;
   }>;
 };
@@ -293,7 +293,7 @@ async function buildManualQuestionRecord(
     explanation: payload.explanation.trim(),
     difficulty: payload.difficulty,
     authoringMode: QuestionAuthoringMode.MANUAL,
-    sourceChunkIds: toJsonString(material.chunks.map((chunk) => chunk.id)),
+    sourceChunkIds: toJsonString(material.ContentChunk.map((chunk) => chunk.id)),
     sourceSnippet:
       material.extractedText?.slice(0, 220) ||
       `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`,
@@ -567,7 +567,7 @@ export async function getAdminMaterialOptions(search?: string) {
       },
       _count: {
         select: {
-          questions: true,
+          Question: true,
         },
       },
     },
@@ -585,7 +585,7 @@ export async function getAdminMaterialOptions(search?: string) {
     topicSlug: material.topic.slug,
     subtopicName: material.subtopic?.name ?? null,
     subtopicSlug: material.subtopic?.slug ?? null,
-    linkedQuestionCount: material._count.questions,
+    linkedQuestionCount: material._count.Question,
     createdAt: material.createdAt.toISOString(),
   }));
 }
@@ -624,7 +624,7 @@ export async function createManualQuestion(params: {
       where: { id: params.materialId },
       include: {
         topic: true,
-        chunks: {
+        ContentChunk: {
           select: { id: true },
           orderBy: { sequence: "asc" },
         },
@@ -652,7 +652,7 @@ export async function updateManualQuestion(params: {
       material: {
         include: {
           topic: true,
-          chunks: {
+          ContentChunk: {
             select: { id: true },
             orderBy: { sequence: "asc" },
           },
@@ -725,7 +725,7 @@ export async function createManualQuestionBank(params: {
       course: true,
       topic: true,
       subtopic: true,
-      chunks: {
+      ContentChunk: {
         select: {
           id: true,
         },
@@ -743,7 +743,7 @@ export async function createManualQuestionBank(params: {
   const created: Question[] = [];
   let updatedCount = 0;
   let skippedCount = 0;
-  const linkedChunkIds = material.chunks.map((chunk) => chunk.id);
+  const linkedChunkIds = material.ContentChunk.map((chunk) => chunk.id);
   const fallbackSourceSnippet =
     material.extractedText?.slice(0, 220) ||
     `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`;

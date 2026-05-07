@@ -15,22 +15,26 @@ export async function incrementCounter(params: {
   const key = `${params.metric}:${params.topicId ?? "none"}:${params.questionType ?? "all"}`;
 
   try {
+    const createData: Record<string, unknown> = {
+      key,
+      metric: params.metric,
+      count: 1,
+    };
+
+    if (params.topicId !== undefined) {
+      createData.topicId = params.topicId;
+    }
+
+    if (params.questionType !== undefined) {
+      createData.questionType = params.questionType;
+    }
+
     await db.analyticsCounter.upsert({
-      where: {
-        key,
-      },
+      where: { key },
       update: {
-        count: {
-          increment: 1,
-        },
+        count: { increment: 1 },
       },
-      create: {
-        key,
-        metric: params.metric,
-        topicId: params.topicId,
-        questionType: params.questionType,
-        count: 1,
-      },
+      create: createData as any,
     });
   } catch (error) {
     console.error("Skipping analytics counter update because the database is unavailable.", error);

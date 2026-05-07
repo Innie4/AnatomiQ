@@ -56,8 +56,8 @@ export async function getAdminOverview() {
           course: true,
           _count: {
             select: {
-              chunks: true,
-              questions: true,
+              ContentChunk: true,
+              Question: true,
             },
           },
         },
@@ -102,8 +102,8 @@ export async function getAdminOverview() {
           course: material.course.name,
           topic: material.topic.name,
           subtopic: material.subtopic?.name ?? null,
-          chunkCount: material._count.chunks,
-          questionCount: material._count.questions,
+          chunkCount: material._count.ContentChunk ?? 0,
+          questionCount: material._count.Question ?? 0,
           sourcePages: material.sourcePages,
           createdAt: material.createdAt.toISOString(),
           updatedAt: material.updatedAt.toISOString(),
