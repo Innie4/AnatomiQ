@@ -16,8 +16,10 @@ export async function ensureCourseAndTopicHierarchy(params: {
   topicName: string;
   subtopicName?: string | null;
 }) {
+  console.log("[materials] Ensuring hierarchy:", params);
   const courseSlug = toSlug(params.courseName);
 
+  console.log("[materials] Upserting course:", courseSlug);
   const course = await db.course.upsert({
     where: { slug: courseSlug },
     update: {
@@ -29,7 +31,9 @@ export async function ensureCourseAndTopicHierarchy(params: {
       description: `${params.courseName} learning material in ANATOMIQ.`,
     },
   });
+  console.log("[materials] Course ready:", course.id);
 
+  console.log("[materials] Upserting topic:", toSlug(params.topicName));
   const topic = await db.topic.upsert({
     where: { slug: toSlug(params.topicName) },
     update: {
@@ -43,11 +47,13 @@ export async function ensureCourseAndTopicHierarchy(params: {
       level: 0,
     },
   });
+  console.log("[materials] Topic ready:", topic.id);
 
   let subtopic = null;
 
   if (params.subtopicName) {
     const slug = toSlug(`${params.topicName}-${params.subtopicName}`);
+    console.log("[materials] Upserting subtopic:", slug);
     subtopic = await db.topic.upsert({
       where: { slug },
       update: {
@@ -64,6 +70,7 @@ export async function ensureCourseAndTopicHierarchy(params: {
         level: 1,
       },
     });
+    console.log("[materials] Subtopic ready:", subtopic.id);
   }
 
   return { course, topic, subtopic };
@@ -95,13 +102,16 @@ export async function createUploadedMaterial(params: {
     throw new Error("Database is not configured.");
   }
 
+  console.log("[materials] Creating material:", params.title);
+
   const { course, topic, subtopic } = await ensureCourseAndTopicHierarchy({
     courseName: params.courseName,
     topicName: params.topicName,
     subtopicName: params.subtopicName,
   });
 
-  return db.material.create({
+  console.log("[materials] Creating material record in database");
+  const material = await db.material.create({
     data: {
       title: params.title,
       fileName: params.fileName,
@@ -123,6 +133,9 @@ export async function createUploadedMaterial(params: {
       course: true,
     },
   });
+
+  console.log("[materials] Material record created successfully:", material.id);
+  return material;
 }
 
 async function getMaterialForProcessing(materialId: string) {

@@ -11,27 +11,39 @@ import { db } from "@/lib/db";
 
 export async function POST(request: Request) {
   try {
+    console.log("[upload-material] Starting upload request");
+
     // Authenticate using JWT or legacy key
     const auth = await authenticateRequest(db, request);
     if (!auth) {
+      console.log("[upload-material] Authentication failed");
       return fail("Unauthorized", 401);
     }
 
+    console.log("[upload-material] Authenticated user:", auth.userId);
+
+    console.log("[upload-material] Parsing form data");
     const formData = await request.formData();
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
+      console.log("[upload-material] No file provided");
       return fail("A file is required.");
     }
 
+    console.log("[upload-material] File received:", file.name, file.size, file.type);
+
     if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+      console.log("[upload-material] File too large:", file.size);
       return fail("The uploaded file exceeds the 25MB limit.");
     }
 
     if (!SUPPORTED_UPLOAD_MIME_TYPES.includes(file.type as (typeof SUPPORTED_UPLOAD_MIME_TYPES)[number])) {
+      console.log("[upload-material] Unsupported file type:", file.type);
       return fail("Unsupported file type.");
     }
 
+    console.log("[upload-material] Validating schema");
     const parsed = uploadMaterialSchema.parse({
       title: formData.get("title"),
       courseName: formData.get("courseName"),
@@ -39,15 +51,21 @@ export async function POST(request: Request) {
       subtopicName: formData.get("subtopicName") || null,
     });
 
+    console.log("[upload-material] Parsed data:", parsed);
+
+    console.log("[upload-material] Converting file to buffer");
     const buffer = Buffer.from(await file.arrayBuffer());
     const extension = file.name.split(".").pop() || "bin";
     const storageKey = `materials/${toSlug(parsed.courseName)}/${Date.now()}-${randomUUID()}.${extension}`;
+
+    console.log("[upload-material] Uploading to S3:", storageKey);
     const storage = await uploadBufferToS3({
       key: storageKey,
       buffer,
       contentType: file.type,
     });
 
+    console.log("[upload-material] S3 upload successful, creating material record");
     const material = await createUploadedMaterial({
       title: parsed.title,
       fileName: file.name,
@@ -59,7 +77,10 @@ export async function POST(request: Request) {
       subtopicName: parsed.subtopicName,
     });
 
+    console.log("[upload-material] Material created:", material.id);
+
     // Log audit trail
+    console.log("[upload-material] Logging audit");
     await logAudit(
       db,
       auth.userId,
@@ -69,6 +90,7 @@ export async function POST(request: Request) {
       `Uploaded ${material.title} to ${parsed.topicName}${parsed.subtopicName ? ` / ${parsed.subtopicName}` : ""}`
     );
 
+    console.log("[upload-material] Upload complete");
     return ok({
       material: {
         id: material.id,
@@ -80,6 +102,7 @@ export async function POST(request: Request) {
       },
     });
   } catch (error) {
+    console.error("[upload-material] Error occurred:", error);
     return handleRouteError(error);
   }
 }
