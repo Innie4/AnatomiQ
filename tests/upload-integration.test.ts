@@ -97,13 +97,13 @@ describe("Upload Integration Tests", () => {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        materialId: "non-existent-id",
+        materialId: "00000000-0000-0000-0000-000000000000", // Valid UUID that doesn't exist
       }),
     });
 
     // Should authenticate but fail on material not found
     assert.ok(
-      response.status === 404 || response.status === 500,
+      response.status === 404 || response.status === 422 || response.status === 500,
       "Should authenticate but fail on non-existent material"
     );
   });

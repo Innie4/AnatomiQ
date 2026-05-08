@@ -8,11 +8,11 @@ export const uploadMaterialSchema = z.object({
 });
 
 export const processMaterialSchema = z.object({
-  materialId: z.string().cuid(),
+  materialId: z.string().uuid(),
 });
 
 export const uploadManualQuestionBatchSchema = z.object({
-  materialId: z.string().cuid(),
+  materialId: z.string().uuid(),
   type: z.enum(["MCQ", "SHORT_ANSWER", "THEORY"]),
   defaultDifficulty: z.enum(["FOUNDATIONAL", "INTERMEDIATE", "ADVANCED"]).default("INTERMEDIATE"),
   input: z.string().min(10),
@@ -30,7 +30,7 @@ const manualQuestionBaseSchema = z.object({
 
 export const createManualQuestionSchema = z
   .object({
-    materialId: z.string().cuid(),
+    materialId: z.string().uuid(),
   })
   .merge(manualQuestionBaseSchema)
   .superRefine((value, ctx) => {
@@ -54,13 +54,13 @@ export const updateManualQuestionSchema = manualQuestionBaseSchema.superRefine((
 });
 
 export const materialQuestionQuerySchema = z.object({
-  materialId: z.string().cuid(),
+  materialId: z.string().uuid(),
 });
 
 export const gradeExamSchema = z.object({
   answers: z.array(
     z.object({
-      questionId: z.string().cuid(),
+      questionId: z.string().uuid(),
       response: z.string(),
     }),
   ),
@@ -84,7 +84,7 @@ export const startExamSchema = z.object({
 export const gradeMcqSchema = z.object({
   answers: z.array(
     z.object({
-      questionId: z.string().cuid(),
+      questionId: z.string().uuid(),
       selectedOption: z.string().min(1),
     }),
   ),
