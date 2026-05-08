@@ -8,6 +8,13 @@ import { startTransition, useEffect, useState } from "react";
 import { QUESTION_COUNT_OPTIONS, TIMER_OPTIONS } from "@/lib/constants";
 import { toFriendlyError } from "@/lib/friendly-errors";
 
+type CourseCard = {
+  id: string;
+  code: string;
+  name: string;
+  slug: string;
+};
+
 type TopicCard = {
   id: string;
   name: string;
@@ -25,15 +32,20 @@ type QuestionTypeAvailability = {
 };
 
 export function ExamClient({
+  courses,
   topics,
+  initialCourse,
   initialTopic,
   initialSubtopic,
 }: {
+  courses: CourseCard[];
   topics: TopicCard[];
+  initialCourse?: string;
   initialTopic?: string;
   initialSubtopic?: string;
 }) {
   const router = useRouter();
+  const [courseSlug, setCourseSlug] = useState(initialCourse ?? courses[0]?.slug ?? "");
   const [topicSlug, setTopicSlug] = useState(initialTopic ?? topics[0]?.slug ?? "");
   const [subtopicSlug, setSubtopicSlug] = useState(initialSubtopic ?? "");
   const [type, setType] = useState<"MCQ" | "SHORT_ANSWER" | "THEORY" | "MIXED">("MCQ");
@@ -94,6 +106,7 @@ export function ExamClient({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          courseSlug,
           topicSlug,
           subtopicSlug: resolvedSubtopicSlug || undefined,
           type,
@@ -113,6 +126,7 @@ export function ExamClient({
         JSON.stringify({
           ...data,
           config: {
+            courseSlug,
             topicSlug,
             subtopicSlug: resolvedSubtopicSlug,
             type,
@@ -150,7 +164,22 @@ export function ExamClient({
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <label className="space-y-2">
+            <span className="text-sm font-semibold text-slate-700">Course</span>
+            <select
+              value={courseSlug}
+              onChange={(event) => setCourseSlug(event.target.value)}
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+            >
+              {courses.map((course) => (
+                <option key={course.id} value={course.slug}>
+                  {course.code} - {course.name}
+                </option>
+              ))}
+            </select>
+          </label>
+
           <label className="space-y-2">
             <span className="text-sm font-semibold text-slate-700">Topic</span>
             <select

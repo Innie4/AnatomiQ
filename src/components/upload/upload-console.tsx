@@ -97,6 +97,7 @@ export function UploadConsole() {
   const [adminKey, setAdminKey] = useState("");
   const [showAdminKey, setShowAdminKey] = useState(false);
   const [title, setTitle] = useState("");
+  const [courseCode, setCourseCode] = useState("ANA101");
   const [courseName, setCourseName] = useState("Human Anatomy");
   const [topicName, setTopicName] = useState("");
   const [subtopicName, setSubtopicName] = useState("");
@@ -166,6 +167,7 @@ export function UploadConsole() {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("title", title || file.name);
+      formData.append("courseCode", courseCode);
       formData.append("courseName", courseName);
       formData.append("topicName", topicName);
       formData.append("subtopicName", subtopicName);
@@ -294,10 +296,11 @@ export function UploadConsole() {
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             <input value={title} onChange={(event) => setTitle(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Title" aria-label="Material title" />
-            <input value={courseName} onChange={(event) => setCourseName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course" aria-label="Course name" />
+            <input value={courseCode} onChange={(event) => setCourseCode(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course Code (e.g., ANA101)" aria-label="Course code" />
+            <input value={courseName} onChange={(event) => setCourseName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course Name" aria-label="Course name" />
             <input value={topicName} onChange={(event) => setTopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Topic" aria-label="Topic name" />
             <input value={subtopicName} onChange={(event) => setSubtopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Subtopic" aria-label="Subtopic name (optional)" />
-            <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="md:col-span-2 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-5 outline-none" aria-label="Select file to upload (PDF, image, or text)" />
+            <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="md:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-5 outline-none" aria-label="Select file to upload (PDF, image, or text)" />
           </div>
           <div className="mt-6 flex items-center gap-3">
             <button onClick={() => void handleUpload()} disabled={loading} className="inline-flex items-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#2d8cff,#18b08f)] px-6 py-4 text-sm font-semibold text-white disabled:opacity-70" aria-label={loading ? "Uploading material" : "Upload and process material"}>

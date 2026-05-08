@@ -85,6 +85,7 @@ async function main() {
     course = await prisma.course.create({
       data: {
         id: randomUUID(),
+        code: "ANA101",
         name: "Human Anatomy",
         slug: "human-anatomy",
         description:
@@ -93,6 +94,13 @@ async function main() {
     });
   } else {
     console.log("Human Anatomy course already exists, skipping...");
+    // Update existing course with code if it doesn't have one
+    if (!course.code) {
+      await prisma.course.update({
+        where: { id: course.id },
+        data: { code: "ANA101" },
+      });
+    }
   }
 
   console.log("Seeding anatomy topics...");

@@ -12,6 +12,7 @@ import { extractJson, splitIntoSemanticChunks } from "@/lib/text";
 import { toSlug } from "@/lib/utils";
 
 export async function ensureCourseAndTopicHierarchy(params: {
+  courseCode: string;
   courseName: string;
   topicName: string;
   subtopicName?: string | null;
@@ -23,9 +24,11 @@ export async function ensureCourseAndTopicHierarchy(params: {
   const course = await db.course.upsert({
     where: { slug: courseSlug },
     update: {
+      code: params.courseCode,
       name: params.courseName,
     },
     create: {
+      code: params.courseCode,
       name: params.courseName,
       slug: courseSlug,
       description: `${params.courseName} learning material in ANATOMIQ.`,
@@ -94,6 +97,7 @@ export async function createUploadedMaterial(params: {
   mimeType: string;
   storageKey: string;
   storageUrl: string;
+  courseCode: string;
   courseName: string;
   topicName: string;
   subtopicName?: string | null;
@@ -105,6 +109,7 @@ export async function createUploadedMaterial(params: {
   console.log("[materials] Creating material:", params.title);
 
   const { course, topic, subtopic } = await ensureCourseAndTopicHierarchy({
+    courseCode: params.courseCode,
     courseName: params.courseName,
     topicName: params.topicName,
     subtopicName: params.subtopicName,

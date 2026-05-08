@@ -2,6 +2,7 @@ import { z } from "zod";
 
 export const uploadMaterialSchema = z.object({
   title: z.string().min(3),
+  courseCode: z.string().min(2),
   courseName: z.string().min(3),
   topicName: z.string().min(2),
   subtopicName: z.string().optional().nullable(),
@@ -74,6 +75,7 @@ export const generateQuestionSchema = z.object({
 });
 
 export const startExamSchema = z.object({
+  courseSlug: z.string().min(1),
   topicSlug: z.string().min(1),
   subtopicSlug: z.string().optional(),
   type: z.enum(["MCQ", "SHORT_ANSWER", "THEORY", "MIXED"]),

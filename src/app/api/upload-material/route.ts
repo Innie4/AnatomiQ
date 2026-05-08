@@ -46,6 +46,7 @@ export async function POST(request: Request) {
     console.log("[upload-material] Validating schema");
     const parsed = uploadMaterialSchema.parse({
       title: formData.get("title"),
+      courseCode: formData.get("courseCode"),
       courseName: formData.get("courseName"),
       topicName: formData.get("topicName"),
       subtopicName: formData.get("subtopicName") || null,
@@ -72,6 +73,7 @@ export async function POST(request: Request) {
       mimeType: file.type,
       storageKey: storage.key,
       storageUrl: storage.url,
+      courseCode: parsed.courseCode,
       courseName: parsed.courseName,
       topicName: parsed.topicName,
       subtopicName: parsed.subtopicName,
