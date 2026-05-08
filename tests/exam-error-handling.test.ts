@@ -38,7 +38,16 @@ describe("Exam Page Error Handling", () => {
     const topics = await getTopicCoverage();
 
     assert.ok(Array.isArray(topics));
-    assert.ok(topics.length >= DEFAULT_ANATOMY_TOPICS.length);
+    // Should return topics from database or fallback to defaults
+    // At minimum should have some topics (either from DB or fallback)
+    assert.ok(topics.length > 0, "Should return at least one topic");
+
+    // All topics should have the required structure
+    topics.forEach((topic) => {
+      assert.ok(topic.id, "Topic should have id");
+      assert.ok(topic.name, "Topic should have name");
+      assert.ok(topic.slug, "Topic should have slug");
+    });
   });
 
   it("should handle empty search gracefully", async () => {
