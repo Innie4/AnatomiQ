@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState, useSyncExternalStore } from "react";
+import { useEffect, useState } from "react";
 
 type StoredResult = {
   submittedAt: string;
@@ -38,31 +38,16 @@ type StoredResult = {
   };
 };
 
-function subscribe(callback: () => void) {
-  if (typeof window === "undefined") {
-    return () => {};
-  }
-
-  const listener = () => callback();
-  window.addEventListener("storage", listener);
-  return () => window.removeEventListener("storage", listener);
-}
-
-function getSnapshot() {
-  if (typeof window === "undefined") {
-    return null;
-  }
-
-  const raw = window.sessionStorage.getItem("anatomiq:last-result");
-  return raw ? (JSON.parse(raw) as StoredResult) : null;
-}
-
 export function ResultsClient() {
-  const result = useSyncExternalStore(subscribe, getSnapshot, () => null);
   const [mounted, setMounted] = useState(false);
+  const [result, setResult] = useState<StoredResult | null>(null);
 
   useEffect(() => {
     setMounted(true);
+    const raw = sessionStorage.getItem("anatomiq:last-result");
+    if (raw) {
+      setResult(JSON.parse(raw) as StoredResult);
+    }
   }, []);
 
   // Prevent hydration mismatch by not rendering until client-side
