@@ -78,7 +78,7 @@ export function ResultsClient() {
   const breakdownMap = new Map(result.grade?.breakdown.map((item) => [item.questionId, item]) ?? []);
 
   return (
-    <div suppressHydrationWarning className="space-y-8">
+    <div className="space-y-8">
       <section className="glass-panel rounded-[2rem] border border-white/80 p-6 sm:p-8">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">Session results</p>
         <h1 className="display-title mt-2 text-4xl text-slate-950 sm:text-5xl">
@@ -86,7 +86,7 @@ export function ResultsClient() {
           {result.selection.subtopicName ? ` / ${result.selection.subtopicName}` : ""}
         </h1>
         <p className="mt-3 text-base leading-7 text-slate-600">
-          Submitted {new Date(result.submittedAt).toLocaleString()}. This review lives only in your current browser session.
+          Submitted <span suppressHydrationWarning>{new Date(result.submittedAt).toLocaleString()}</span>. This review lives only in your current browser session.
         </p>
 
         {result.grade ? (
