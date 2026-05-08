@@ -115,7 +115,16 @@ export function ResultsClient() {
           const userAnswer = result.answers[question.id] ?? "";
 
           return (
-            <article key={question.id} className="glass-panel rounded-[1.75rem] border border-white/80 p-6">
+            <article
+              key={question.id}
+              className={`glass-panel rounded-[1.75rem] p-6 ${
+                review?.correct
+                  ? "border-2 border-emerald-500 bg-emerald-50/30"
+                  : review?.correct === false
+                  ? "border-2 border-rose-500 bg-rose-50/30"
+                  : "border border-white/80"
+              }`}
+            >
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
                 Question {index + 1} · {question.type.replaceAll("_", " ")}
               </p>
