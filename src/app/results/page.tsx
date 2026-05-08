@@ -2,6 +2,8 @@ import { ResultsClient } from "@/components/results/results-client";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 
+export const dynamic = "force-dynamic";
+
 export default function ResultsPage() {
   return (
     <div className="shell flex flex-1 flex-col">
