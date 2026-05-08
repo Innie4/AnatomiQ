@@ -151,10 +151,6 @@ export function ResultsClient() {
                   {question.explanation}
                 </div>
               ) : null}
-
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-white/80 px-4 py-3 text-sm text-slate-600">
-                Source trace: {question.sourceSnippet}
-              </div>
             </article>
           );
         })}
