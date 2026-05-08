@@ -26,7 +26,9 @@
       "Bash(curl -s http://localhost:3000/exam)",
       "Bash(curl *)",
       "Bash(tsx prisma/seed.ts)",
-      "Bash(npx vercel *)"
+      "Bash(npx vercel *)",
+      "Bash(node *)",
+      "Bash(chmod +x *)"
     ]
   }
 }

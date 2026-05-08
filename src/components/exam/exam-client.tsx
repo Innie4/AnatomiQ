@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, Clock3, FileQuestion, LoaderCircle } from "lucide-react";
-import { startTransition, useEffect, useEffectEvent, useState } from "react";
+import { AlertCircle, FileQuestion, LoaderCircle } from "lucide-react";
+import { startTransition, useEffect, useState } from "react";
 
 import { QUESTION_COUNT_OPTIONS, TIMER_OPTIONS } from "@/lib/constants";
 import { toFriendlyError } from "@/lib/friendly-errors";
@@ -15,38 +15,13 @@ type TopicCard = {
   childTopics: Array<{ id: string; name: string; slug: string }>;
 };
 
-type ExamQuestion = {
-  id: string;
-  type: "MCQ" | "SHORT_ANSWER" | "THEORY";
-  stem: string;
-  options: string[] | null;
-  difficulty: string;
-  sourceSnippet: string;
-  answer: string;
-  explanation?: string | null;
-};
-
-type ExamResponse = {
-  selection: {
-    topicName: string;
-    subtopicName?: string | null;
+type QuestionTypeAvailability = {
+  availableTypes: Array<"MCQ" | "SHORT_ANSWER" | "THEORY">;
+  counts: {
+    MCQ: number;
+    SHORT_ANSWER: number;
+    THEORY: number;
   };
-  questions: ExamQuestion[];
-};
-
-type GradeResponse = {
-  score: number;
-  total: number;
-  percentage: number;
-  breakdown: Array<{
-    questionId: string;
-    questionType: "MCQ" | "SHORT_ANSWER" | "THEORY";
-    submittedAnswer: string;
-    correctAnswer: string;
-    correct: boolean;
-    explanation?: string | null;
-    sourceSnippet: string;
-  }>;
 };
 
 export function ExamClient({
@@ -61,57 +36,52 @@ export function ExamClient({
   const router = useRouter();
   const [topicSlug, setTopicSlug] = useState(initialTopic ?? topics[0]?.slug ?? "");
   const [subtopicSlug, setSubtopicSlug] = useState(initialSubtopic ?? "");
-  const [type, setType] = useState<"MCQ" | "SHORT_ANSWER" | "THEORY" | "MIXED">("MIXED");
+  const [type, setType] = useState<"MCQ" | "SHORT_ANSWER" | "THEORY" | "MIXED">("MCQ");
   const [count, setCount] = useState(12);
   const [durationMinutes, setDurationMinutes] = useState(0);
   const [loading, setLoading] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [exam, setExam] = useState<ExamResponse | null>(null);
-  const [answers, setAnswers] = useState<Record<string, string>>({});
-  const [timeLeft, setTimeLeft] = useState<number | null>(null);
+  const [availability, setAvailability] = useState<QuestionTypeAvailability>({
+    availableTypes: [],
+    counts: { MCQ: 0, SHORT_ANSWER: 0, THEORY: 0 },
+  });
 
   const selectedTopic = topics.find((topic) => topic.slug === topicSlug) ?? topics[0];
   const availableSubtopics = selectedTopic?.childTopics ?? [];
   const resolvedSubtopicSlug = availableSubtopics.some((subtopic) => subtopic.slug === subtopicSlug)
     ? subtopicSlug
     : "";
-  const formattedTimer =
-    timeLeft === null
-      ? null
-      : `${String(Math.floor(timeLeft / 60)).padStart(2, "0")}:${String(timeLeft % 60).padStart(2, "0")}`;
 
-  const autoSubmit = useEffectEvent(async () => {
-    if (!exam || submitting) {
-      return;
-    }
-
-    await handleSubmitExam(true);
-  });
-
+  // Fetch available question types when topic/subtopic changes
   useEffect(() => {
-    if (timeLeft === null) {
-      return;
+    async function fetchAvailability() {
+      try {
+        const params = new URLSearchParams({ topicSlug });
+        if (resolvedSubtopicSlug) {
+          params.set("subtopicSlug", resolvedSubtopicSlug);
+        }
+
+        const response = await fetch(`/api/topic-question-types?${params}`);
+        const data = (await response.json()) as QuestionTypeAvailability;
+
+        setAvailability(data);
+
+        // Auto-select first available type if current type is not available
+        if (type !== "MIXED" && !data.availableTypes.includes(type)) {
+          if (data.availableTypes.length > 0) {
+            setType(data.availableTypes[0]);
+          }
+        }
+      } catch {
+        setAvailability({
+          availableTypes: [],
+          counts: { MCQ: 0, SHORT_ANSWER: 0, THEORY: 0 },
+        });
+      }
     }
 
-    const timer = window.setInterval(() => {
-      setTimeLeft((current) => {
-        if (typeof current !== "number") {
-          return current;
-        }
-
-        if (current <= 1) {
-          window.clearInterval(timer);
-          void autoSubmit();
-          return 0;
-        }
-
-        return current - 1;
-      });
-    }, 1000);
-
-    return () => window.clearInterval(timer);
-  }, [timeLeft]);
+    void fetchAvailability();
+  }, [topicSlug, resolvedSubtopicSlug]);
 
   async function startExam() {
     setLoading(true);
@@ -137,54 +107,11 @@ export function ExamClient({
         throw new Error(data.error || "Could not start exam.");
       }
 
-      setExam(data);
-      setAnswers({});
-      setTimeLeft(durationMinutes > 0 ? durationMinutes * 60 : null);
-    } catch (requestError) {
-      setError(toFriendlyError(requestError));
-    } finally {
-      setLoading(false);
-    }
-  }
-
-  function setAnswer(questionId: string, value: string) {
-    setAnswers((current) => ({
-      ...current,
-      [questionId]: value,
-    }));
-  }
-
-  async function handleSubmitExam(timedOut = false) {
-    if (!exam) {
-      return;
-    }
-
-    setSubmitting(true);
-
-    try {
-      const gradeResponse = await fetch("/api/grade-exam", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          answers: exam.questions.map((question) => ({
-            questionId: question.id,
-            response: answers[question.id] ?? "",
-          })),
-        }),
-      });
-      const gradePayload = (await gradeResponse.json()) as GradeResponse & { error?: string };
-
-      if (!gradeResponse.ok) {
-        throw new Error(gradePayload.error || "Could not grade this exam.");
-      }
-
+      // Store exam in sessionStorage and navigate to exam session page
       sessionStorage.setItem(
-        "anatomiq:last-result",
+        "anatomiq:active-exam",
         JSON.stringify({
-          submittedAt: new Date().toISOString(),
-          timedOut,
+          ...data,
           config: {
             topicSlug,
             subtopicSlug: resolvedSubtopicSlug,
@@ -192,22 +119,21 @@ export function ExamClient({
             count,
             durationMinutes,
           },
-          selection: exam.selection,
-          questions: exam.questions,
-          answers,
-          grade: gradePayload,
         }),
       );
 
+      // Navigate to exam session page
       startTransition(() => {
-        router.push("/results");
+        router.push("/exam-session");
       });
-    } catch (submitError) {
-      setError(toFriendlyError(submitError));
+    } catch (requestError) {
+      setError(toFriendlyError(requestError));
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   }
+
+  const isMixedModeAvailable = availability.availableTypes.length > 1;
 
   return (
     <div suppressHydrationWarning className="space-y-8">
@@ -222,12 +148,6 @@ export function ExamClient({
               Questions are generated only from processed Human Anatomy materials and never tied to student accounts.
             </p>
           </div>
-          {formattedTimer ? (
-            <div className="flex items-center gap-3 rounded-2xl border border-emerald-100 bg-emerald-50 px-4 py-3 text-emerald-700">
-              <Clock3 className="h-5 w-5" />
-              <span className="font-mono text-lg font-semibold">{formattedTimer}</span>
-            </div>
-          ) : null}
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-5">
@@ -267,12 +187,20 @@ export function ExamClient({
             <select
               value={type}
               onChange={(event) => setType(event.target.value as typeof type)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
-              <option value="MCQ">MCQ</option>
-              <option value="SHORT_ANSWER">Short answer</option>
-              <option value="THEORY">Theory</option>
-              <option value="MIXED">Mixed mode</option>
+              <option value="MCQ" disabled={!availability.availableTypes.includes("MCQ")}>
+                MCQ {availability.counts.MCQ > 0 ? `(${availability.counts.MCQ})` : "(0)"}
+              </option>
+              <option value="SHORT_ANSWER" disabled={!availability.availableTypes.includes("SHORT_ANSWER")}>
+                Short answer {availability.counts.SHORT_ANSWER > 0 ? `(${availability.counts.SHORT_ANSWER})` : "(0)"}
+              </option>
+              <option value="THEORY" disabled={!availability.availableTypes.includes("THEORY")}>
+                Theory {availability.counts.THEORY > 0 ? `(${availability.counts.THEORY})` : "(0)"}
+              </option>
+              <option value="MIXED" disabled={!isMixedModeAvailable}>
+                Mixed mode {isMixedModeAvailable ? "" : "(Requires 2+ types)"}
+              </option>
             </select>
           </label>
 
@@ -329,85 +257,6 @@ export function ExamClient({
           </div>
         ) : null}
       </section>
-
-      {exam ? (
-        <section className="space-y-5">
-          <div className="glass-panel rounded-[2rem] border border-white/80 p-6">
-            <h2 className="text-2xl font-semibold text-slate-950">
-              {exam.selection.topicName}
-              {exam.selection.subtopicName ? ` / ${exam.selection.subtopicName}` : ""}
-            </h2>
-            <p className="mt-2 text-sm text-slate-500">
-              {exam.questions.length} questions ready. Answers stay in your current browser session only.
-            </p>
-          </div>
-
-          {exam.questions.map((question, index) => (
-            <article key={question.id} className="glass-panel rounded-[1.75rem] border border-white/80 p-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-                <div>
-                  <p className="text-sm font-semibold uppercase tracking-[0.16em] text-slate-500">
-                    Question {index + 1} · {question.type.replaceAll("_", " ")}
-                  </p>
-                  <h3 className="mt-2 text-xl font-semibold text-slate-950">{question.stem}</h3>
-                </div>
-                <span className="rounded-full bg-sky-50 px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-sky-700">
-                  {question.difficulty}
-                </span>
-              </div>
-
-              {question.type === "MCQ" ? (
-                <div className="mt-5 grid gap-3">
-                  {question.options?.map((option) => (
-                    <label
-                      key={option}
-                      className="flex cursor-pointer items-center gap-3 rounded-2xl border border-slate-200 bg-white/90 px-4 py-3 hover:border-sky-200 hover:bg-sky-50/50"
-                    >
-                      <input
-                        type="radio"
-                        name={question.id}
-                        checked={answers[question.id] === option}
-                        onChange={() => setAnswer(question.id, option)}
-                        aria-label={`Option: ${option}`}
-                      />
-                      <span className="text-slate-700">{option}</span>
-                    </label>
-                  ))}
-                </div>
-              ) : (
-                <textarea
-                  value={answers[question.id] ?? ""}
-                  onChange={(event) => setAnswer(question.id, event.target.value)}
-                  rows={question.type === "THEORY" ? 7 : 4}
-                  placeholder={
-                    question.type === "THEORY"
-                      ? "Write your structured theory response..."
-                      : "Write a concise answer..."
-                  }
-                  aria-label={`Answer for ${question.type === "THEORY" ? "theory" : "short answer"} question`
-                  }
-                  className="mt-5 w-full rounded-[1.5rem] border border-slate-200 bg-white/90 px-4 py-4 text-slate-900 outline-none placeholder:text-slate-400"
-                />
-              )}
-
-              <div className="mt-4 rounded-2xl border border-slate-200 bg-slate-50/80 px-4 py-3 text-sm text-slate-600">
-                Source trace: {question.sourceSnippet}
-              </div>
-            </article>
-          ))}
-
-          <div className="flex justify-end">
-            <button
-              onClick={() => void handleSubmitExam(false)}
-              disabled={submitting}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-6 py-4 text-sm font-semibold text-white hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-70"
-            >
-              {submitting ? <LoaderCircle className="h-5 w-5 animate-spin" /> : null}
-              Submit exam
-            </button>
-          </div>
-        </section>
-      ) : null}
     </div>
   );
 }

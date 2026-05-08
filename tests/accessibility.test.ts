@@ -143,18 +143,25 @@ test('all form controls are keyboard accessible', () => {
 
 test('exam flow is keyboard navigable (Tab, Space, Enter, Escape)', () => {
   const examPath = 'src/components/exam/exam-client.tsx';
-  const content = readComponent(examPath);
+  const examSessionPath = 'src/components/exam/exam-session-client.tsx';
+  const examContent = readComponent(examPath);
+  const sessionContent = readComponent(examSessionPath);
 
   // Verify exam component has proper button elements (automatically keyboard accessible)
-  const hasButtons = /<button/.test(content);
-  const hasInputs = /<input/.test(content);
-  const hasTextarea = /<textarea/.test(content);
+  const hasButtons = /<button/.test(examContent);
+  const hasSelects = /<select/.test(examContent);
 
   assert.ok(hasButtons, 'Exam should have button elements for keyboard navigation');
-  assert.ok(hasInputs || hasTextarea, 'Exam should have form inputs for answers');
+  assert.ok(hasSelects, 'Exam should have select dropdowns');
 
-  // Verify proper form structure
-  const hasFormElements = /<button|<input|<select|<textarea/.test(content);
+  // Verify exam session has form inputs for answering questions
+  const sessionHasInputs = /<input/.test(sessionContent);
+  const sessionHasTextarea = /<textarea/.test(sessionContent);
+
+  assert.ok(sessionHasInputs || sessionHasTextarea, 'Exam session should have form inputs for answers');
+
+  // Verify proper form structure across both components
+  const hasFormElements = /<button|<input|<select|<textarea/.test(examContent + sessionContent);
   assert.ok(hasFormElements, 'Exam uses standard form controls for keyboard accessibility');
 });
 
