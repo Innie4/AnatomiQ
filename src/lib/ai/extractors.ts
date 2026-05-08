@@ -1,5 +1,3 @@
-import { PDFParse } from "pdf-parse";
-
 import { getOpenAiClient } from "@/lib/ai/client";
 import { buildImageExtractionPrompt, buildPdfRepairPrompt } from "@/lib/ai/prompts";
 import { env, hasOpenAi } from "@/lib/env";
@@ -72,10 +70,17 @@ export async function extractMaterialText(params: {
   mimeType: string;
 }) {
   if (params.mimeType === "application/pdf") {
+    // Lazy import to avoid loading pdf-parse in serverless environments where it's not needed
+    console.log("[extractors] Dynamically importing pdf-parse for PDF extraction");
+    const { PDFParse } = await import("pdf-parse");
+
+    console.log("[extractors] Parsing PDF buffer");
     const parser = new PDFParse({ data: params.buffer });
     const parsed = await parser.getText();
     await parser.destroy();
     const normalized = normalizeWhitespace(parsed.text || "");
+
+    console.log(`[extractors] PDF parsed: ${normalized.length} chars, ${parsed.total} pages`);
 
     if (normalized.length >= 800 || !hasOpenAi) {
       return {
@@ -85,6 +90,7 @@ export async function extractMaterialText(params: {
       };
     }
 
+    console.log("[extractors] PDF text too short, using OpenAI vision for repair");
     const repaired = await extractTextViaVision({
       buffer: params.buffer,
       fileName: params.fileName,
@@ -100,6 +106,7 @@ export async function extractMaterialText(params: {
   }
 
   if (params.mimeType.startsWith("image/")) {
+    console.log(`[extractors] Extracting text from image using ${hasOpenAi ? "OpenAI vision" : "Tesseract OCR"}`);
     const extracted = hasOpenAi
       ? await extractTextViaVision({
           buffer: params.buffer,
@@ -109,6 +116,7 @@ export async function extractMaterialText(params: {
         })
       : await extractImageTextLocally(params.buffer);
 
+    console.log(`[extractors] Image text extracted: ${extracted.length} chars`);
     return {
       text: extracted,
       pageCount: 1,
@@ -116,6 +124,7 @@ export async function extractMaterialText(params: {
     };
   }
 
+  console.log("[extractors] Treating as plain text");
   return {
     text: normalizeWhitespace(params.buffer.toString("utf8")),
     pageCount: 1,
