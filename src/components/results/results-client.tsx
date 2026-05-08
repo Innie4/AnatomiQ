@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { useSyncExternalStore } from "react";
+import { useEffect, useState, useSyncExternalStore } from "react";
 
 type StoredResult = {
   submittedAt: string;
@@ -59,6 +59,21 @@ function getSnapshot() {
 
 export function ResultsClient() {
   const result = useSyncExternalStore(subscribe, getSnapshot, () => null);
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Prevent hydration mismatch by not rendering until client-side
+  if (!mounted) {
+    return (
+      <div className="glass-panel rounded-[2rem] border border-white/80 p-8 text-center">
+        <div className="h-8 w-8 animate-spin rounded-full border-4 border-slate-200 border-t-slate-950 mx-auto"></div>
+        <p className="mt-4 text-slate-600">Loading results...</p>
+      </div>
+    );
+  }
 
   if (!result) {
     return (
@@ -86,7 +101,7 @@ export function ResultsClient() {
           {result.selection.subtopicName ? ` / ${result.selection.subtopicName}` : ""}
         </h1>
         <p className="mt-3 text-base leading-7 text-slate-600">
-          Submitted <span suppressHydrationWarning>{new Date(result.submittedAt).toLocaleString()}</span>. This review lives only in your current browser session.
+          Submitted {new Date(result.submittedAt).toLocaleString()}. This review lives only in your current browser session.
         </p>
 
         {result.grade ? (
