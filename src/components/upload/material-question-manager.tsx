@@ -45,7 +45,6 @@ type EditableQuestion = {
   optionsText: string;
   answer: string;
   explanation: string;
-  difficulty: "FOUNDATIONAL" | "INTERMEDIATE" | "ADVANCED";
 };
 
 const numberedTemplate = `Questions
@@ -61,11 +60,7 @@ Answers
 
 Explanations
 1. The apex of the heart is formed by the left ventricle.
-2. The phrenic nerve is the principal motor supply of the diaphragm.
-
-Difficulties
-1. Foundational
-2. Intermediate`;
+2. The phrenic nerve is the principal motor supply of the diaphragm.`;
 
 function buildEmptyQuestion(nextOrder: number): EditableQuestion {
   return {
@@ -75,7 +70,6 @@ function buildEmptyQuestion(nextOrder: number): EditableQuestion {
     optionsText: "",
     answer: "",
     explanation: "",
-    difficulty: "INTERMEDIATE",
   };
 }
 
@@ -88,7 +82,6 @@ function toEditableQuestion(question: ManualQuestionRecord): EditableQuestion {
     optionsText: (question.options ?? []).join("\n"),
     answer: question.answer,
     explanation: question.explanation ?? "",
-    difficulty: question.difficulty,
   };
 }
 
@@ -99,7 +92,7 @@ function toPayload(question: EditableQuestion) {
     stem: question.stem,
     answer: question.answer,
     explanation: question.explanation,
-    difficulty: question.difficulty,
+    difficulty: "INTERMEDIATE" as const,
     options:
       question.type === "MCQ"
         ? question.optionsText
@@ -126,7 +119,6 @@ export function MaterialQuestionManager({
   const [materialSearch, setMaterialSearch] = useState("");
   const [selectedMaterialId, setSelectedMaterialId] = useState("");
   const [bulkType, setBulkType] = useState<"MCQ" | "SHORT_ANSWER" | "THEORY">("MCQ");
-  const [bulkDifficulty, setBulkDifficulty] = useState<"FOUNDATIONAL" | "INTERMEDIATE" | "ADVANCED">("INTERMEDIATE");
   const [bulkInput, setBulkInput] = useState("");
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
@@ -218,7 +210,7 @@ export function MaterialQuestionManager({
         const formData = new FormData();
         formData.append("materialId", activeMaterialId);
         formData.append("type", bulkType);
-        formData.append("defaultDifficulty", bulkDifficulty);
+        formData.append("defaultDifficulty", "INTERMEDIATE");
         if (bulkInput.trim()) {
           formData.append("input", bulkInput);
         }
@@ -239,7 +231,7 @@ export function MaterialQuestionManager({
           body: JSON.stringify({
             materialId: activeMaterialId,
             type: bulkType,
-            defaultDifficulty: bulkDifficulty,
+            defaultDifficulty: "INTERMEDIATE",
             input: bulkInput,
           }),
         });
@@ -413,25 +405,8 @@ export function MaterialQuestionManager({
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none"
             >
               <option value="MCQ">MCQ</option>
-              <option value="SHORT_ANSWER">Short answer</option>
+              <option value="SHORT_ANSWER">Subjective</option>
               <option value="THEORY">Theory</option>
-            </select>
-          </label>
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Difficulty</span>
-            <select
-              value={question.difficulty}
-              onChange={(event) =>
-                onChange({
-                  ...question,
-                  difficulty: event.target.value as EditableQuestion["difficulty"],
-                })
-              }
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none"
-            >
-              <option value="FOUNDATIONAL">Foundational</option>
-              <option value="INTERMEDIATE">Intermediate</option>
-              <option value="ADVANCED">Advanced</option>
             </select>
           </label>
         </div>
@@ -558,24 +533,15 @@ export function MaterialQuestionManager({
             ))}
           </select>
 
-          <div className="grid gap-4 md:grid-cols-2">
+          <div>
             <select
               value={bulkType}
               onChange={(event) => setBulkType(event.target.value as typeof bulkType)}
               className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none"
             >
               <option value="MCQ">MCQ</option>
-              <option value="SHORT_ANSWER">Short answer</option>
+              <option value="SHORT_ANSWER">Subjective</option>
               <option value="THEORY">Theory</option>
-            </select>
-            <select
-              value={bulkDifficulty}
-              onChange={(event) => setBulkDifficulty(event.target.value as typeof bulkDifficulty)}
-              className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none"
-            >
-              <option value="FOUNDATIONAL">Foundational</option>
-              <option value="INTERMEDIATE">Intermediate</option>
-              <option value="ADVANCED">Advanced</option>
             </select>
           </div>
 
