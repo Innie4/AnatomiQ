@@ -377,18 +377,39 @@ export function MaterialQuestionManager({
     onChange: (next: EditableQuestion) => void,
     isNew = false,
   ) {
+    // Get all existing question numbers
+    const existingNumbers = new Set(questions.map((q) => q.manualOrder));
+
+    // If editing an existing question, include its current number
+    if (!isNew && question.id) {
+      const currentQuestion = questions.find((q) => q.id === question.id);
+      if (currentQuestion) {
+        existingNumbers.delete(currentQuestion.manualOrder);
+      }
+    }
+
+    // Generate available numbers (1 to max + 10 to allow gaps)
+    const maxNumber = Math.max(0, ...questions.map((q) => q.manualOrder));
+    const availableNumbers = Array.from({ length: maxNumber + 10 }, (_, i) => i + 1).filter(
+      (num) => !existingNumbers.has(num)
+    );
+
     return (
       <div className="grid gap-4">
         <div className="grid gap-4 md:grid-cols-3">
           <label className="space-y-2">
             <span className="text-sm font-semibold text-slate-700">Question number</span>
-            <input
-              type="number"
-              min={1}
+            <select
               value={question.manualOrder}
-              onChange={(event) => onChange({ ...question, manualOrder: Number(event.target.value) || 1 })}
+              onChange={(event) => onChange({ ...question, manualOrder: Number(event.target.value) })}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none"
-            />
+            >
+              {availableNumbers.map((num) => (
+                <option key={num} value={num}>
+                  {num}
+                </option>
+              ))}
+            </select>
           </label>
           <label className="space-y-2">
             <span className="text-sm font-semibold text-slate-700">Type</span>
