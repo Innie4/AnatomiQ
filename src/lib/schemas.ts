@@ -56,6 +56,7 @@ export const updateManualQuestionSchema = manualQuestionBaseSchema.superRefine((
 
 export const materialQuestionQuerySchema = z.object({
   materialId: z.string().uuid(),
+  type: z.enum(["MCQ", "SHORT_ANSWER", "THEORY"]).optional(),
 });
 
 export const gradeExamSchema = z.object({

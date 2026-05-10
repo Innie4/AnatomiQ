@@ -47,10 +47,10 @@ export function HomeDashboard({
 
   return (
     <div suppressHydrationWarning className="space-y-16 pb-16">
-      <section className="relative overflow-hidden px-4 pt-8 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-10 lg:grid-cols-[1.2fr_0.8fr] lg:items-center">
+      <section className="relative overflow-hidden px-4 pt-8 sm:px-6 lg:px-8 xl:px-12">
+        <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:gap-10 lg:items-center">
           <FadeIn className="relative">
-            <h1 className="display-title max-w-4xl text-5xl leading-none text-slate-950 sm:text-6xl lg:text-7xl">
+            <h1 className="display-title max-w-4xl text-4xl leading-tight text-slate-950 sm:text-5xl md:text-6xl lg:text-7xl">
               {APP_NAME}
             </h1>
             <p className="mt-4 text-xl font-semibold text-sky-800">{APP_TAGLINE}</p>
@@ -59,8 +59,8 @@ export function HomeDashboard({
               faithful to uploaded Human Anatomy source material.
             </p>
 
-            <div className="glass-panel mt-8 flex max-w-2xl flex-col gap-3 rounded-[2rem] border border-white/80 p-4 shadow-[0_30px_80px_rgba(31,78,126,0.12)] sm:flex-row sm:items-center">
-              <div className="flex flex-1 items-center gap-3 rounded-2xl border border-slate-200 bg-white px-4 py-4">
+            <div className="glass-panel mt-8 flex max-w-2xl flex-col gap-3 rounded-[2rem] p-4 sm:flex-row sm:items-center">
+              <div className="flex flex-1 items-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-5 py-4 transition-all focus-within:border-[#0969da] focus-within:shadow-[0_0_0_3px_rgba(9,105,218,0.1)]">
                 <Search className="h-5 w-5 text-slate-400" />
                 <input
                   value={query}
@@ -71,7 +71,7 @@ export function HomeDashboard({
               </div>
               <Link
                 href="/exam"
-                className="rounded-2xl bg-[linear-gradient(135deg,#2d8cff,#18b08f)] px-6 py-4 text-center text-sm font-semibold text-white shadow-lg shadow-cyan-200/60 hover:-translate-y-0.5"
+                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-8 py-4 text-center font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
               >
                 Quick start exam
               </Link>

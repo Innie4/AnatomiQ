@@ -4,6 +4,8 @@ import { useEffect, useEffectEvent, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
   LoaderCircle,
   PencilLine,
   Plus,
@@ -123,7 +125,9 @@ export function MaterialQuestionManager({
   const [bulkFile, setBulkFile] = useState<File | null>(null);
   const [bulkLoading, setBulkLoading] = useState(false);
   const [bulkMessage, setBulkMessage] = useState<{ tone: "error" | "success"; text: string } | null>(null);
+  const [viewType, setViewType] = useState<"MCQ" | "SHORT_ANSWER" | "THEORY">("MCQ");
   const [questions, setQuestions] = useState<EditableQuestion[]>([]);
+  const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
   const [draftQuestion, setDraftQuestion] = useState<EditableQuestion>(buildEmptyQuestion(1));
   const [loadingQuestions, setLoadingQuestions] = useState(false);
   const [savingQuestionId, setSavingQuestionId] = useState<string | null>(null);
@@ -138,14 +142,23 @@ export function MaterialQuestionManager({
       return;
     }
 
-    await loadQuestions(activeMaterialId);
+    await loadQuestions(activeMaterialId, viewType);
   });
 
   useEffect(() => {
     void syncQuestions();
-  }, [activeMaterialId, adminKey]);
+  }, [activeMaterialId, adminKey, viewType]);
 
-  async function loadQuestions(materialId = activeMaterialId) {
+  useEffect(() => {
+    // Update draft question type when viewType changes
+    setDraftQuestion((prev) => ({
+      ...prev,
+      type: viewType,
+      optionsText: viewType === "MCQ" ? prev.optionsText : "",
+    }));
+  }, [viewType]);
+
+  async function loadQuestions(materialId = activeMaterialId, type = viewType) {
     if (!materialId || !adminKey.trim()) {
       return;
     }
@@ -154,7 +167,7 @@ export function MaterialQuestionManager({
     setQuestionMessage(null);
 
     try {
-      const response = await fetch(`/api/material-questions?materialId=${encodeURIComponent(materialId)}`, {
+      const response = await fetch(`/api/material-questions?materialId=${encodeURIComponent(materialId)}&type=${encodeURIComponent(type)}`, {
         headers: {
           "x-admin-upload-key": adminKey,
         },
@@ -167,6 +180,7 @@ export function MaterialQuestionManager({
 
       const mapped = (payload.questions ?? []).map(toEditableQuestion);
       setQuestions(mapped);
+      setCurrentQuestionIndex(0);
       setDraftQuestion(buildEmptyQuestion(Math.max(1, ...mapped.map((question) => question.manualOrder + 1), 1)));
     } catch (error) {
       setQuestionMessage({
@@ -481,7 +495,7 @@ export function MaterialQuestionManager({
             <button
               onClick={() => void handleCreateQuestion()}
               disabled={savingQuestionId === "new"}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
+              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {savingQuestionId === "new" ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Plus className="h-4 w-4" />}
               Add question
@@ -491,7 +505,7 @@ export function MaterialQuestionManager({
               <button
                 onClick={() => question.id && void handleDeleteQuestion(question.id, question.manualOrder)}
                 disabled={savingQuestionId === question.id}
-                className="inline-flex items-center gap-2 rounded-2xl border border-rose-200 bg-rose-50 px-5 py-3 text-sm font-semibold text-rose-700 disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-2xl bg-[#ef4444] text-white px-5 py-3 text-sm font-semibold shadow-lg hover:shadow-xl hover:bg-[#dc2626] transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 <Trash2 className="h-4 w-4" />
                 Remove
@@ -499,7 +513,7 @@ export function MaterialQuestionManager({
               <button
                 onClick={() => void handleSaveQuestion(question)}
                 disabled={savingQuestionId === question.id}
-                className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
+                className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {savingQuestionId === question.id ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
                 Save changes
@@ -603,7 +617,7 @@ export function MaterialQuestionManager({
             <button
               onClick={() => void handleBulkUpload()}
               disabled={bulkLoading}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
+              className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-5 py-3 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {bulkLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <Upload className="h-4 w-4" />}
               {bulkLoading ? "Uploading..." : "Upload numbered bank"}
@@ -669,26 +683,84 @@ export function MaterialQuestionManager({
         ) : null}
 
         <div className="mt-6 space-y-4">
+          <div className="flex items-center justify-between gap-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-semibold text-slate-700">Question type:</span>
+              <select
+                value={viewType}
+                onChange={(event) => setViewType(event.target.value as typeof viewType)}
+                className="rounded-xl border border-slate-200 bg-white px-3 py-2 text-sm outline-none"
+              >
+                <option value="MCQ">MCQ</option>
+                <option value="SHORT_ANSWER">Subjective</option>
+                <option value="THEORY">Theory</option>
+              </select>
+            </div>
+            <div className="text-sm text-slate-500">
+              {questions.length} question{questions.length === 1 ? "" : "s"}
+            </div>
+          </div>
+
           {loadingQuestions ? (
             <div className="flex items-center gap-2 rounded-2xl border border-slate-200 bg-white/80 px-4 py-4 text-sm text-slate-600">
               <LoaderCircle className="h-4 w-4 animate-spin" />
               Loading linked questions...
             </div>
           ) : questions.length ? (
-            questions.map((question) => (
-              <div key={question.id} className="rounded-[1.5rem] border border-slate-200 bg-white/85 p-5">
+            <>
+              <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4">
+                <div className="flex flex-wrap gap-2">
+                  {questions.map((question, index) => (
+                    <button
+                      key={question.id}
+                      onClick={() => setCurrentQuestionIndex(index)}
+                      className={`flex h-10 w-10 items-center justify-center rounded-xl border text-sm font-semibold transition-colors ${
+                        index === currentQuestionIndex
+                          ? "border-sky-600 bg-sky-600 text-white"
+                          : "border-slate-300 bg-white text-slate-700 hover:border-sky-400 hover:bg-sky-50"
+                      }`}
+                    >
+                      {question.manualOrder}
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              <div className="rounded-[1.5rem] border border-slate-200 bg-white/85 p-5">
                 {renderQuestionEditor(
-                  question,
+                  questions[currentQuestionIndex],
                   (next) =>
                     setQuestions((current) =>
-                      current.map((item) => (item.id === question.id ? next : item)),
+                      current.map((item) => (item.id === questions[currentQuestionIndex].id ? next : item)),
                     ),
                 )}
               </div>
-            ))
+
+              <div className="flex items-center justify-between gap-3">
+                <button
+                  onClick={() => setCurrentQuestionIndex((prev) => Math.max(0, prev - 1))}
+                  disabled={currentQuestionIndex === 0}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                  Previous
+                </button>
+                <span className="text-sm text-slate-600">
+                  Question {currentQuestionIndex + 1} of {questions.length}
+                </span>
+                <button
+                  onClick={() => setCurrentQuestionIndex((prev) => Math.min(questions.length - 1, prev + 1))}
+                  disabled={currentQuestionIndex === questions.length - 1}
+                  className="inline-flex items-center gap-2 rounded-2xl border border-slate-200 bg-white px-5 py-3 text-sm font-semibold text-slate-700 disabled:opacity-40 disabled:cursor-not-allowed"
+                >
+                  Next
+                  <ChevronRight className="h-4 w-4" />
+                </button>
+              </div>
+            </>
           ) : (
             <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm text-slate-600">
-              No manual questions have been linked to this material yet.
+              No {viewType === "MCQ" ? "MCQ" : viewType === "SHORT_ANSWER" ? "Subjective" : "Theory"} questions have been linked to this material yet.
             </div>
           )}
         </div>

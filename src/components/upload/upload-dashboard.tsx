@@ -236,7 +236,7 @@ export function UploadDashboard() {
             <button
               onClick={() => void loadOverview()}
               disabled={overviewLoading}
-              className="inline-flex items-center gap-2 rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white disabled:opacity-70"
+              className="inline-flex items-center gap-2 rounded-2xl bg-white border-2 border-slate-200 hover:border-[#0969da] hover:bg-[#f0f6ff] px-5 py-3 text-sm font-semibold text-slate-900 shadow-sm hover:shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {overviewLoading ? <LoaderCircle className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
               Refresh
@@ -289,7 +289,7 @@ export function UploadDashboard() {
             <input type="file" accept=".pdf,.png,.jpg,.jpeg,.webp,.txt" onChange={(event) => setFile(event.target.files?.[0] ?? null)} className="md:col-span-3 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-5 outline-none" aria-label="Select file to upload (PDF, image, or text)" />
           </div>
           <div className="mt-6 flex items-center gap-3">
-            <button onClick={() => void handleUpload()} disabled={loading} className="inline-flex items-center gap-2 rounded-2xl bg-[linear-gradient(135deg,#2d8cff,#18b08f)] px-6 py-4 text-sm font-semibold text-white disabled:opacity-70" aria-label={loading ? "Uploading material" : "Upload and process material"}>
+            <button onClick={() => void handleUpload()} disabled={loading} className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-6 py-4 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none" aria-label={loading ? "Uploading material" : "Upload and process material"}>
               {loading ? <LoaderCircle className="h-5 w-5 animate-spin" aria-hidden="true" /> : <UploadCloud className="h-5 w-5" aria-hidden="true" />}
               {loading ? "Uploading and processing..." : "Upload and process"}
             </button>

@@ -177,40 +177,44 @@ async function getExistingQuestions(selection: TopicSelection, type?: QuestionTy
   });
 }
 
-async function getManualQuestionsForMaterial(materialId: string) {
+async function getManualQuestionsForMaterial(materialId: string, type?: QuestionType) {
   return db.question.findMany({
     where: {
       materialId,
       authoringMode: QuestionAuthoringMode.MANUAL,
+      ...(type ? { type } : {}),
     },
-    orderBy: [{ manualOrder: "asc" }, { createdAt: "asc" }],
+    orderBy: [{ type: "asc" }, { manualOrder: "asc" }, { createdAt: "asc" }],
   });
 }
 
 async function ensureUniqueManualOrder(params: {
   materialId: string;
   manualOrder: number;
+  type: QuestionType;
   excludeQuestionId?: string;
 }) {
   const existing = await db.question.findFirst({
     where: {
       materialId: params.materialId,
       manualOrder: params.manualOrder,
+      type: params.type,
       ...(params.excludeQuestionId ? { id: { not: params.excludeQuestionId } } : {}),
     },
     select: { id: true },
   });
 
   if (existing) {
-    throw new Error(`Question number ${params.manualOrder} is already in use for this material.`);
+    throw new Error(`Question number ${params.manualOrder} is already in use for this ${params.type} question type.`);
   }
 }
 
-async function getNextManualOrder(materialId: string) {
+async function getNextManualOrder(materialId: string, type?: QuestionType) {
   const latest = await db.question.findFirst({
     where: {
       materialId,
       authoringMode: QuestionAuthoringMode.MANUAL,
+      ...(type ? { type } : {}),
     },
     orderBy: { manualOrder: "desc" },
     select: { manualOrder: true },
@@ -570,12 +574,12 @@ export async function getAdminMaterialOptions(search?: string) {
   }));
 }
 
-export async function listManualQuestions(materialId: string) {
+export async function listManualQuestions(materialId: string, type?: QuestionType) {
   if (!hasDatabase) {
     throw new Error("Database is not configured.");
   }
 
-  const questions = await getManualQuestionsForMaterial(materialId);
+  const questions = await getManualQuestionsForMaterial(materialId, type);
 
   return questions.map((question) => ({
     id: question.id,
@@ -610,10 +614,10 @@ export async function createManualQuestion(params: {
         },
       },
     }),
-    getManualQuestionsForMaterial(params.materialId),
+    getManualQuestionsForMaterial(params.materialId, params.payload.type),
   ]);
-  const manualOrder = params.payload.manualOrder ?? (await getNextManualOrder(params.materialId));
-  await ensureUniqueManualOrder({ materialId: params.materialId, manualOrder });
+  const manualOrder = params.payload.manualOrder ?? (await getNextManualOrder(params.materialId, params.payload.type));
+  await ensureUniqueManualOrder({ materialId: params.materialId, manualOrder, type: params.payload.type });
   const record = await buildManualQuestionRecord(material, params.payload, manualOrder, existingQuestions);
   return db.question.create({ data: record });
 }
@@ -649,9 +653,10 @@ export async function updateManualQuestion(params: {
   await ensureUniqueManualOrder({
     materialId: existingQuestion.materialId ?? "",
     manualOrder,
+    type: params.payload.type,
     excludeQuestionId: params.questionId,
   });
-  const existingQuestions = await getManualQuestionsForMaterial(existingQuestion.materialId ?? "");
+  const existingQuestions = await getManualQuestionsForMaterial(existingQuestion.materialId ?? "", params.payload.type);
   const record = await buildManualQuestionRecord(
     existingQuestion.material,
     params.payload,
@@ -719,44 +724,38 @@ export async function createManualQuestionBank(params: {
     defaultDifficulty: params.defaultDifficulty,
     input: params.input,
   });
-  const existing = await getManualQuestionsForMaterial(params.materialId);
+
+  // Get existing questions of the SAME TYPE for this material
+  const existing = await db.question.findMany({
+    where: {
+      materialId: params.materialId,
+      authoringMode: QuestionAuthoringMode.MANUAL,
+      type: params.type,
+    },
+    orderBy: [{ manualOrder: "asc" }, { createdAt: "asc" }],
+  });
+
   const created: Question[] = [];
-  let updatedCount = 0;
   let skippedCount = 0;
   const linkedChunkIds = material.ContentChunk.map((chunk) => chunk.id);
   const fallbackSourceSnippet =
     material.extractedText?.slice(0, 220) ||
     `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`;
-  let nextManualOrder = await getNextManualOrder(params.materialId);
+
+  // Get the next available manual order for this question type
+  const maxOrder = existing.length > 0
+    ? Math.max(...existing.map(q => q.manualOrder ?? 0))
+    : 0;
+  let nextManualOrder = maxOrder + 1;
 
   for (const candidate of parsedQuestions) {
-    const targetManualOrder = candidate.manualOrder ?? nextManualOrder;
-    const existingByOrder = existing.find((question) => question.manualOrder === targetManualOrder);
+    // Always assign the next available order, ignoring candidate.manualOrder
+    const targetManualOrder = nextManualOrder;
     const payload = {
       ...candidate,
       manualOrder: targetManualOrder,
       explanation: candidate.explanation,
     } satisfies ManualQuestionPayload;
-
-    if (existingByOrder) {
-      const record = await buildManualQuestionRecord(
-        material,
-        payload,
-        targetManualOrder,
-        existing,
-        existingByOrder.id,
-      );
-      await db.question.update({
-        where: { id: existingByOrder.id },
-        data: {
-          ...record,
-          sourceChunkIds: toJsonString(linkedChunkIds),
-          sourceSnippet: fallbackSourceSnippet,
-        },
-      });
-      updatedCount += 1;
-      continue;
-    }
 
     try {
       const record = await buildManualQuestionRecord(material, payload, targetManualOrder, [
@@ -772,7 +771,7 @@ export async function createManualQuestionBank(params: {
       });
 
       created.push(question);
-      nextManualOrder = Math.max(nextManualOrder, targetManualOrder + 1);
+      nextManualOrder += 1;
     } catch (error) {
       if (error instanceof Error && /highly similar question/i.test(error.message)) {
         skippedCount += 1;
@@ -791,7 +790,7 @@ export async function createManualQuestionBank(params: {
       subtopicName: material.subtopic?.name ?? null,
     },
     createdCount: created.length,
-    updatedCount,
+    updatedCount: 0,
     skippedCount,
     totalSubmitted: parsedQuestions.length,
     questions: created,

@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { IBM_Plex_Mono, Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 
 import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
+import { ClientLayout } from "@/components/client-layout";
 import "./globals.css";
 
 const sans = Plus_Jakarta_Sans({
@@ -48,7 +49,7 @@ export default function RootLayout({
       className={`${sans.variable} ${display.variable} ${mono.variable} h-full antialiased`}
     >
       <body suppressHydrationWarning className="min-h-full flex flex-col">
-        {children}
+        <ClientLayout>{children}</ClientLayout>
       </body>
     </html>
   );
