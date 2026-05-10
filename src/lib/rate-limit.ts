@@ -7,18 +7,94 @@ const RATE_LIMITS = {
   auth: {
     requests: 5,
     window: '15 m',
+    windowMs: 15 * 60 * 1000,
   },
   // Question generation - 20 per 15 minutes (CPU intensive)
   questionGeneration: {
     requests: 20,
     window: '15 m',
+    windowMs: 15 * 60 * 1000,
   },
   // Public endpoints - 20 per minute
   public: {
     requests: 20,
     window: '1 m',
+    windowMs: 60 * 1000,
   },
 } as const;
+
+// In-memory rate limiting fallback (when Redis is not configured)
+interface RateLimitStore {
+  [key: string]: {
+    count: number;
+    resetTime: number;
+  };
+}
+
+const memoryStore: RateLimitStore = {};
+
+// Clean up expired entries every minute
+if (typeof setInterval !== 'undefined') {
+  setInterval(() => {
+    const now = Date.now();
+    Object.keys(memoryStore).forEach((key) => {
+      if (memoryStore[key].resetTime < now) {
+        delete memoryStore[key];
+      }
+    });
+  }, 60000);
+}
+
+function memoryRateLimit(
+  identifier: string,
+  type: RateLimitType
+): {
+  success: boolean;
+  limit: number;
+  remaining: number;
+  reset: number;
+} {
+  const config = RATE_LIMITS[type];
+  const key = `${type}:${identifier}`;
+  const now = Date.now();
+
+  if (!memoryStore[key]) {
+    memoryStore[key] = {
+      count: 1,
+      resetTime: now + config.windowMs,
+    };
+    return {
+      success: true,
+      limit: config.requests,
+      remaining: config.requests - 1,
+      reset: memoryStore[key].resetTime,
+    };
+  }
+
+  if (memoryStore[key].resetTime < now) {
+    memoryStore[key] = {
+      count: 1,
+      resetTime: now + config.windowMs,
+    };
+    return {
+      success: true,
+      limit: config.requests,
+      remaining: config.requests - 1,
+      reset: memoryStore[key].resetTime,
+    };
+  }
+
+  memoryStore[key].count++;
+  const remaining = Math.max(0, config.requests - memoryStore[key].count);
+  const success = memoryStore[key].count <= config.requests;
+
+  return {
+    success,
+    limit: config.requests,
+    remaining,
+    reset: memoryStore[key].resetTime,
+  };
+}
 
 // Initialize Redis client (only if credentials are provided)
 let redis: Redis | null = null;
@@ -61,7 +137,7 @@ export type RateLimitType = keyof typeof RATE_LIMITS;
  * Rate limit a request by IP address
  * Returns { success: boolean, limit, remaining, reset }
  *
- * Gracefully degrades: if Redis is not configured, allows all requests
+ * Uses Redis if configured, otherwise falls back to in-memory rate limiting
  */
 export async function rateLimit(
   identifier: string,
@@ -72,24 +148,19 @@ export async function rateLimit(
   remaining: number;
   reset: number;
 }> {
-  // If rate limiting is not configured (dev mode), allow all requests
-  if (!rateLimiters || !rateLimiters[type]) {
+  // If Redis is configured, use it
+  if (rateLimiters && rateLimiters[type]) {
+    const result = await rateLimiters[type].limit(identifier);
     return {
-      success: true,
-      limit: RATE_LIMITS[type].requests,
-      remaining: RATE_LIMITS[type].requests,
-      reset: Date.now() + 60000,
+      success: result.success,
+      limit: result.limit,
+      remaining: result.remaining,
+      reset: result.reset,
     };
   }
 
-  const result = await rateLimiters[type].limit(identifier);
-
-  return {
-    success: result.success,
-    limit: result.limit,
-    remaining: result.remaining,
-    reset: result.reset,
-  };
+  // Otherwise, use in-memory rate limiting
+  return memoryRateLimit(identifier, type);
 }
 
 /**

@@ -2,6 +2,7 @@ import { handleRouteError, ok, fail } from "@/lib/api";
 import { authenticateRequest } from "@/lib/auth";
 import { getAdminMaterialOptions } from "@/lib/questions";
 import { db } from "@/lib/db";
+import { sanitizeSearchQuery } from "@/lib/sanitize";
 
 export async function GET(request: Request) {
   try {
@@ -11,7 +12,9 @@ export async function GET(request: Request) {
     }
 
     const url = new URL(request.url);
-    const materials = await getAdminMaterialOptions(url.searchParams.get("q") ?? undefined);
+    const query = url.searchParams.get("q");
+    const sanitizedQuery = query ? sanitizeSearchQuery(query) : undefined;
+    const materials = await getAdminMaterialOptions(sanitizedQuery);
     return ok({ materials });
   } catch (error) {
     return handleRouteError(error);

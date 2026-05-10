@@ -3,6 +3,7 @@ import { NextRequest } from "next/server";
 import { handleRouteError, ok, fail } from "@/lib/api";
 import { getTopicTree } from "@/lib/topics";
 import { rateLimit, getClientIP } from "@/lib/rate-limit";
+import { sanitizeSearchQuery } from "@/lib/sanitize";
 
 export async function GET(request: NextRequest) {
   try {
@@ -23,8 +24,9 @@ export async function GET(request: NextRequest) {
       );
     }
 
-    const search = request.nextUrl.searchParams.get("search") ?? undefined;
-    const topics = await getTopicTree(search);
+    const search = request.nextUrl.searchParams.get("search");
+    const sanitizedSearch = search ? sanitizeSearchQuery(search) : undefined;
+    const topics = await getTopicTree(sanitizedSearch);
     return ok({ topics });
   } catch (error) {
     return handleRouteError(error);

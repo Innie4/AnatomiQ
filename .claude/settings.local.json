@@ -34,7 +34,10 @@
       "Bash(tee /tmp/test.log)",
       "Bash(xargs grep -l \"SiteHeader\")",
       "Bash(timeout 15 bash *)",
-      "Bash(timeout 240 bash *)"
+      "Bash(timeout 240 bash *)",
+      "Bash(timeout 20 bash *)",
+      "Bash(taskkill /PID 28332 /F)",
+      "Bash(cmd //c \"taskkill /PID 28332 /F\")"
     ]
   }
 }
