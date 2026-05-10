@@ -28,7 +28,13 @@
       "Bash(tsx prisma/seed.ts)",
       "Bash(npx vercel *)",
       "Bash(node *)",
-      "Bash(chmod +x *)"
+      "Bash(chmod +x *)",
+      "WebFetch(domain:mobbin.com)",
+      "Bash(tee /tmp/build.log)",
+      "Bash(tee /tmp/test.log)",
+      "Bash(xargs grep -l \"SiteHeader\")",
+      "Bash(timeout 15 bash *)",
+      "Bash(timeout 240 bash *)"
     ]
   }
 }

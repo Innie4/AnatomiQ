@@ -1,0 +1,99 @@
+config:
+  target: "http://localhost:3000"
+  phases:
+    - duration: 120
+      arrivalRate: 10
+      name: "Warm up - 10 users/sec"
+    - duration: 180
+      arrivalRate: 20
+      rampTo: 50
+      name: "Ramp up to 50 users/sec"
+    - duration: 180
+      arrivalRate: 50
+      rampTo: 100
+      name: "Ramp up to 100 users/sec"
+    - duration: 180
+      arrivalRate: 100
+      rampTo: 200
+      name: "Ramp up to 200 users/sec"
+    - duration: 240
+      arrivalRate: 200
+      rampTo: 500
+      name: "Ramp up to 500 users/sec"
+    - duration: 300
+      arrivalRate: 500
+      name: "Sustain 500 users/sec"
+    - duration: 120
+      arrivalRate: 500
+      rampTo: 0
+      name: "Ramp down"
+  processor: "./load-test-processor.js"
+
+scenarios:
+  - name: "Homepage Load"
+    weight: 20
+    flow:
+      - get:
+          url: "/"
+          expect:
+            - statusCode: 200
+            - contentType: text/html
+
+  - name: "Topics Page"
+    weight: 15
+    flow:
+      - get:
+          url: "/topics"
+          expect:
+            - statusCode: 200
+
+  - name: "Exam Page"
+    weight: 15
+    flow:
+      - get:
+          url: "/exam?topic={{ $randomTopic }}"
+          beforeRequest: "setRandomTopic"
+          expect:
+            - statusCode: 200
+
+  - name: "Get Topics API"
+    weight: 20
+    flow:
+      - get:
+          url: "/api/topics"
+          expect:
+            - statusCode: 200
+            - contentType: json
+
+  - name: "Start Exam API"
+    weight: 20
+    flow:
+      - post:
+          url: "/api/start-exam"
+          beforeRequest: "setExamPayload"
+          json:
+            courseSlug: "{{ courseSlug }}"
+            topicSlug: "{{ topicSlug }}"
+            type: "{{ type }}"
+            count: "{{ count }}"
+            durationMinutes: 30
+          expect:
+            - statusCode: 200
+            - hasProperty: questions
+
+  - name: "Health Check"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/health"
+          expect:
+            - statusCode: 200
+            - hasProperty: status
+
+  - name: "Analytics API"
+    weight: 5
+    flow:
+      - get:
+          url: "/api/analytics"
+          expect:
+            - statusCode: 200
