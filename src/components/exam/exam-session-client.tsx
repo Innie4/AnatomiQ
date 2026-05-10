@@ -55,6 +55,8 @@ export function ExamSessionClient() {
   const [timeLeft, setTimeLeft] = useState<number | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [gracePeriod, setGracePeriod] = useState(false);
+  const [graceTimeLeft, setGraceTimeLeft] = useState(180); // 3 minutes in seconds
 
   // Load exam from sessionStorage
   useEffect(() => {
@@ -84,12 +86,32 @@ export function ExamSessionClient() {
     await handleSubmitExam(true);
   });
 
+  // Main timer countdown
   useEffect(() => {
-    if (timeLeft === null) return;
+    if (timeLeft === null || gracePeriod) return;
 
     const timer = window.setInterval(() => {
       setTimeLeft((current) => {
         if (typeof current !== "number") return current;
+        if (current <= 1) {
+          window.clearInterval(timer);
+          // Trigger grace period instead of auto-submit
+          setGracePeriod(true);
+          return 0;
+        }
+        return current - 1;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(timer);
+  }, [timeLeft, gracePeriod]);
+
+  // Grace period countdown
+  useEffect(() => {
+    if (!gracePeriod) return;
+
+    const timer = window.setInterval(() => {
+      setGraceTimeLeft((current) => {
         if (current <= 1) {
           window.clearInterval(timer);
           void autoSubmit();
@@ -100,7 +122,7 @@ export function ExamSessionClient() {
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [timeLeft, autoSubmit]);
+  }, [gracePeriod, autoSubmit]);
 
   async function handleSubmitExam(timedOut = false) {
     if (!examData) return;
@@ -186,6 +208,114 @@ export function ExamSessionClient() {
   const currentQuestion = examData.questions[currentQuestionIndex];
   const answeredQuestions = new Set(Object.keys(answers).filter((id) => answers[id]?.trim()));
   const progress = Math.round((answeredQuestions.size / examData.questions.length) * 100);
+
+  // Grace Period Screen
+  if (gracePeriod) {
+    const graceMinutes = Math.floor(graceTimeLeft / 60);
+    const graceSeconds = graceTimeLeft % 60;
+    const gracePercentage = (graceTimeLeft / 180) * 100;
+    const isUrgent = graceTimeLeft <= 60;
+    const isCritical = graceTimeLeft <= 30;
+
+    return (
+      <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-rose-950 via-rose-900 to-orange-900">
+        {/* Pulsing background effect */}
+        <div
+          className={`absolute inset-0 opacity-30 ${isCritical ? "animate-pulse" : ""}`}
+          style={{
+            background: `radial-gradient(circle at 50% 50%, rgba(239, 68, 68, ${gracePercentage / 100}), transparent)`,
+          }}
+        />
+
+        <div className="relative z-10 mx-4 max-w-2xl text-center">
+          {/* Warning Icon with pulse */}
+          <div className="mx-auto mb-8 flex h-32 w-32 items-center justify-center">
+            <div
+              className={`absolute h-32 w-32 rounded-full bg-rose-500/20 ${isCritical ? "animate-ping" : isUrgent ? "animate-pulse" : ""}`}
+            />
+            <AlertCircle className={`relative h-24 w-24 text-rose-400 ${isCritical ? "animate-bounce" : ""}`} />
+          </div>
+
+          {/* Title */}
+          <h1 className="mb-4 text-5xl font-black text-white drop-shadow-2xl sm:text-6xl">
+            TIME&apos;S UP!
+          </h1>
+
+          {/* Countdown Timer */}
+          <div className="mb-6">
+            <div
+              className={`inline-flex items-center gap-2 rounded-2xl border-4 px-8 py-4 ${
+                isCritical
+                  ? "animate-pulse border-rose-300 bg-rose-500/30"
+                  : isUrgent
+                  ? "border-rose-400 bg-rose-500/20"
+                  : "border-rose-500 bg-rose-600/20"
+              }`}
+            >
+              <Clock3 className={`h-12 w-12 text-white ${isCritical ? "animate-spin" : ""}`} />
+              <div className="text-8xl font-black tabular-nums text-white drop-shadow-xl">
+                {String(graceMinutes).padStart(2, "0")}:{String(graceSeconds).padStart(2, "0")}
+              </div>
+            </div>
+          </div>
+
+          {/* Message */}
+          <div className="mb-8 space-y-4">
+            <p className="text-2xl font-bold text-rose-200">
+              {isCritical
+                ? "⚠️ FINAL SECONDS! ⚠️"
+                : isUrgent
+                ? "🚨 ONE MINUTE LEFT! 🚨"
+                : "Grace Period: 3 Minutes"}
+            </p>
+            <p className="text-lg text-rose-100">
+              {isCritical
+                ? "Your exam will be submitted automatically in seconds!"
+                : "Complete your remaining answers quickly!"}
+            </p>
+            <p className="text-base text-rose-200/80">
+              Unanswered questions will be marked incorrect.
+            </p>
+          </div>
+
+          {/* Progress Bar */}
+          <div className="mb-8">
+            <div className="mx-auto h-4 w-full max-w-md overflow-hidden rounded-full bg-rose-950/50">
+              <div
+                className={`h-full transition-all duration-1000 ${
+                  isCritical
+                    ? "bg-gradient-to-r from-rose-400 to-orange-400"
+                    : "bg-gradient-to-r from-rose-500 to-orange-500"
+                }`}
+                style={{ width: `${gracePercentage}%` }}
+              />
+            </div>
+            <p className="mt-2 text-sm font-medium text-rose-300">
+              {answeredQuestions.size} of {examData.questions.length} questions answered
+            </p>
+          </div>
+
+          {/* Action Buttons */}
+          <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
+            <button
+              onClick={() => setGracePeriod(false)}
+              disabled={submitting}
+              className="rounded-2xl border-2 border-white bg-white px-8 py-4 text-lg font-bold text-rose-900 shadow-2xl transition-all hover:scale-105 hover:shadow-rose-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
+            >
+              Continue Answering
+            </button>
+            <button
+              onClick={() => void handleSubmitExam(true)}
+              disabled={submitting}
+              className="rounded-2xl border-2 border-rose-400 bg-rose-500/20 px-8 py-4 text-lg font-bold text-white shadow-2xl transition-all hover:scale-105 hover:bg-rose-500/30 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
+            >
+              {submitting ? "Submitting..." : "Submit Now"}
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-white to-sky-50/30">
