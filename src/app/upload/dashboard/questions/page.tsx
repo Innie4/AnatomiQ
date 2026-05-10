@@ -1,11 +1,11 @@
 "use client";
 
 import { UploadLayout } from "@/components/upload/upload-layout";
-import { OverviewStats } from "@/components/upload/overview-stats";
+import { MaterialQuestionManager } from "@/components/upload/material-question-manager";
 import { useState, useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
 
-export default function UploadDashboardPage() {
+export default function ManageQuestionsPage() {
   const [mounted, setMounted] = useState(false);
   const [adminKey, setAdminKey] = useState("");
 
@@ -65,7 +65,15 @@ export default function UploadDashboardPage() {
 
   return (
     <UploadLayout>
-      <OverviewStats adminKey={adminKey} />
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Manage Questions</h2>
+          <p className="mt-1 text-sm text-slate-600">
+            View and edit questions linked to materials
+          </p>
+        </div>
+        <MaterialQuestionManager adminKey={adminKey} />
+      </div>
     </UploadLayout>
   );
 }

@@ -1,11 +1,11 @@
 "use client";
 
 import { UploadLayout } from "@/components/upload/upload-layout";
-import { OverviewStats } from "@/components/upload/overview-stats";
+import { MaterialsManager } from "@/components/upload/materials-manager";
 import { useState, useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
 
-export default function UploadDashboardPage() {
+export default function ManageMaterialsPage() {
   const [mounted, setMounted] = useState(false);
   const [adminKey, setAdminKey] = useState("");
 
@@ -65,7 +65,7 @@ export default function UploadDashboardPage() {
 
   return (
     <UploadLayout>
-      <OverviewStats adminKey={adminKey} />
+      <MaterialsManager adminKey={adminKey} />
     </UploadLayout>
   );
 }

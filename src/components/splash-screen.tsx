@@ -29,7 +29,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
   }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-gradient-to-br from-blue-600 via-cyan-500 to-teal-500">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#0969da]">
       <div className="relative">
         {/* Logo */}
         <div
