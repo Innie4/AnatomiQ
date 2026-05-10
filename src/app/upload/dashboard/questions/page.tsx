@@ -5,9 +5,20 @@ import { MaterialQuestionManager } from "@/components/upload/material-question-m
 import { useState, useEffect } from "react";
 import { LoaderCircle } from "lucide-react";
 
+type MaterialOption = {
+  id: string;
+  title: string;
+  status: string;
+  topicName: string;
+  subtopicName: string | null;
+  linkedQuestionCount: number;
+};
+
 export default function ManageQuestionsPage() {
   const [mounted, setMounted] = useState(false);
   const [adminKey, setAdminKey] = useState("");
+  const [materials, setMaterials] = useState<MaterialOption[]>([]);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
@@ -16,6 +27,38 @@ export default function ManageQuestionsPage() {
       setAdminKey(savedKey);
     }
   }, []);
+
+  useEffect(() => {
+    if (adminKey) {
+      void loadMaterials();
+    }
+  }, [adminKey]);
+
+  async function loadMaterials(search = "") {
+    setLoading(true);
+    try {
+      const url = search
+        ? `/api/admin-materials?q=${encodeURIComponent(search)}`
+        : "/api/admin-materials";
+
+      const response = await fetch(url, {
+        headers: { "x-admin-upload-key": adminKey },
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setMaterials(data.materials || []);
+      }
+    } catch (error) {
+      console.error("Failed to load materials:", error);
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function refreshOverview() {
+    // This is a no-op for questions page, but required by MaterialQuestionManager
+  }
 
   if (!mounted) {
     return (
@@ -72,7 +115,13 @@ export default function ManageQuestionsPage() {
             View and edit questions linked to materials
           </p>
         </div>
-        <MaterialQuestionManager adminKey={adminKey} />
+        <MaterialQuestionManager
+          adminKey={adminKey}
+          materials={materials}
+          onRefreshMaterials={loadMaterials}
+          onRefreshOverview={refreshOverview}
+          overviewLoading={loading}
+        />
       </div>
     </UploadLayout>
   );

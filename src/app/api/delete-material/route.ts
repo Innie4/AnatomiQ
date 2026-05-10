@@ -26,14 +26,14 @@ export async function DELETE(request: NextRequest) {
 
     const { materialId } = deleteMaterialSchema.parse(body);
 
-    // Check if material exists
+    // Check if material exists and count related records
     const material = await db.material.findUnique({
       where: { id: materialId },
       include: {
         _count: {
           select: {
-            questions: true,
-            chunks: true,
+            Question: true,
+            ContentChunk: true,
           },
         },
       },
@@ -43,6 +43,10 @@ export async function DELETE(request: NextRequest) {
       return fail("Material not found", 404);
     }
 
+    // Store counts before deletion
+    const questionCount = material._count.Question;
+    const chunkCount = material._count.ContentChunk;
+
     // Delete all related data (cascading)
     // 1. Delete questions linked to this material
     await db.question.deleteMany({
@@ -50,7 +54,7 @@ export async function DELETE(request: NextRequest) {
     });
 
     // 2. Delete chunks
-    await db.chunk.deleteMany({
+    await db.contentChunk.deleteMany({
       where: { materialId },
     });
 
@@ -64,8 +68,8 @@ export async function DELETE(request: NextRequest) {
       message: "Material and all related data deleted successfully",
       deleted: {
         material: material.title,
-        questions: material._count.questions,
-        chunks: material._count.chunks,
+        questions: questionCount,
+        chunks: chunkCount,
       },
     });
   } catch (error) {
