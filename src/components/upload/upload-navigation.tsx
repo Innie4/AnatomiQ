@@ -74,13 +74,24 @@ export function UploadNavigation() {
         </nav>
 
         {/* Footer */}
-        <div className="border-t border-slate-200 p-4">
+        <div className="space-y-2 border-t border-slate-200 p-4">
           <Link
             href="/"
-            className="flex items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50"
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-slate-300 bg-white px-4 py-2 text-sm font-medium text-slate-700 transition-all hover:border-slate-400 hover:bg-slate-50"
           >
             Back to Home
           </Link>
+          <button
+            onClick={() => {
+              if (confirm("Are you sure you want to log out?")) {
+                localStorage.removeItem("anatomiq:admin-key");
+                window.location.reload();
+              }
+            }}
+            className="flex w-full items-center justify-center gap-2 rounded-xl border border-rose-300 bg-rose-50 px-4 py-2 text-sm font-medium text-rose-700 transition-all hover:border-rose-400 hover:bg-rose-100"
+          >
+            Log Out
+          </button>
         </div>
       </aside>
 

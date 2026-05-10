@@ -1,23 +1,30 @@
 "use client";
 
 import { useState, useEffect, ReactNode } from "react";
-import { LoaderCircle } from "lucide-react";
+import { LoaderCircle, AlertCircle } from "lucide-react";
 
 export function AdminAuthWrapper({ children }: { children: (adminKey: string) => ReactNode }) {
   const [mounted, setMounted] = useState(false);
   const [adminKey, setAdminKey] = useState("");
   const [inputKey, setInputKey] = useState("");
+  const [error, setError] = useState("");
 
   useEffect(() => {
     setMounted(true);
     const savedKey = localStorage.getItem("anatomiq:admin-key");
-    if (savedKey) {
+    const wasCleared = sessionStorage.getItem("anatomiq:key-cleared");
+
+    if (wasCleared) {
+      setError("Invalid admin key. Please enter a valid key.");
+      sessionStorage.removeItem("anatomiq:key-cleared");
+    } else if (savedKey) {
       setAdminKey(savedKey);
     }
   }, []);
 
   function handleSubmit() {
     if (inputKey) {
+      setError("");
       localStorage.setItem("anatomiq:admin-key", inputKey);
       setAdminKey(inputKey);
     }
@@ -39,10 +46,21 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
           <p className="mt-2 text-sm text-slate-600">
             Enter your admin key to access the upload dashboard
           </p>
+
+          {error && (
+            <div className="mt-4 flex items-start gap-3 rounded-xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
+              <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" />
+              <span>{error}</span>
+            </div>
+          )}
+
           <input
             type="password"
             value={inputKey}
-            onChange={(e) => setInputKey(e.target.value)}
+            onChange={(e) => {
+              setInputKey(e.target.value);
+              setError("");
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
                 handleSubmit();
