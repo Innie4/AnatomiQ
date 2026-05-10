@@ -1,6 +1,5 @@
 import { HomeDashboard } from "@/components/home/home-dashboard";
 import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
 import { getPublicAnalytics } from "@/lib/analytics";
 import { getTopicTree } from "@/lib/topics";
 
@@ -11,7 +10,6 @@ export default async function Home() {
 
   return (
     <div className="shell flex flex-1 flex-col">
-      <SiteHeader />
       <main className="flex-1">
         <HomeDashboard topics={topics} analytics={analytics} />
       </main>

@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { SplashScreen } from "./splash-screen";
+import { AppLayoutWrapper } from "./app-layout-wrapper";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
@@ -32,7 +33,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
           showSplash ? "opacity-0" : "opacity-100"
         }`}
       >
-        {children}
+        <AppLayoutWrapper>{children}</AppLayoutWrapper>
       </div>
     </>
   );
