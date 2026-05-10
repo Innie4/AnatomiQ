@@ -1,3 +1,5 @@
+"use client";
+
 import { UploadLayout } from "@/components/upload/upload-layout";
 import { MaterialUploader } from "@/components/upload/material-uploader";
 import { AdminAuthWrapper } from "@/components/upload/admin-auth-wrapper";
