@@ -4,19 +4,15 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Shuffle, LoaderCircle } from "lucide-react";
 
-const topics = [
-  "cardiovascular-system",
-  "respiratory-system",
-  "nervous-system",
-  "skeletal-system",
-  "muscular-system",
-  "digestive-system",
-  "urinary-system",
-  "reproductive-system",
-];
-
 const types = ["MCQ", "SHORT_ANSWER", "THEORY", "MIXED"] as const;
 const timerOptions = [0, 15, 30, 45, 60];
+
+type Topic = {
+  id: string;
+  slug: string;
+  name: string;
+  courseSlug: string;
+};
 
 export function RandomizeExamButton({ className }: { className?: string }) {
   const router = useRouter();
@@ -26,8 +22,46 @@ export function RandomizeExamButton({ className }: { className?: string }) {
     setLoading(true);
 
     try {
-      // Generate random exam parameters
-      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+      // Fetch all available topics from API
+      const topicsResponse = await fetch("/api/topics");
+      if (!topicsResponse.ok) {
+        throw new Error("Failed to fetch topics");
+      }
+
+      const topicsData = await topicsResponse.json();
+      const allTopics: Topic[] = [];
+
+      // Flatten all topics and subtopics into a single array
+      if (topicsData.topics && Array.isArray(topicsData.topics)) {
+        topicsData.topics.forEach((topic: any) => {
+          // Add main topic
+          allTopics.push({
+            id: topic.id,
+            slug: topic.slug,
+            name: topic.name,
+            courseSlug: topic.courseSlug,
+          });
+
+          // Add subtopics if they exist
+          if (topic.children && Array.isArray(topic.children)) {
+            topic.children.forEach((subtopic: any) => {
+              allTopics.push({
+                id: subtopic.id,
+                slug: subtopic.slug,
+                name: subtopic.name,
+                courseSlug: topic.courseSlug,
+              });
+            });
+          }
+        });
+      }
+
+      if (allTopics.length === 0) {
+        throw new Error("No topics available");
+      }
+
+      // Generate random exam parameters from available options
+      const randomTopic = allTopics[Math.floor(Math.random() * allTopics.length)];
       const randomType = types[Math.floor(Math.random() * types.length)];
       const randomCount = Math.floor(Math.random() * 13) + 8; // 8-20 questions
       const randomTimer = timerOptions[Math.floor(Math.random() * timerOptions.length)];
@@ -37,8 +71,8 @@ export function RandomizeExamButton({ className }: { className?: string }) {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          courseSlug: "human-anatomy",
-          topicSlug: randomTopic,
+          courseSlug: randomTopic.courseSlug,
+          topicSlug: randomTopic.slug,
           type: randomType,
           count: randomCount,
           durationMinutes: randomTimer,
@@ -46,7 +80,8 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to start exam");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Failed to start exam");
       }
 
       const examData = await response.json();
@@ -58,7 +93,8 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       router.push("/exam-session");
     } catch (error) {
       console.error("Failed to randomize exam:", error);
-      alert("Failed to start random exam. Please try again.");
+      const errorMessage = error instanceof Error ? error.message : "Failed to start random exam";
+      alert(`${errorMessage}. Please try again.`);
     } finally {
       setLoading(false);
     }
