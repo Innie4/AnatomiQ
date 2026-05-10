@@ -17,8 +17,8 @@ export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
 
       {/* Main content with sidebar offset on desktop */}
       <div className="lg:pl-72">
-        {/* Top padding for mobile header */}
-        <div className="min-h-screen pt-16 pb-20 lg:pt-0 lg:pb-0">
+        {/* Bottom padding for mobile navigation bar */}
+        <div className="min-h-screen pb-20 lg:pb-0">
           {children}
         </div>
       </div>

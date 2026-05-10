@@ -3,8 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, FileQuestion, Menu, X } from "lucide-react";
-import { useState } from "react";
+import { Home, BookOpen, FileQuestion } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
 
@@ -31,7 +30,6 @@ const navigationLinks = [
 
 export function AppNavigation() {
   const pathname = usePathname();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   // Don't show navigation on upload pages and exam sessions
   if (pathname?.startsWith("/upload") || pathname?.startsWith("/exam-session")) {
@@ -114,65 +112,6 @@ export function AppNavigation() {
         </div>
       </aside>
 
-      {/* Mobile Header with Menu Toggle */}
-      <header className="fixed top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Link href="/" className="flex items-center gap-2">
-            <div className="relative h-9 w-9">
-              <Image
-                src="/anatomiQ.png"
-                alt={APP_NAME}
-                width={36}
-                height={36}
-                className="object-contain"
-                priority
-              />
-            </div>
-            <div className="text-base font-bold text-slate-900">{APP_NAME}</div>
-          </Link>
-
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="rounded-lg p-2 text-slate-600 hover:bg-slate-100 lg:hidden"
-            aria-label="Toggle menu"
-          >
-            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-          </button>
-        </div>
-
-        {/* Mobile Dropdown Menu */}
-        {isMobileMenuOpen && (
-          <div className="border-t border-slate-200 bg-white p-4">
-            <nav className="space-y-2">
-              {navigationLinks.map((link) => {
-                const Icon = link.icon;
-                const active = isActive(link.href);
-
-                return (
-                  <Link
-                    key={link.href}
-                    href={link.href}
-                    onClick={() => setIsMobileMenuOpen(false)}
-                    className={`flex items-center gap-3 rounded-xl px-4 py-3 transition-all ${
-                      active
-                        ? "bg-gradient-to-br from-[#0969da] to-[#0ca678] text-white"
-                        : "text-slate-600 hover:bg-slate-100"
-                    }`}
-                  >
-                    <Icon className="h-5 w-5" />
-                    <div>
-                      <div className="text-sm font-semibold">{link.label}</div>
-                      <div className={`text-xs ${active ? "text-white/80" : "text-slate-500"}`}>
-                        {link.description}
-                      </div>
-                    </div>
-                  </Link>
-                );
-              })}
-            </nav>
-          </div>
-        )}
-      </header>
 
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 z-40 w-full border-t border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">

@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Stethoscope } from "lucide-react";
-import { useDeferredValue, useState } from "react";
+import { Search, Stethoscope, ArrowRight } from "lucide-react";
+import { useDeferredValue, useState, useRef, useEffect } from "react";
 
 import { FadeIn } from "@/components/motion/fade-in";
 import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
@@ -31,7 +31,10 @@ export function HomeDashboard({
   analytics: AnalyticsProps;
 }) {
   const [query, setQuery] = useState("");
+  const [showSuggestions, setShowSuggestions] = useState(false);
+  const searchRef = useRef<HTMLDivElement>(null);
   const deferredQuery = useDeferredValue(query);
+
   const filteredTopics = topics.filter((topic) => {
     if (!deferredQuery) {
       return true;
@@ -45,36 +48,87 @@ export function HomeDashboard({
     );
   });
 
+  // Get top 5 suggestions for dropdown
+  const suggestions = query.trim() ? filteredTopics.slice(0, 5) : [];
+
+  // Close suggestions when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (searchRef.current && !searchRef.current.contains(event.target as Node)) {
+        setShowSuggestions(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
   return (
     <div suppressHydrationWarning className="space-y-16 pb-16">
       <section className="relative overflow-hidden px-4 pt-8 sm:px-6 lg:px-8 xl:px-12">
         <div className="mx-auto grid max-w-7xl gap-8 lg:grid-cols-[1.2fr_0.8fr] lg:gap-10 lg:items-center">
           <FadeIn className="relative">
-            <h1 className="display-title max-w-4xl text-4xl leading-tight text-slate-950 sm:text-5xl md:text-6xl lg:text-7xl">
-              {APP_NAME}
-            </h1>
-            <p className="mt-4 text-xl font-semibold text-sky-800">{APP_TAGLINE}</p>
-            <p className="mt-6 max-w-2xl text-lg leading-8 text-slate-600">
+            <p className="text-xl font-semibold text-sky-800">{APP_TAGLINE}</p>
+            <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
               Public anatomy learning, topic-grounded question generation, and clean exam delivery built to stay
               faithful to uploaded Human Anatomy source material.
             </p>
 
-            <div className="glass-panel mt-8 flex max-w-2xl flex-col gap-3 rounded-[2rem] p-4 sm:flex-row sm:items-center">
-              <div className="flex flex-1 items-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-5 py-4 transition-all focus-within:border-[#0969da] focus-within:shadow-[0_0_0_3px_rgba(9,105,218,0.1)]">
-                <Search className="h-5 w-5 text-slate-400" />
-                <input
-                  value={query}
-                  onChange={(event) => setQuery(event.target.value)}
-                  placeholder="Search anatomy topics, regions, or subtopics"
-                  className="w-full bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
-                />
+            <div className="glass-panel mt-8 max-w-2xl rounded-[2rem] p-4">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <div ref={searchRef} className="relative flex-1">
+                  <div className="flex items-center gap-3 rounded-2xl border-2 border-slate-200 bg-white px-5 py-4 transition-all focus-within:border-[#0969da] focus-within:shadow-[0_0_0_3px_rgba(9,105,218,0.1)]">
+                    <Search className="h-5 w-5 text-slate-400" />
+                    <input
+                      value={query}
+                      onChange={(event) => {
+                        setQuery(event.target.value);
+                        setShowSuggestions(true);
+                      }}
+                      onFocus={() => setShowSuggestions(true)}
+                      placeholder="Search anatomy topics, regions, or subtopics"
+                      className="w-full bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
+                    />
+                  </div>
+
+                  {/* Search Suggestions Dropdown */}
+                  {showSuggestions && suggestions.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 z-50 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
+                      {suggestions.map((topic) => (
+                        <Link
+                          key={topic.id}
+                          href={`/exam?topic=${topic.slug}`}
+                          onClick={() => {
+                            setShowSuggestions(false);
+                            setQuery("");
+                          }}
+                          className="flex items-center justify-between gap-4 border-b border-slate-100 px-5 py-4 transition-colors hover:bg-slate-50 last:border-b-0"
+                        >
+                          <div className="flex-1">
+                            <div className="font-semibold text-slate-900">{topic.name}</div>
+                            {topic.summary && (
+                              <div className="mt-1 text-sm text-slate-500 line-clamp-1">{topic.summary}</div>
+                            )}
+                            <div className="mt-2 text-xs text-slate-400">
+                              {topic.questionCount} questions available
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm font-semibold text-[#0969da]">
+                            Start Exam
+                            <ArrowRight className="h-4 w-4" />
+                          </div>
+                        </Link>
+                      ))}
+                    </div>
+                  )}
+                </div>
+                <Link
+                  href="/exam"
+                  className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-8 py-4 text-center font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
+                >
+                  Quick start exam
+                </Link>
               </div>
-              <Link
-                href="/exam"
-                className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-8 py-4 text-center font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl active:scale-[0.98]"
-              >
-                Quick start exam
-              </Link>
             </div>
           </FadeIn>
 

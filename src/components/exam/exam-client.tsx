@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { AlertCircle, FileQuestion, LoaderCircle } from "lucide-react";
+import { AlertCircle, FileQuestion, LoaderCircle, Shuffle } from "lucide-react";
 import { startTransition, useEffect, useState } from "react";
 
 import { QUESTION_COUNT_OPTIONS, TIMER_OPTIONS } from "@/lib/constants";
@@ -147,7 +147,79 @@ export function ExamClient({
     }
   }
 
+  async function startRandomExam() {
+    setLoading(true);
+    setError(null);
+
+    try {
+      // Pick random course
+      const randomCourse = courses[Math.floor(Math.random() * courses.length)];
+
+      // Pick random topic
+      const randomTopic = topics[Math.floor(Math.random() * topics.length)];
+
+      // Pick random type
+      const types: Array<"MCQ" | "SHORT_ANSWER" | "THEORY" | "MIXED"> = ["MCQ", "SHORT_ANSWER", "THEORY", "MIXED"];
+      const randomType = types[Math.floor(Math.random() * types.length)];
+
+      // Pick random count between 8 and 20
+      const randomCount = Math.floor(Math.random() * 13) + 8;
+
+      // Pick random timer
+      const timerOptions = [0, 15, 30, 45, 60];
+      const randomTimer = timerOptions[Math.floor(Math.random() * timerOptions.length)];
+
+      const response = await fetch("/api/start-exam", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          courseSlug: randomCourse.slug,
+          topicSlug: randomTopic.slug,
+          subtopicSlug: undefined,
+          type: randomType,
+          count: randomCount,
+          durationMinutes: randomTimer,
+        }),
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Could not start random exam.");
+      }
+
+      // Store exam in sessionStorage and navigate to exam session page
+      sessionStorage.setItem(
+        "anatomiq:active-exam",
+        JSON.stringify({
+          ...data,
+          config: {
+            courseSlug: randomCourse.slug,
+            topicSlug: randomTopic.slug,
+            subtopicSlug: undefined,
+            type: randomType,
+            count: randomCount,
+            durationMinutes: randomTimer,
+          },
+        }),
+      );
+
+      // Navigate to exam session page
+      startTransition(() => {
+        router.push("/exam-session");
+      });
+    } catch (requestError) {
+      setError(toFriendlyError(requestError));
+    } finally {
+      setLoading(false);
+    }
+  }
+
   const isMixedModeAvailable = availability.availableTypes.length > 1;
+
+  // Check if all required fields are selected
+  const isFormValid = courseSlug && topicSlug && type && count > 0;
 
   return (
     <div suppressHydrationWarning className="space-y-8">
@@ -265,18 +337,36 @@ export function ExamClient({
           </label>
         </div>
 
-        <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:items-center">
-          <button
-            onClick={() => void startExam()}
-            disabled={loading || !topicSlug}
-            className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-6 py-4 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
-          >
-            {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <FileQuestion className="h-5 w-5" />}
-            {loading ? "Building exam..." : "Generate exam"}
-          </button>
-          <Link href="/topics" className="text-sm font-semibold text-sky-700 hover:text-sky-800">
-            Need a better topic fit? Open explorer
-          </Link>
+        <div className="mt-6 flex flex-col gap-3">
+          <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+            <button
+              onClick={() => void startExam()}
+              disabled={loading || !isFormValid}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-6 py-4 text-sm font-semibold text-white shadow-lg hover:shadow-xl transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <FileQuestion className="h-5 w-5" />}
+              {loading ? "Building exam..." : "Generate exam"}
+            </button>
+
+            <button
+              onClick={() => void startRandomExam()}
+              disabled={loading}
+              className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white border-2 border-[#0969da] px-6 py-4 text-sm font-semibold text-[#0969da] shadow-md hover:bg-[#f0f6ff] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
+            >
+              {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Shuffle className="h-5 w-5" />}
+              {loading ? "Randomizing..." : "Randomize exam"}
+            </button>
+
+            <Link href="/topics" className="text-sm font-semibold text-sky-700 hover:text-sky-800">
+              Need a better topic fit? Open explorer
+            </Link>
+          </div>
+
+          {!isFormValid && !loading && (
+            <p className="text-sm text-slate-500">
+              Please select all fields to generate an exam
+            </p>
+          )}
         </div>
 
         {error ? (
