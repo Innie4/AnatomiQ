@@ -112,6 +112,24 @@ export function AppNavigation() {
         </div>
       </aside>
 
+      {/* Mobile Top Header (No Menu) */}
+      <header className="fixed top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">
+        <div className="flex items-center justify-center px-4 py-3">
+          <Link href="/" className="flex items-center gap-2">
+            <div className="relative h-9 w-9">
+              <Image
+                src="/anatomiQ.png"
+                alt={APP_NAME}
+                width={36}
+                height={36}
+                className="object-contain"
+                priority
+              />
+            </div>
+            <div className="text-base font-bold text-slate-900">{APP_NAME}</div>
+          </Link>
+        </div>
+      </header>
 
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 z-40 w-full border-t border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">

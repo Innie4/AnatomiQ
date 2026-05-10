@@ -93,7 +93,7 @@ export function HomeDashboard({
 
                   {/* Search Suggestions Dropdown */}
                   {showSuggestions && suggestions.length > 0 && (
-                    <div className="absolute top-full left-0 right-0 z-50 mt-2 max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-xl">
+                    <div className="absolute top-full left-0 right-0 z-[9999] mt-2 max-h-80 overflow-y-auto rounded-2xl border border-slate-200 bg-white shadow-2xl">
                       {suggestions.map((topic) => (
                         <Link
                           key={topic.id}

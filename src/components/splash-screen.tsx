@@ -64,9 +64,6 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
           <h1 className="text-4xl font-bold text-white sm:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
             AnatomiQ
           </h1>
-          <p className="mt-2 text-sm font-medium text-white/90 sm:text-base">
-            AI-Powered Anatomy Learning
-          </p>
         </div>
       </div>
 
