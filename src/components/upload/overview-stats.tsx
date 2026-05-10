@@ -57,6 +57,7 @@ export function OverviewStats({ adminKey }: { adminKey: string }) {
     if (adminKey) {
       void loadOverview();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [adminKey]);
 
   if (error) {
