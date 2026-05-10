@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 import { Home, BookOpen, FileQuestion } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
+import { RandomizeExamButton } from "./randomize-exam-button";
 
 const navigationLinks = [
   {
@@ -99,15 +100,9 @@ export function AppNavigation() {
             })}
           </nav>
 
-          {/* Quick Action Button */}
+          {/* Randomize Exam Button */}
           <div className="border-t border-slate-200 p-4">
-            <Link
-              href="/exam"
-              className="flex items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
-            >
-              <FileQuestion className="h-4 w-4" />
-              Quick Start Exam
-            </Link>
+            <RandomizeExamButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none" />
           </div>
         </div>
       </aside>

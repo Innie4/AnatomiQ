@@ -57,6 +57,7 @@ export function ExamSessionClient() {
   const [error, setError] = useState<string | null>(null);
   const [gracePeriod, setGracePeriod] = useState(false);
   const [graceTimeLeft, setGraceTimeLeft] = useState(180); // 3 minutes in seconds
+  const [showGraceModal, setShowGraceModal] = useState(false);
 
   // Load exam from sessionStorage
   useEffect(() => {
@@ -76,10 +77,12 @@ export function ExamSessionClient() {
     }
   }, [router]);
 
+  // Show grace period timer if active, otherwise show main timer
+  const displayTimeLeft = gracePeriod ? graceTimeLeft : timeLeft;
   const formattedTimer =
-    timeLeft === null
+    displayTimeLeft === null
       ? null
-      : `${String(Math.floor(timeLeft / 60)).padStart(2, "0")}:${String(timeLeft % 60).padStart(2, "0")}`;
+      : `${String(Math.floor(displayTimeLeft / 60)).padStart(2, "0")}:${String(displayTimeLeft % 60).padStart(2, "0")}`;
 
   const autoSubmit = useEffectEvent(async () => {
     if (!examData || submitting) return;
@@ -97,6 +100,7 @@ export function ExamSessionClient() {
           window.clearInterval(timer);
           // Trigger grace period instead of auto-submit
           setGracePeriod(true);
+          setShowGraceModal(true);
           return 0;
         }
         return current - 1;
@@ -209,8 +213,8 @@ export function ExamSessionClient() {
   const answeredQuestions = new Set(Object.keys(answers).filter((id) => answers[id]?.trim()));
   const progress = Math.round((answeredQuestions.size / examData.questions.length) * 100);
 
-  // Grace Period Screen
-  if (gracePeriod) {
+  // Grace Period Modal (only show if modal flag is true)
+  if (gracePeriod && showGraceModal) {
     const graceMinutes = Math.floor(graceTimeLeft / 60);
     const graceSeconds = graceTimeLeft % 60;
     const gracePercentage = (graceTimeLeft / 180) * 100;
@@ -298,7 +302,7 @@ export function ExamSessionClient() {
           {/* Action Buttons */}
           <div className="flex flex-col gap-4 sm:flex-row sm:justify-center">
             <button
-              onClick={() => setGracePeriod(false)}
+              onClick={() => setShowGraceModal(false)}
               disabled={submitting}
               className="rounded-2xl border-2 border-white bg-white px-8 py-4 text-lg font-bold text-rose-900 shadow-2xl transition-all hover:scale-105 hover:shadow-rose-500/50 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
             >
@@ -333,9 +337,31 @@ export function ExamSessionClient() {
           </div>
 
           {formattedTimer && (
-            <div className="flex items-center gap-2 rounded-xl border border-emerald-100 bg-emerald-50 px-4 py-2 text-emerald-700">
-              <Clock3 className="h-5 w-5" />
-              <span className="font-mono text-lg font-semibold">{formattedTimer}</span>
+            <div
+              className={`flex items-center gap-3 rounded-xl border-2 px-6 py-3 transition-all ${
+                gracePeriod
+                  ? graceTimeLeft <= 30
+                    ? "animate-pulse border-rose-400 bg-rose-500 shadow-2xl shadow-rose-500/50"
+                    : graceTimeLeft <= 60
+                    ? "border-rose-400 bg-rose-500 shadow-xl shadow-rose-500/30"
+                    : "border-rose-300 bg-rose-500 shadow-lg"
+                  : "border-emerald-100 bg-emerald-50"
+              }`}
+            >
+              <Clock3
+                className={`${gracePeriod ? "h-8 w-8 text-white" : "h-5 w-5 text-emerald-700"} ${graceTimeLeft <= 30 && gracePeriod ? "animate-spin" : ""}`}
+              />
+              <span
+                className={`font-mono font-black ${gracePeriod ? "text-4xl text-white drop-shadow-lg" : "text-lg text-emerald-700"}`}
+              >
+                {formattedTimer}
+              </span>
+              {gracePeriod && (
+                <div className="ml-2 flex flex-col">
+                  <span className="text-xs font-bold uppercase text-rose-100">Grace</span>
+                  <span className="text-xs font-bold uppercase text-rose-100">Period</span>
+                </div>
+              )}
             </div>
           )}
         </div>
