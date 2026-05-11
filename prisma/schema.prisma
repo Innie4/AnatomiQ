@@ -108,20 +108,86 @@ model Course {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model FacultyUser {
-  id           String     @id @default(uuid())
-  email        String     @unique
-  passwordHash String?
-  fullName     String
-  department   String     @default("Human Anatomy")
-  faculty      String?
-  isActive     Boolean    @default(true)
-  isGuest      Boolean    @default(false)
-  googleId     String?    @unique
-  facebookId   String?    @unique
-  avatarUrl    String?
-  createdAt    DateTime   @default(now())
-  updatedAt    DateTime   @updatedAt
-  AuditLog     AuditLog[]
+  id             String         @id @default(uuid())
+  email          String         @unique
+  passwordHash   String?
+  fullName       String
+  department     String         @default("Human Anatomy")
+  faculty        String?
+  isActive       Boolean        @default(true)
+  isGuest        Boolean        @default(false)
+  googleId       String?        @unique
+  facebookId     String?        @unique
+  avatarUrl      String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  AuditLog       AuditLog[]
+  Subscription   Subscription[]
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Subscription {
+  id                    String           @id @default(uuid())
+  userId                String
+  tier                  SubscriptionTier @default(FREE)
+  billingPeriod         BillingPeriod    @default(MONTHLY)
+  status                SubscriptionStatus @default(ACTIVE)
+  startDate             DateTime         @default(now())
+  endDate               DateTime?
+  autoRenew             Boolean          @default(true)
+  paystackCustomerCode  String?
+  paystackSubscriptionCode String?
+  lastPaymentDate       DateTime?
+  nextPaymentDate       DateTime?
+  amountPaid            Int?
+  currency              String           @default("NGN")
+  createdAt             DateTime         @default(now())
+  updatedAt             DateTime         @updatedAt
+  user                  FacultyUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  PaymentHistory        PaymentHistory[]
+
+  @@index([userId, status])
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model PaymentHistory {
+  id                String       @id @default(uuid())
+  subscriptionId    String
+  userId            String
+  amount            Int
+  currency          String       @default("NGN")
+  status            PaymentStatus
+  paystackReference String       @unique
+  paidAt            DateTime?
+  createdAt         DateTime     @default(now())
+  subscription      Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([paystackReference])
+}
+
+enum SubscriptionTier {
+  FREE
+  STARTER
+  PRO
+}
+
+enum BillingPeriod {
+  MONTHLY
+  ANNUAL
+}
+
+enum SubscriptionStatus {
+  ACTIVE
+  EXPIRED
+  CANCELLED
+  PENDING
+}
+
+enum PaymentStatus {
+  SUCCESS
+  FAILED
+  PENDING
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

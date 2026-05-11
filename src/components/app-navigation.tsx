@@ -3,7 +3,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, FileQuestion } from "lucide-react";
+import { Home, BookOpen, FileQuestion, User, CreditCard } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
 import { RandomizeExamButton } from "./randomize-exam-button";
@@ -26,6 +26,18 @@ const navigationLinks = [
     label: "Exam",
     icon: FileQuestion,
     description: "Start practice exam"
+  },
+  {
+    href: "/pricing",
+    label: "Pricing",
+    icon: CreditCard,
+    description: "View subscription plans"
+  },
+  {
+    href: "/profile",
+    label: "Profile",
+    icon: User,
+    description: "Manage your account"
   },
 ];
 
