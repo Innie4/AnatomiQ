@@ -7,11 +7,12 @@ import { Shuffle, LoaderCircle } from "lucide-react";
 const types = ["MCQ", "SHORT_ANSWER", "THEORY", "MIXED"] as const;
 const timerOptions = [0, 15, 30, 45, 60];
 
-type Topic = {
+type TopicOption = {
   id: string;
   slug: string;
   name: string;
   courseSlug: string;
+  isSubtopic: boolean;
 };
 
 export function RandomizeExamButton({ className }: { className?: string }) {
@@ -29,27 +30,29 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       }
 
       const topicsData = await topicsResponse.json();
-      const allTopics: Topic[] = [];
+      const allTopics: TopicOption[] = [];
 
       // Flatten all topics and subtopics into a single array
       if (topicsData.topics && Array.isArray(topicsData.topics)) {
         topicsData.topics.forEach((topic: any) => {
-          // Add main topic
+          // Add main topic (topic slug IS the courseSlug)
           allTopics.push({
             id: topic.id,
             slug: topic.slug,
             name: topic.name,
-            courseSlug: topic.courseSlug,
+            courseSlug: topic.slug,
+            isSubtopic: false,
           });
 
-          // Add subtopics if they exist
-          if (topic.children && Array.isArray(topic.children)) {
-            topic.children.forEach((subtopic: any) => {
+          // Add subtopics if they exist (childTopics, not children)
+          if (topic.childTopics && Array.isArray(topic.childTopics)) {
+            topic.childTopics.forEach((subtopic: any) => {
               allTopics.push({
                 id: subtopic.id,
                 slug: subtopic.slug,
                 name: subtopic.name,
-                courseSlug: topic.courseSlug,
+                courseSlug: topic.slug, // Parent topic's slug is the courseSlug
+                isSubtopic: true,
               });
             });
           }
@@ -66,21 +69,36 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       const randomCount = Math.floor(Math.random() * 13) + 8; // 8-20 questions
       const randomTimer = timerOptions[Math.floor(Math.random() * timerOptions.length)];
 
-      // Call the start-exam API
+      // Build payload based on whether it's a subtopic or main topic
+      const payload: any = {
+        courseSlug: randomTopic.courseSlug,
+        topicSlug: randomTopic.isSubtopic ? randomTopic.courseSlug : randomTopic.slug,
+        type: randomType,
+        count: randomCount,
+      };
+
+      // Add subtopicSlug only if this is a subtopic
+      if (randomTopic.isSubtopic) {
+        payload.subtopicSlug = randomTopic.slug;
+      }
+
+      // Only add durationMinutes if it's greater than 0
+      if (randomTimer > 0) {
+        payload.durationMinutes = randomTimer;
+      }
+
+      console.log("Randomize exam payload:", JSON.stringify(payload, null, 2));
+      console.log("Random topic selected:", randomTopic);
+
       const response = await fetch("/api/start-exam", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          courseSlug: randomTopic.courseSlug,
-          topicSlug: randomTopic.slug,
-          type: randomType,
-          count: randomCount,
-          durationMinutes: randomTimer,
-        }),
+        body: JSON.stringify(payload),
       });
 
       if (!response.ok) {
         const errorData = await response.json();
+        console.error("API Error Response:", errorData);
         throw new Error(errorData.error || "Failed to start exam");
       }
 
