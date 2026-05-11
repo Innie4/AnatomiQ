@@ -63,8 +63,36 @@ export function RandomizeExamButton({ className }: { className?: string }) {
         throw new Error("No topics available");
       }
 
-      // Generate random exam parameters from available options
-      const randomTopic = allTopics[Math.floor(Math.random() * allTopics.length)];
+      // Filter topics that have processed material by checking available question types
+      const topicsWithMaterial: TopicOption[] = [];
+
+      for (const topic of allTopics) {
+        try {
+          const params = new URLSearchParams({ topicSlug: topic.courseSlug });
+          if (topic.isSubtopic) {
+            params.set("subtopicSlug", topic.slug);
+          }
+
+          const availabilityResponse = await fetch(`/api/topic-question-types?${params}`);
+          if (availabilityResponse.ok) {
+            const data = await availabilityResponse.json();
+            // Only include topics that have at least one available question type
+            if (data.availableTypes && data.availableTypes.length > 0) {
+              topicsWithMaterial.push(topic);
+            }
+          }
+        } catch {
+          // Skip topics that error out
+          continue;
+        }
+      }
+
+      if (topicsWithMaterial.length === 0) {
+        throw new Error("No topics with processed material available. Please upload and process anatomy material first.");
+      }
+
+      // Generate random exam parameters from topics with material only
+      const randomTopic = topicsWithMaterial[Math.floor(Math.random() * topicsWithMaterial.length)];
       const randomType = types[Math.floor(Math.random() * types.length)];
       const randomCount = Math.floor(Math.random() * 13) + 8; // 8-20 questions
       const randomTimer = timerOptions[Math.floor(Math.random() * timerOptions.length)];
