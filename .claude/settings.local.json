@@ -39,7 +39,9 @@
       "Bash(taskkill /PID 28332 /F)",
       "Bash(cmd //c \"taskkill /PID 28332 /F\")",
       "Bash(git pull *)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "Bash(git checkout *)",
+      "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"proceed\" npx prisma migrate reset --force)"
     ]
   }
 }
