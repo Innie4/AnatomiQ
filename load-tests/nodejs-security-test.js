@@ -193,7 +193,6 @@ async function testInputValidation() {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: {
-        courseSlug: 123,
         topicSlug: true,
         type: 'INVALID',
         count: 'ten',

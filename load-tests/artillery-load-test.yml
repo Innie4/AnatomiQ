@@ -72,7 +72,6 @@ scenarios:
           url: "/api/start-exam"
           beforeRequest: "setExamPayload"
           json:
-            courseSlug: "{{ courseSlug }}"
             topicSlug: "{{ topicSlug }}"
             type: "{{ type }}"
             count: "{{ count }}"

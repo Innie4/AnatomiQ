@@ -71,8 +71,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
 
       // Build payload based on whether it's a subtopic or main topic
       const payload: any = {
-        courseSlug: randomTopic.courseSlug,
-        topicSlug: randomTopic.isSubtopic ? randomTopic.courseSlug : randomTopic.slug,
+        topicSlug: randomTopic.courseSlug, // Always use the parent topic slug
         type: randomType,
         count: randomCount,
       };

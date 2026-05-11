@@ -106,7 +106,6 @@ export function ExamClient({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          courseSlug,
           topicSlug,
           subtopicSlug: resolvedSubtopicSlug || undefined,
           type,
@@ -175,7 +174,6 @@ export function ExamClient({
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
-          courseSlug: randomCourse.slug,
           topicSlug: randomTopic.slug,
           subtopicSlug: undefined,
           type: randomType,

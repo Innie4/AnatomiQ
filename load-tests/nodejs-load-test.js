@@ -140,7 +140,6 @@ async function simulateUser() {
           'Content-Type': 'application/json',
         },
         body: {
-          courseSlug: 'human-anatomy',
           topicSlug: topic,
           type,
           count,

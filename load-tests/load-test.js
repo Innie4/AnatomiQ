@@ -119,7 +119,6 @@ export default function () {
     const randomCount = Math.floor(Math.random() * 13) + 8; // 8-20 questions
 
     const payload = JSON.stringify({
-      courseSlug: 'human-anatomy',
       topicSlug: randomTopic,
       type: randomType,
       count: randomCount,

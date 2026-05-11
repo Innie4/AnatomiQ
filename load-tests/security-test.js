@@ -50,7 +50,6 @@ export default function () {
 
       // Test exam start endpoint
       const examPayload = JSON.stringify({
-        courseSlug: payload,
         topicSlug: 'test',
         type: 'MCQ',
         count: 10,
@@ -192,7 +191,6 @@ export default function () {
     const invalidTypesRes = http.post(
       `${BASE_URL}/api/start-exam`,
       JSON.stringify({
-        courseSlug: 123, // Should be string
         topicSlug: true, // Should be string
         type: 'INVALID',
         count: 'ten', // Should be number
