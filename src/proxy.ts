@@ -1,7 +1,32 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 
+// Public routes that don't require authentication
+const publicRoutes = [
+  "/signin",
+  "/signup",
+  "/api/auth",
+  "/_next",
+  "/favicon.ico",
+  "/anatomiQ.png",
+];
+
 export function proxy(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // Check for auth token on protected routes
+  if (!publicRoutes.some((route) => pathname.startsWith(route))) {
+    const token = request.cookies.get("anatomiq:auth-token")?.value;
+    const hasToken = token || request.headers.get("authorization");
+
+    // Redirect to signin if not authenticated
+    if (!hasToken) {
+      const signInUrl = new URL("/signin", request.url);
+      signInUrl.searchParams.set("callbackUrl", pathname);
+      return NextResponse.redirect(signInUrl);
+    }
+  }
+
   const response = NextResponse.next();
 
   // Add security headers

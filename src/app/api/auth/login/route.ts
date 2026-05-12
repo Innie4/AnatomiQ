@@ -47,6 +47,10 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "Account is inactive" }, { status: 403 });
     }
 
+    if (!user.passwordHash) {
+      return NextResponse.json({ error: "Invalid credentials" }, { status: 401 });
+    }
+
     // Verify password
     const isValid = await comparePassword(password, user.passwordHash);
     if (!isValid) {

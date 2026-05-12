@@ -30,6 +30,11 @@ export async function GET(request: NextRequest) {
     }
 
     const { metadata, amount, paid_at, customer } = verification.data;
+
+    if (!metadata) {
+      return NextResponse.json({ success: false, error: "Payment metadata missing" }, { status: 400 });
+    }
+
     const userId = metadata.userId;
     const tier = metadata.tier;
     const billingPeriod = metadata.billingPeriod;

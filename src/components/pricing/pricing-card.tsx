@@ -9,7 +9,7 @@ type PricingCardProps = {
   tier: string;
   monthlyPrice: number;
   annualPrice: number;
-  features: string[];
+  features: readonly string[];
   popular?: boolean;
   badge?: string;
   billingPeriod: "MONTHLY" | "ANNUAL";

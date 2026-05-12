@@ -4,11 +4,23 @@ const FLW_PUBLIC_KEY = process.env.NEXT_PUBLIC_FLUTTERWAVE_PUBLIC_KEY || "";
 const FLW_SECRET_KEY = process.env.FLUTTERWAVE_SECRET_KEY || "";
 const FLW_ENCRYPTION_KEY = process.env.FLUTTERWAVE_ENCRYPTION_KEY || "";
 
-if (!FLW_SECRET_KEY) {
-  console.warn("FLUTTERWAVE_SECRET_KEY is not set");
+let flutterwaveInstance: Flutterwave | null = null;
+
+function getFlutterwaveInstance(): Flutterwave {
+  if (!flutterwaveInstance) {
+    if (!FLW_PUBLIC_KEY || !FLW_SECRET_KEY) {
+      throw new Error("Flutterwave credentials not configured");
+    }
+    flutterwaveInstance = new Flutterwave(FLW_PUBLIC_KEY, FLW_SECRET_KEY);
+  }
+  return flutterwaveInstance;
 }
 
-export const flutterwave = new Flutterwave(FLW_PUBLIC_KEY, FLW_SECRET_KEY);
+export const flutterwave = new Proxy({} as Flutterwave, {
+  get(_target, prop) {
+    return (getFlutterwaveInstance() as any)[prop];
+  },
+});
 
 export const FLUTTERWAVE_CONFIG = {
   publicKey: FLW_PUBLIC_KEY,
