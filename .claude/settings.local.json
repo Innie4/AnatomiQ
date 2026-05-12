@@ -45,7 +45,10 @@
       "Bash(pkill -f \"git commit\")",
       "Bash(npx next *)",
       "Bash(cat)",
-      "Bash(/tmp/batch_implementation.sh)"
+      "Bash(/tmp/batch_implementation.sh)",
+      "Bash(timeout 10 bash -c 'while [[ -n $\\(git status --short\\) ]]; do sleep 1; done')",
+      "Bash(tasklist)",
+      "Bash(findstr /i git)"
     ]
   }
 }

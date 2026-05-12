@@ -4,9 +4,11 @@ import { db } from "@/lib/db";
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     const authHeader = request.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -20,7 +22,7 @@ export async function PATCH(
 
     // Verify notification belongs to user
     const notification = await db.notification.findUnique({
-      where: { id: params.id },
+      where: { id },
     });
 
     if (!notification || notification.userId !== payload.userId) {
@@ -31,7 +33,7 @@ export async function PATCH(
     }
 
     const updated = await db.notification.update({
-      where: { id: params.id },
+      where: { id },
       data: { read: true },
     });
 

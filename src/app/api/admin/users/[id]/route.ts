@@ -10,9 +10,11 @@ function isAdmin(email: string): boolean {
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params;
+
     const authHeader = request.headers.get("authorization");
     if (!authHeader?.startsWith("Bearer ")) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,7 +38,7 @@ export async function PATCH(
     const { isActive } = await request.json();
 
     const user = await db.facultyUser.update({
-      where: { id: params.id },
+      where: { id },
       data: { isActive },
     });
 
