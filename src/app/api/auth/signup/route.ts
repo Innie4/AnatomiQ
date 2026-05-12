@@ -3,6 +3,8 @@ import { hashPassword, signToken } from "@/lib/auth";
 import { rateLimit, getClientIP } from "@/lib/rate-limit";
 import { db } from "@/lib/db";
 import { generateUniqueReferralCode, processReferral } from "@/lib/referral";
+import { generateToken } from "@/lib/tokens";
+import { sendVerificationEmail } from "@/lib/email";
 import { z } from "zod";
 
 const signupSchema = z.object({
@@ -70,6 +72,9 @@ export async function POST(request: NextRequest) {
     // Generate unique referral code for new user
     const userReferralCode = await generateUniqueReferralCode(fullName);
 
+    // Generate email verification token
+    const verificationToken = generateToken();
+
     // Create user
     const user = await db.facultyUser.create({
       data: {
@@ -79,6 +84,8 @@ export async function POST(request: NextRequest) {
         department,
         faculty,
         referralCode: userReferralCode,
+        verificationToken,
+        emailVerified: false,
         isActive: true,
         isGuest: false,
       },
@@ -88,6 +95,12 @@ export async function POST(request: NextRequest) {
     if (referralCode) {
       await processReferral(user.id, referralCode);
     }
+
+    // Send verification email (don't block signup on email failure)
+    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+    sendVerificationEmail(email, verificationToken, appUrl).catch((error) => {
+      console.error("Failed to send verification email:", error);
+    });
 
     // Generate JWT
     const token = signToken({
