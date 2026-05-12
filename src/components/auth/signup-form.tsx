@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
+import { useCourses } from "@/hooks/use-courses";
 
 type SignupStep = 1 | 2 | 3 | 4 | 5;
 
@@ -37,19 +38,10 @@ const faculties = [
   "Other",
 ];
 
-const availableCourses = [
-  { id: "anatomy", name: "Human Anatomy", description: "Study of body structures" },
-  { id: "physiology", name: "Physiology", description: "Study of body functions" },
-  { id: "biochemistry", name: "Biochemistry", description: "Chemical processes in living organisms" },
-  { id: "pharmacology", name: "Pharmacology", description: "Study of drugs and their effects" },
-  { id: "pathology", name: "Pathology", description: "Study of diseases" },
-  { id: "microbiology", name: "Microbiology", description: "Study of microorganisms" },
-  { id: "law", name: "Law", description: "Legal principles and systems" },
-];
-
 export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const { courses: availableCourses, loading: coursesLoading } = useCourses();
   const [step, setStep] = useState<SignupStep>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -397,32 +389,46 @@ export function SignupForm() {
               <label className="block text-sm font-semibold text-slate-700 mb-3">
                 Select Courses <span className="text-red-500">*</span>
               </label>
-              <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
-                {availableCourses.map((course) => (
-                  <label
-                    key={course.id}
-                    className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                      data.selectedCourses.includes(course.id)
-                        ? "border-blue-500 bg-blue-50"
-                        : "border-slate-200 bg-white hover:border-slate-300"
-                    }`}
-                  >
-                    <input
-                      type="checkbox"
-                      checked={data.selectedCourses.includes(course.id)}
-                      onChange={() => toggleCourse(course.id)}
-                      className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-100"
-                    />
-                    <div className="flex-1">
-                      <div className="font-semibold text-slate-900">{course.name}</div>
-                      <div className="text-sm text-slate-600">{course.description}</div>
-                    </div>
-                  </label>
-                ))}
-              </div>
-              <p className="mt-2 text-xs text-slate-500">
-                Selected: {data.selectedCourses.length} course{data.selectedCourses.length !== 1 ? 's' : ''}
-              </p>
+              {coursesLoading ? (
+                <div className="p-8 text-center">
+                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600" />
+                  <p className="text-sm text-slate-600 mt-2">Loading courses...</p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
+                    {availableCourses.map((course) => (
+                      <label
+                        key={course.id}
+                        className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
+                          data.selectedCourses.includes(course.slug)
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-slate-200 bg-white hover:border-slate-300"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          checked={data.selectedCourses.includes(course.slug)}
+                          onChange={() => toggleCourse(course.slug)}
+                          className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-100"
+                        />
+                        <div className="flex-1">
+                          <div className="font-semibold text-slate-900">
+                            {course.name}
+                            <span className="ml-2 text-xs text-slate-500 font-normal">
+                              ({course.code})
+                            </span>
+                          </div>
+                          <div className="text-sm text-slate-600">{course.description}</div>
+                        </div>
+                      </label>
+                    ))}
+                  </div>
+                  <p className="mt-2 text-xs text-slate-500">
+                    Selected: {data.selectedCourses.length} course{data.selectedCourses.length !== 1 ? 's' : ''}
+                  </p>
+                </>
+              )}
             </div>
             <div>
               <label htmlFor="referralCode" className="block text-sm font-semibold text-slate-700 mb-2">

@@ -103,6 +103,71 @@ async function main() {
     }
   }
 
+  // Seed additional courses
+  const additionalCourses = [
+    {
+      code: "PHY101",
+      name: "Physiology",
+      slug: "physiology",
+      description: "Study of the functions and mechanisms of the human body systems.",
+      department: "Physiology",
+    },
+    {
+      code: "BCH101",
+      name: "Biochemistry",
+      slug: "biochemistry",
+      description: "Chemical processes and substances in living organisms.",
+      department: "Biochemistry",
+    },
+    {
+      code: "PCL101",
+      name: "Pharmacology",
+      slug: "pharmacology",
+      description: "Study of drugs and their effects on living systems.",
+      department: "Pharmacology",
+    },
+    {
+      code: "PAT101",
+      name: "Pathology",
+      slug: "pathology",
+      description: "Study of disease causes, development, and consequences.",
+      department: "Pathology",
+    },
+    {
+      code: "MCB101",
+      name: "Microbiology",
+      slug: "microbiology",
+      description: "Study of microorganisms including bacteria, viruses, and fungi.",
+      department: "Microbiology",
+    },
+    {
+      code: "LAW101",
+      name: "Law",
+      slug: "law",
+      description: "Legal principles, systems, and jurisprudence.",
+      department: "Law",
+    },
+  ];
+
+  console.log("Seeding additional courses...");
+  for (const courseData of additionalCourses) {
+    const existingCourse = await prisma.course.findUnique({
+      where: { slug: courseData.slug },
+    });
+
+    if (!existingCourse) {
+      console.log(`Creating ${courseData.name} course...`);
+      await prisma.course.create({
+        data: {
+          id: randomUUID(),
+          ...courseData,
+        },
+      });
+    } else {
+      console.log(`${courseData.name} course already exists, skipping...`);
+    }
+  }
+
   console.log("Seeding anatomy topics...");
   for (const topic of ANATOMY_TOPICS) {
     const topicSlug = slugify(topic.name, { lower: true, strict: true });
