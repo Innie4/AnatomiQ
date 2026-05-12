@@ -108,21 +108,29 @@ model Course {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model FacultyUser {
-  id             String         @id @default(uuid())
-  email          String         @unique
-  passwordHash   String?
-  fullName       String
-  department     String         @default("Human Anatomy")
-  faculty        String?
-  isActive       Boolean        @default(true)
-  isGuest        Boolean        @default(false)
-  googleId       String?        @unique
-  facebookId     String?        @unique
-  avatarUrl      String?
-  createdAt      DateTime       @default(now())
-  updatedAt      DateTime       @updatedAt
-  AuditLog       AuditLog[]
-  Subscription   Subscription[]
+  id                String         @id @default(uuid())
+  email             String         @unique
+  passwordHash      String?
+  fullName          String
+  department        String         @default("Human Anatomy")
+  faculty           String?
+  isActive          Boolean        @default(true)
+  isGuest           Boolean        @default(false)
+  googleId          String?        @unique
+  facebookId        String?        @unique
+  avatarUrl         String?
+  referralCode      String?        @unique
+  referredBy        String?
+  referralCount     Int            @default(0)
+  selectedCourses   String[]       @default([])
+  createdAt         DateTime       @default(now())
+  updatedAt         DateTime       @updatedAt
+  AuditLog          AuditLog[]
+  Subscription      Subscription[]
+  ReferralsGiven    Referral[]     @relation("ReferrerRelation")
+  ReferralReceived  Referral?      @relation("ReferredUserRelation")
+
+  @@index([referredBy])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -166,10 +174,31 @@ model PaymentHistory {
   @@index([paystackReference])
 }
 
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Referral {
+  id              String         @id @default(uuid())
+  referrerId      String
+  referredUserId  String         @unique
+  status          ReferralStatus @default(PENDING)
+  createdAt       DateTime       @default(now())
+  completedAt     DateTime?
+  referrer        FacultyUser    @relation("ReferrerRelation", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUser    FacultyUser    @relation("ReferredUserRelation", fields: [referredUserId], references: [id], onDelete: Cascade)
+
+  @@index([referrerId])
+  @@index([referredUserId])
+}
+
 enum SubscriptionTier {
   FREE
   STARTER
   PRO
+}
+
+enum ReferralStatus {
+  PENDING
+  COMPLETED
+  EXPIRED
 }
 
 enum BillingPeriod {

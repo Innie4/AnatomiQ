@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { hashPassword, signToken } from "@/lib/auth";
 import { rateLimit, getClientIP } from "@/lib/rate-limit";
 import { db } from "@/lib/db";
+import { generateUniqueReferralCode, processReferral } from "@/lib/referral";
 import { z } from "zod";
 
 const signupSchema = z.object({
@@ -10,6 +11,8 @@ const signupSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   department: z.string().min(2, "Department is required"),
   faculty: z.string().optional(),
+  selectedCourses: z.array(z.string()).min(1, "At least one course is required"),
+  referralCode: z.string().optional(),
 });
 
 export async function POST(request: NextRequest) {
@@ -48,7 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { fullName, email, password, department, faculty } = validation.data;
+    const { fullName, email, password, department, faculty, selectedCourses, referralCode } = validation.data;
 
     // Check if user already exists
     const existingUser = await db.facultyUser.findUnique({
@@ -65,6 +68,9 @@ export async function POST(request: NextRequest) {
     // Hash password
     const passwordHash = await hashPassword(password);
 
+    // Generate unique referral code for new user
+    const userReferralCode = await generateUniqueReferralCode(fullName);
+
     // Create user
     const user = await db.facultyUser.create({
       data: {
@@ -73,10 +79,17 @@ export async function POST(request: NextRequest) {
         passwordHash,
         department,
         faculty,
+        selectedCourses,
+        referralCode: userReferralCode,
         isActive: true,
         isGuest: false,
       },
     });
+
+    // Process referral if provided
+    if (referralCode) {
+      await processReferral(user.id, referralCode);
+    }
 
     // Generate JWT
     const token = signToken({
