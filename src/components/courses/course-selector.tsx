@@ -13,15 +13,21 @@ export function CourseSelector({ onCoursesChange }: CourseSelectorProps) {
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     fetchUserCourses();
   }, []);
 
   const fetchUserCourses = async () => {
     try {
+      if (typeof window === "undefined") return;
       const token = localStorage.getItem("anatomiq:auth-token");
-      if (!token) return;
+      if (!token) {
+        setLoading(false);
+        return;
+      }
 
       const response = await fetch("/api/profile", {
         headers: {
@@ -53,8 +59,12 @@ export function CourseSelector({ onCoursesChange }: CourseSelectorProps) {
   const saveCourses = async (courses: string[]) => {
     setSaving(true);
     try {
+      if (typeof window === "undefined") return;
       const token = localStorage.getItem("anatomiq:auth-token");
-      if (!token) return;
+      if (!token) {
+        setSaving(false);
+        return;
+      }
 
       await fetch("/api/profile/courses", {
         method: "PUT",
@@ -71,7 +81,8 @@ export function CourseSelector({ onCoursesChange }: CourseSelectorProps) {
     }
   };
 
-  if (loading || coursesLoading) {
+  // Prevent hydration mismatch
+  if (!mounted || loading || coursesLoading) {
     return (
       <div className="p-6 text-center">
         <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600" />

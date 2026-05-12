@@ -6,8 +6,19 @@ import { AppNavigation } from "./app-navigation";
 export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
 
-  // Don't apply layout wrapper to upload pages and exam sessions (fullscreen)
-  if (pathname?.startsWith("/upload") || pathname?.startsWith("/exam-session")) {
+  // Pages that should not have navigation (fullscreen/auth pages)
+  const noLayoutPages = [
+    "/upload",
+    "/exam-session",
+    "/signin",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-email",
+  ];
+
+  // Don't apply layout wrapper to specified pages
+  if (noLayoutPages.some(page => pathname?.startsWith(page))) {
     return <>{children}</>;
   }
 

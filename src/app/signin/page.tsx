@@ -1,3 +1,5 @@
+"use client";
+
 import Image from "next/image";
 import { SignInForm } from "@/components/auth/signin-form";
 import { APP_NAME } from "@/lib/constants";

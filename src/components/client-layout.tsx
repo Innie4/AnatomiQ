@@ -8,8 +8,10 @@ import { PWAInstall } from "./pwa-install";
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
   const [hasShownSplash, setHasShownSplash] = useState(false);
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     // Check if splash has been shown in this session
     const splashShown = sessionStorage.getItem("anatomiq:splash-shown");
     if (splashShown === "true") {
@@ -21,8 +23,19 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
   const handleSplashComplete = () => {
     setShowSplash(false);
     setHasShownSplash(true);
-    sessionStorage.setItem("anatomiq:splash-shown", "true");
+    if (typeof window !== "undefined") {
+      sessionStorage.setItem("anatomiq:splash-shown", "true");
+    }
   };
+
+  // Prevent hydration mismatch by not rendering until mounted
+  if (!mounted) {
+    return (
+      <div className="min-h-screen bg-white">
+        <AppLayoutWrapper>{children}</AppLayoutWrapper>
+      </div>
+    );
+  }
 
   return (
     <>
