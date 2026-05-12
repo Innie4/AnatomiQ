@@ -34,11 +34,28 @@ const navigationLinks = [
     icon: CreditCard,
     description: "View subscription plans"
   },
+];
+
+const mobileNavigationLinks = [
+  {
+    href: "/",
+    label: "Home",
+    icon: Home,
+  },
+  {
+    href: "/topics",
+    label: "Topics",
+    icon: BookOpen,
+  },
+  {
+    href: "/exam",
+    label: "Exam",
+    icon: FileQuestion,
+  },
   {
     href: "/profile",
     label: "Profile",
     icon: User,
-    description: "Manage your account"
   },
 ];
 
@@ -118,9 +135,15 @@ export function AppNavigation() {
             <CourseSelector />
           </div>
 
-          {/* Randomize Exam Button */}
+          {/* Profile Button */}
           <div className="border-t border-slate-200 p-4">
-            <RandomizeExamButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none" />
+            <Link
+              href="/profile"
+              className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl"
+            >
+              <User className="h-4 w-4" />
+              My Profile
+            </Link>
           </div>
         </div>
       </aside>
@@ -147,7 +170,7 @@ export function AppNavigation() {
       {/* Mobile Bottom Navigation */}
       <nav className="fixed bottom-0 z-40 w-full border-t border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">
         <div className="flex items-center justify-around px-2 py-3">
-          {navigationLinks.map((link) => {
+          {mobileNavigationLinks.map((link) => {
             const Icon = link.icon;
             const active = isActive(link.href);
 

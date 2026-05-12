@@ -46,6 +46,8 @@ export async function GET(request: NextRequest) {
       faculty: user.faculty,
       isGuest: user.isGuest,
       avatarUrl: user.avatarUrl,
+      selectedCourses: user.selectedCourses,
+      referralCode: user.referralCode,
       subscription: subscription
         ? {
             tier: subscription.tier,

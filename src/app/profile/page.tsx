@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { User, Mail, Building2, GraduationCap, CreditCard, Edit2, Loader2, Crown, ArrowLeft } from "lucide-react";
 import { formatNaira } from "@/lib/pricing";
+import { ReferralCard } from "@/components/referral/referral-card";
+import { CourseSelector } from "@/components/courses/course-selector";
 
 type UserProfile = {
   id: string;
@@ -151,9 +153,9 @@ export default function ProfilePage() {
           <p className="mt-2 text-slate-600">Manage your account settings and subscription</p>
         </div>
 
-        <div className="grid gap-6 md:grid-cols-3">
-          {/* Profile Information */}
-          <div className="md:col-span-2 space-y-6">
+        <div className="grid gap-6 lg:grid-cols-3">
+          {/* Left Column - Profile & Courses */}
+          <div className="lg:col-span-2 space-y-6">
             <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-lg">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-2xl font-bold text-slate-900">Profile Information</h2>
@@ -270,9 +272,15 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+
+            {/* My Courses Section */}
+            <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-lg">
+              <h2 className="text-2xl font-bold text-slate-900 mb-6">My Courses</h2>
+              <CourseSelector />
+            </div>
           </div>
 
-          {/* Subscription Card */}
+          {/* Right Column - Subscription & Referrals */}
           <div className="space-y-6">
             <div className="bg-white rounded-3xl border border-slate-200 p-6 shadow-lg">
               <div className="flex items-center gap-2 mb-4">
@@ -332,6 +340,9 @@ export default function ProfilePage() {
                 </div>
               )}
             </div>
+
+            {/* Referral Card */}
+            <ReferralCard />
           </div>
         </div>
       </div>
