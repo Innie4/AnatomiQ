@@ -11,7 +11,6 @@ const signupSchema = z.object({
   password: z.string().min(8, "Password must be at least 8 characters"),
   department: z.string().min(2, "Department is required"),
   faculty: z.string().optional(),
-  selectedCourses: z.array(z.string()).min(1, "At least one course is required"),
   referralCode: z.string().optional(),
 });
 
@@ -51,7 +50,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { fullName, email, password, department, faculty, selectedCourses, referralCode } = validation.data;
+    const { fullName, email, password, department, faculty, referralCode } = validation.data;
 
     // Check if user already exists
     const existingUser = await db.facultyUser.findUnique({
@@ -79,7 +78,6 @@ export async function POST(request: NextRequest) {
         passwordHash,
         department,
         faculty,
-        selectedCourses,
         referralCode: userReferralCode,
         isActive: true,
         isGuest: false,

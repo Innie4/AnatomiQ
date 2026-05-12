@@ -7,6 +7,7 @@ import { startTransition, useEffect, useState } from "react";
 
 import { QUESTION_COUNT_OPTIONS, TIMER_OPTIONS } from "@/lib/constants";
 import { toFriendlyError } from "@/lib/friendly-errors";
+import { CourseSelector } from "@/components/courses/course-selector";
 
 type CourseCard = {
   id: string;
@@ -221,6 +222,13 @@ export function ExamClient({
 
   return (
     <div suppressHydrationWarning className="space-y-8">
+      {/* Course Selector - Mobile only */}
+      <div className="lg:hidden">
+        <div className="bg-white rounded-2xl border border-slate-200 p-4 shadow-lg">
+          <CourseSelector />
+        </div>
+      </div>
+
       <section className="glass-panel rounded-[2rem] border border-white/80 p-6 shadow-[0_20px_70px_rgba(31,78,126,0.1)] sm:p-8">
         <div className="flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>

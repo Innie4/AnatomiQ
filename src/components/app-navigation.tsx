@@ -7,6 +7,7 @@ import { Home, BookOpen, FileQuestion, User, CreditCard } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
 import { RandomizeExamButton } from "./randomize-exam-button";
+import { CourseSelector } from "./courses/course-selector";
 
 const navigationLinks = [
   {
@@ -111,6 +112,11 @@ export function AppNavigation() {
               );
             })}
           </nav>
+
+          {/* Course Selector */}
+          <div className="border-t border-slate-200 p-4">
+            <CourseSelector />
+          </div>
 
           {/* Randomize Exam Button */}
           <div className="border-t border-slate-200 p-4">

@@ -3,9 +3,8 @@
 import { useState, useEffect } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { ArrowLeft, ArrowRight, Check, Loader2 } from "lucide-react";
-import { useCourses } from "@/hooks/use-courses";
 
-type SignupStep = 1 | 2 | 3 | 4 | 5;
+type SignupStep = 1 | 2 | 3 | 4;
 
 type SignupData = {
   fullName: string;
@@ -14,7 +13,6 @@ type SignupData = {
   confirmPassword: string;
   department: string;
   faculty: string;
-  selectedCourses: string[];
   referralCode: string;
 };
 
@@ -41,7 +39,6 @@ const faculties = [
 export function SignupForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const { courses: availableCourses, loading: coursesLoading } = useCourses();
   const [step, setStep] = useState<SignupStep>(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -52,7 +49,6 @@ export function SignupForm() {
     confirmPassword: "",
     department: "",
     faculty: "",
-    selectedCourses: [],
     referralCode: "",
   });
 
@@ -64,18 +60,8 @@ export function SignupForm() {
     }
   }, [searchParams]);
 
-  const updateData = (field: keyof SignupData, value: string | string[]) => {
+  const updateData = (field: keyof SignupData, value: string) => {
     setData((prev) => ({ ...prev, [field]: value }));
-    setError(null);
-  };
-
-  const toggleCourse = (courseId: string) => {
-    setData((prev) => ({
-      ...prev,
-      selectedCourses: prev.selectedCourses.includes(courseId)
-        ? prev.selectedCourses.filter((id) => id !== courseId)
-        : [...prev.selectedCourses, courseId],
-    }));
     setError(null);
   };
 
@@ -132,13 +118,6 @@ export function SignupForm() {
         }
         return true;
 
-      case 5:
-        if (data.selectedCourses.length === 0) {
-          setError("Please select at least one course");
-          return false;
-        }
-        return true;
-
       default:
         return true;
     }
@@ -146,7 +125,7 @@ export function SignupForm() {
 
   const handleNext = () => {
     if (validateStep()) {
-      if (step < 5) {
+      if (step < 4) {
         setStep((prev) => (prev + 1) as SignupStep);
       } else {
         handleSubmit();
@@ -175,7 +154,6 @@ export function SignupForm() {
           password: data.password,
           department: data.department,
           faculty: data.faculty || undefined,
-          selectedCourses: data.selectedCourses,
           referralCode: data.referralCode || undefined,
         }),
       });
@@ -211,7 +189,7 @@ export function SignupForm() {
       {/* Progress Indicator */}
       <div className="mb-8">
         <div className="flex items-center justify-between mb-3">
-          {[1, 2, 3, 4, 5].map((s) => (
+          {[1, 2, 3, 4].map((s) => (
             <div key={s} className="flex items-center flex-1 last:flex-none">
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-full font-semibold transition-all ${
@@ -224,7 +202,7 @@ export function SignupForm() {
               >
                 {s < step ? <Check className="h-5 w-5" /> : s}
               </div>
-              {s < 5 && (
+              {s < 4 && (
                 <div
                   className={`h-1 flex-1 mx-2 rounded-full transition-all ${
                     s < step ? "bg-gradient-to-r from-[#0969da] to-[#0ca678]" : "bg-slate-200"
@@ -238,8 +216,7 @@ export function SignupForm() {
           <span>Name</span>
           <span>Email</span>
           <span>Password</span>
-          <span>Info</span>
-          <span>Courses</span>
+          <span>Details</span>
         </div>
       </div>
 
@@ -250,15 +227,13 @@ export function SignupForm() {
             {step === 1 && "What's your name?"}
             {step === 2 && "Your email address"}
             {step === 3 && "Create a password"}
-            {step === 4 && "Your details"}
-            {step === 5 && "Choose your courses"}
+            {step === 4 && "Almost there!"}
           </h2>
           <p className="mt-2 text-sm text-slate-600">
             {step === 1 && "Let us know what to call you"}
             {step === 2 && "We'll use this for your account"}
             {step === 3 && "Make it strong and memorable"}
-            {step === 4 && "Tell us about yourself"}
-            {step === 5 && "Select courses you want to study"}
+            {step === 4 && "Just a few more details"}
           </p>
         </div>
 
@@ -339,7 +314,7 @@ export function SignupForm() {
           </div>
         )}
 
-        {/* Step 4: Department & Faculty */}
+        {/* Step 4: Department, Faculty & Referral */}
         {step === 4 && (
           <div className="space-y-4">
             <div>
@@ -378,57 +353,6 @@ export function SignupForm() {
                   </option>
                 ))}
               </select>
-            </div>
-          </div>
-        )}
-
-        {/* Step 5: Courses & Referral */}
-        {step === 5 && (
-          <div className="space-y-6">
-            <div>
-              <label className="block text-sm font-semibold text-slate-700 mb-3">
-                Select Courses <span className="text-red-500">*</span>
-              </label>
-              {coursesLoading ? (
-                <div className="p-8 text-center">
-                  <Loader2 className="h-6 w-6 animate-spin mx-auto text-blue-600" />
-                  <p className="text-sm text-slate-600 mt-2">Loading courses...</p>
-                </div>
-              ) : (
-                <>
-                  <div className="grid grid-cols-1 gap-3 max-h-64 overflow-y-auto">
-                    {availableCourses.map((course) => (
-                      <label
-                        key={course.id}
-                        className={`flex items-start gap-3 p-4 rounded-xl border-2 cursor-pointer transition-all ${
-                          data.selectedCourses.includes(course.slug)
-                            ? "border-blue-500 bg-blue-50"
-                            : "border-slate-200 bg-white hover:border-slate-300"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          checked={data.selectedCourses.includes(course.slug)}
-                          onChange={() => toggleCourse(course.slug)}
-                          className="mt-1 h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-2 focus:ring-blue-100"
-                        />
-                        <div className="flex-1">
-                          <div className="font-semibold text-slate-900">
-                            {course.name}
-                            <span className="ml-2 text-xs text-slate-500 font-normal">
-                              ({course.code})
-                            </span>
-                          </div>
-                          <div className="text-sm text-slate-600">{course.description}</div>
-                        </div>
-                      </label>
-                    ))}
-                  </div>
-                  <p className="mt-2 text-xs text-slate-500">
-                    Selected: {data.selectedCourses.length} course{data.selectedCourses.length !== 1 ? 's' : ''}
-                  </p>
-                </>
-              )}
             </div>
             <div>
               <label htmlFor="referralCode" className="block text-sm font-semibold text-slate-700 mb-2">
@@ -481,7 +405,7 @@ export function SignupForm() {
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Creating account...
               </>
-            ) : step === 5 ? (
+            ) : step === 4 ? (
               <>
                 Create Account
                 <Check className="h-4 w-4" />
