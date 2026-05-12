@@ -36,6 +36,18 @@ export const metadata: Metadata = {
     shortcut: "/anatomiQ.png",
     apple: "/anatomiQ.png",
   },
+  manifest: "/manifest.json",
+  themeColor: "#0969da",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: APP_NAME,
+  },
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 export default function RootLayout({

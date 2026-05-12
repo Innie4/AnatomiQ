@@ -43,7 +43,9 @@
       "Bash(git checkout *)",
       "Bash(PRISMA_USER_CONSENT_FOR_DANGEROUS_AI_ACTION=\"proceed\" npx prisma migrate reset --force)",
       "Bash(pkill -f \"git commit\")",
-      "Bash(npx next *)"
+      "Bash(npx next *)",
+      "Bash(cat)",
+      "Bash(/tmp/batch_implementation.sh)"
     ]
   }
 }

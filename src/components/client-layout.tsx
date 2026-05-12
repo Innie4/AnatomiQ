@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { SplashScreen } from "./splash-screen";
 import { AppLayoutWrapper } from "./app-layout-wrapper";
+import { PWAInstall } from "./pwa-install";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
   const [showSplash, setShowSplash] = useState(true);
@@ -34,6 +35,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
         }`}
       >
         <AppLayoutWrapper>{children}</AppLayoutWrapper>
+        <PWAInstall />
       </div>
     </>
   );

@@ -133,6 +133,8 @@ model FacultyUser {
   Subscription      Subscription[]
   ReferralsGiven    Referral[]     @relation("ReferrerRelation")
   ReferralReceived  Referral?      @relation("ReferredUserRelation")
+  ExamResults       ExamResult[]
+  Notifications     Notification[]
 
   @@index([referredBy])
 }
@@ -347,4 +349,46 @@ enum QuestionType {
   MCQ
   SHORT_ANSWER
   THEORY
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ExamResult {
+  id              String      @id @default(uuid())
+  userId          String
+  courseSlug      String
+  topicSlug       String
+  subtopicSlug    String?
+  type            String
+  score           Float
+  totalQuestions  Int
+  correctAnswers  Int
+  duration        Int
+  completedAt     DateTime    @default(now())
+  user            FacultyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, completedAt])
+}
+
+enum NotificationType {
+  EXAM_COMPLETE
+  SUBSCRIPTION_UPDATE
+  REFERRAL_SUCCESS
+  SYSTEM_ANNOUNCEMENT
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model Notification {
+  id        String           @id @default(uuid())
+  userId    String
+  type      NotificationType
+  title     String
+  message   String
+  read      Boolean          @default(false)
+  link      String?
+  createdAt DateTime         @default(now())
+  user      FacultyUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([userId, read])
 }
