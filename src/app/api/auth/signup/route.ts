@@ -5,6 +5,7 @@ import { db } from "@/lib/db";
 import { generateUniqueReferralCode, processReferral } from "@/lib/referral";
 import { generateToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/email";
+import { serializeFacultyUser, setAuthCookie } from "@/lib/auth-session";
 import { z } from "zod";
 
 const signupSchema = z.object({
@@ -110,16 +111,12 @@ export async function POST(request: NextRequest) {
       department: user.department,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        department: user.department,
-        faculty: user.faculty,
-      },
+      user: serializeFacultyUser(user),
     }, { status: 201 });
+
+    return setAuthCookie(response, token);
   } catch (error) {
     console.error("Signup error:", error);
     return NextResponse.json(

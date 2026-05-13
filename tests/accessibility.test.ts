@@ -9,6 +9,8 @@ import path from 'path';
  */
 
 const COMPONENT_PATHS = [
+  'src/components/auth/signin-form.tsx',
+  'src/components/auth/signup-form.tsx',
   'src/components/exam/exam-client.tsx',
   'src/components/upload/upload-console.tsx',
   'src/components/upload/material-question-manager.tsx',

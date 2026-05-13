@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { signToken } from "@/lib/auth";
 import { rateLimit, getClientIP } from "@/lib/rate-limit";
 import { db } from "@/lib/db";
+import { serializeFacultyUser, setAuthCookie } from "@/lib/auth-session";
 
 export async function POST(request: NextRequest) {
   try {
@@ -47,16 +48,12 @@ export async function POST(request: NextRequest) {
       department: guestUser.department,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       token,
-      user: {
-        id: guestUser.id,
-        email: guestUser.email,
-        fullName: guestUser.fullName,
-        department: guestUser.department,
-        isGuest: true,
-      },
+      user: serializeFacultyUser(guestUser),
     });
+
+    return setAuthCookie(response, token);
   } catch (error) {
     console.error("Guest sign-in error:", error);
     return NextResponse.json(

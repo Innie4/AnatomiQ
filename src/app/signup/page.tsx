@@ -7,8 +7,8 @@ import { APP_NAME } from "@/lib/constants";
 
 export default function SignUpPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 px-4 py-10">
+      <div className="mx-auto w-full max-w-5xl">
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="relative h-12 w-12">

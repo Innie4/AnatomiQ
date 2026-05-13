@@ -5,6 +5,7 @@ import type { NextRequest } from 'next/server';
 const publicRoutes = [
   "/signin",
   "/signup",
+  "/auth/social",
   "/api/auth",
   "/_next",
   "/favicon.ico",

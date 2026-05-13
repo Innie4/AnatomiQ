@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { comparePassword, signToken } from "@/lib/auth";
 import { rateLimit, getClientIP } from "@/lib/rate-limit";
 import { db } from "@/lib/db";
+import { serializeFacultyUser, setAuthCookie } from "@/lib/auth-session";
 
 export async function POST(request: NextRequest) {
   try {
@@ -65,15 +66,12 @@ export async function POST(request: NextRequest) {
       department: user.department,
     });
 
-    return NextResponse.json({
+    const response = NextResponse.json({
       token,
-      user: {
-        id: user.id,
-        email: user.email,
-        fullName: user.fullName,
-        department: user.department,
-      },
+      user: serializeFacultyUser(user),
     });
+
+    return setAuthCookie(response, token);
   } catch (error) {
     console.error("Login error:", error);
     return NextResponse.json({ error: "Login failed" }, { status: 500 });

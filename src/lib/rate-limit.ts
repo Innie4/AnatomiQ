@@ -35,7 +35,7 @@ const memoryStore: RateLimitStore = {};
 
 // Clean up expired entries every minute
 if (typeof setInterval !== 'undefined') {
-  setInterval(() => {
+  const cleanupTimer = setInterval(() => {
     const now = Date.now();
     Object.keys(memoryStore).forEach((key) => {
       if (memoryStore[key].resetTime < now) {
@@ -43,6 +43,8 @@ if (typeof setInterval !== 'undefined') {
       }
     });
   }, 60000);
+
+  cleanupTimer.unref?.();
 }
 
 function memoryRateLimit(

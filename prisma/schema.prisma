@@ -119,6 +119,7 @@ model FacultyUser {
   googleId          String?        @unique
   facebookId        String?        @unique
   avatarUrl         String?
+  requiresProfileCompletion Boolean @default(false)
   referralCode      String?        @unique
   referredBy        String?
   referralCount     Int            @default(0)

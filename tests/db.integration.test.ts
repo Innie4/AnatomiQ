@@ -24,6 +24,22 @@ test("database migration exposes manual question columns", async () => {
   );
 });
 
+test("database migration exposes faculty auth completion column", async () => {
+  const columns = (await db.$queryRawUnsafe(`
+    select column_name
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'FacultyUser'
+      and column_name in ('googleId', 'facebookId', 'requiresProfileCompletion')
+    order by column_name
+  `)) as Array<{ column_name: string }>;
+
+  assert.deepEqual(
+    columns.map((column) => column.column_name),
+    ["facebookId", "googleId", "requiresProfileCompletion"].sort(),
+  );
+});
+
 test("manual question service links uploaded questions to the target material", async () => {
   const material = await createTestMaterial();
 

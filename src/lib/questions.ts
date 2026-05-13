@@ -263,6 +263,26 @@ async function buildManualQuestionRecord(
   const normalizedAnswer = ensureAnswerMatchesOptions(payload.answer, normalizedOptions);
   const hash = sha256(`${payload.type}:${payload.stem}`);
   const [embedding] = await embedTexts([payload.stem]);
+  const comparableExisting = existingQuestions
+    .filter((question) => question.id !== excludeQuestionId)
+    .map((question) => ({
+      stem: question.stem,
+      hash: question.questionHash,
+      embedding: parseJsonString<number[] | null>(question.embedding, null),
+    }));
+
+  if (
+    isDuplicateQuestion(
+      {
+        stem: payload.stem.trim(),
+        hash,
+        embedding: embedding ?? undefined,
+      },
+      comparableExisting,
+    )
+  ) {
+    throw new Error("A highly similar question already exists for this material.");
+  }
 
   return {
     courseId: material.courseId,
