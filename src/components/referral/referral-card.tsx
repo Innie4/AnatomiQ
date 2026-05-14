@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Copy, Check, Users, Gift } from "lucide-react";
 
 type ReferralStats = {
@@ -22,11 +22,7 @@ export function ReferralCard() {
   const [loading, setLoading] = useState(true);
   const [copied, setCopied] = useState(false);
 
-  useEffect(() => {
-    fetchReferralStats();
-  }, []);
-
-  const fetchReferralStats = async () => {
+  const fetchReferralStats = useCallback(async () => {
     try {
       const token = localStorage.getItem("anatomiq:auth-token");
       if (!token) return;
@@ -46,7 +42,11 @@ export function ReferralCard() {
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchReferralStats();
+  }, [fetchReferralStats]);
 
   const copyReferralCode = () => {
     if (stats?.referralCode) {

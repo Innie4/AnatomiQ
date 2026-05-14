@@ -10,6 +10,7 @@ declare module "next-auth" {
       image?: string | null;
       department?: string;
       faculty?: string;
+      course?: string;
       requiresProfileCompletion?: boolean;
     };
   }
@@ -25,6 +26,7 @@ declare module "next-auth/jwt" {
     fullName?: string;
     department?: string;
     faculty?: string;
+    course?: string;
     requiresProfileCompletion?: boolean;
   }
 }

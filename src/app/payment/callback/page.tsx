@@ -1,32 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Loader2, CheckCircle, XCircle } from "lucide-react";
 
 export default function PaymentCallbackPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [status, setStatus] = useState<"loading" | "success" | "failed">("loading");
-  const [message, setMessage] = useState("Verifying your payment...");
+  const reference = searchParams.get("reference") || searchParams.get("trxref");
+  const [status, setStatus] = useState<"loading" | "success" | "failed">(
+    reference ? "loading" : "failed"
+  );
+  const [message, setMessage] = useState(
+    reference ? "Verifying your payment..." : "No payment reference found"
+  );
 
-  useEffect(() => {
-    const reference = searchParams.get("reference");
-    const trxref = searchParams.get("trxref"); // Paystack uses reference, Flutterwave uses trxref
-
-    if (!reference && !trxref) {
-      setStatus("failed");
-      setMessage("No payment reference found");
-      return;
-    }
-
-    verifyPayment(reference || trxref || "");
-  }, [searchParams]);
-
-  const verifyPayment = async (reference: string) => {
+  const verifyPayment = useCallback(async (ref: string) => {
     try {
       const token = localStorage.getItem("anatomiq:auth-token");
-      const response = await fetch(`/api/payment/verify?reference=${reference}`, {
+      const response = await fetch(`/api/payment/verify?reference=${ref}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -49,7 +41,13 @@ export default function PaymentCallbackPage() {
       setStatus("failed");
       setMessage("Failed to verify payment. Please contact support.");
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    if (reference) {
+      verifyPayment(reference);
+    }
+  }, [reference, verifyPayment]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 flex items-center justify-center p-4">

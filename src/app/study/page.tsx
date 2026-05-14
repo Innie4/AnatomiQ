@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import {
   BookOpen,
@@ -30,11 +30,7 @@ export default function StudyModePage() {
   const [masteredCards, setMasteredCards] = useState<Set<string>>(new Set());
   const [difficultCards, setDifficultCards] = useState<Set<string>>(new Set());
 
-  useEffect(() => {
-    loadFlashcards();
-  }, []);
-
-  const loadFlashcards = async () => {
+  const loadFlashcards = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -72,12 +68,16 @@ export default function StudyModePage() {
       ];
 
       setFlashcards(mockCards);
-    } catch (err: any) {
+    } catch (err) {
       console.error("Failed to load flashcards:", err);
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    loadFlashcards();
+  }, [loadFlashcards]);
 
   const handleFlip = () => {
     setFlipped(!flipped);

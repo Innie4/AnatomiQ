@@ -44,6 +44,7 @@ export async function GET(request: NextRequest) {
       fullName: user.fullName,
       department: user.department,
       faculty: user.faculty,
+      course: user.course,
       isGuest: user.isGuest,
       avatarUrl: user.avatarUrl,
       selectedCourses: user.selectedCourses,
@@ -90,6 +91,7 @@ export async function PATCH(request: NextRequest) {
       fullName,
       department,
       faculty,
+      course,
       avatarUrl,
       themePreference,
       emailNotifications,
@@ -104,6 +106,7 @@ export async function PATCH(request: NextRequest) {
         fullName: fullName || undefined,
         department: department || undefined,
         faculty: faculty ?? undefined,
+        course: course ?? undefined,
         avatarUrl: avatarUrl ?? undefined,
         themePreference: ["light", "dark", "system"].includes(themePreference) ? themePreference : undefined,
         emailNotifications:
@@ -121,6 +124,7 @@ export async function PATCH(request: NextRequest) {
       fullName: user.fullName,
       department: user.department,
       faculty: user.faculty,
+      course: user.course,
       avatarUrl: user.avatarUrl,
       preferences: {
         theme: user.themePreference,

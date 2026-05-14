@@ -5,226 +5,171 @@ import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
 
-const ANATOMY_TOPICS = [
+const COURSES_DATA = [
   {
-    name: "General Anatomy",
-    summary: "Foundational principles, anatomical terminology, planes, and body organization.",
-    children: ["Anatomical Terminology", "Body Planes", "Surface Anatomy"],
+    code: "ANA 211",
+    name: "Gross Anatomy of Upper & Lower Limbs",
+    slug: "gross-anatomy-upper-lower-limbs",
+    semester: CourseSemester.FIRST,
+    description: "Regional anatomy of the upper and lower extremities including bones, muscles, nerves and vessels.",
+    department: "Anatomy",
+    topics: [
+      {
+        name: "Upper Limb",
+        summary: "Detailed study of the pectoral region, axilla, arm, forearm and hand.",
+        children: ["Pectoral Region", "Axilla", "Arm", "Forearm", "Hand", "Shoulder Joint"]
+      },
+      {
+        name: "Lower Limb",
+        summary: "Detailed study of the gluteal region, thigh, leg and foot.",
+        children: ["Gluteal Region", "Thigh", "Popliteal Fossa", "Leg", "Foot", "Hip Joint", "Knee Joint"]
+      }
+    ]
   },
   {
-    name: "Upper Limb",
-    summary: "Bones, joints, muscles, vessels, nerves, and clinical correlations of the upper limb.",
-    children: ["Shoulder Region", "Arm", "Forearm", "Hand"],
+    code: "ANA 221",
+    name: "Gross Anatomy of Thorax, Abdomen, Pelvis & Perineum",
+    slug: "gross-anatomy-thorax-abdomen-pelvis",
+    semester: CourseSemester.SECOND,
+    description: "Regional anatomy of the trunk including thoracic and abdominal viscera.",
+    department: "Anatomy",
+    topics: [
+      {
+        name: "Thorax",
+        summary: "Thoracic wall, lungs, pleura and mediastinum.",
+        children: ["Thoracic Wall", "Lungs", "Pleura", "Mediastinum", "Heart", "Great Vessels"]
+      },
+      {
+        name: "Abdomen",
+        summary: "Abdominal wall, peritoneum and viscera.",
+        children: ["Anterior Abdominal Wall", "Peritoneum", "Stomach", "Intestines", "Liver", "Pancreas", "Kidneys"]
+      },
+      {
+        name: "Pelvis and Perineum",
+        summary: "Pelvic cavity, viscera and perineal structures.",
+        children: ["Pelvic Walls", "Urinary Bladder", "Male Reproductive Organs", "Female Reproductive Organs", "Rectum", "Perineum"]
+      }
+    ]
   },
   {
-    name: "Lower Limb",
-    summary: "Regional anatomy of the pelvis, thigh, leg, foot, and gait-related structures.",
-    children: ["Gluteal Region", "Thigh", "Leg", "Foot"],
+    code: "PHS 211",
+    name: "General & Blood Physiology",
+    slug: "general-blood-physiology",
+    semester: CourseSemester.FIRST,
+    description: "Basic principles of physiology and study of blood components and functions.",
+    department: "Physiology",
+    topics: [
+      {
+        name: "General Physiology",
+        summary: "Cell physiology, transport mechanisms and homeostasis.",
+        children: ["Cell Membrane", "Transport Mechanisms", "Homeostasis", "Body Fluids"]
+      },
+      {
+        name: "Blood Physiology",
+        summary: "Composition and functions of blood.",
+        children: ["Plasma Proteins", "Red Blood Cells", "White Blood Cells", "Platelets", "Hemostasis", "Blood Groups"]
+      }
+    ]
   },
   {
-    name: "Thorax",
-    summary: "Thoracic wall, pleura, lungs, mediastinum, and heart anatomy.",
-    children: ["Thoracic Wall", "Lungs and Pleura", "Mediastinum", "Heart"],
-  },
-  {
-    name: "Abdomen",
-    summary: "Abdominal wall, peritoneum, gastrointestinal anatomy, and vasculature.",
-    children: ["Anterior Abdominal Wall", "Peritoneum", "Foregut", "Midgut", "Hindgut"],
-  },
-  {
-    name: "Pelvis and Perineum",
-    summary: "Pelvic cavity, pelvic viscera, perineum, and neurovascular anatomy.",
-    children: ["Pelvic Walls", "Pelvic Viscera", "Perineum"],
-  },
-  {
-    name: "Head and Neck",
-    summary: "Skull, scalp, face, pharynx, larynx, and cervical anatomy.",
-    children: ["Scalp and Face", "Deep Neck", "Pharynx", "Larynx"],
-  },
-  {
-    name: "Neuroanatomy",
-    summary: "Central nervous system structures, pathways, cranial nerves, and meninges.",
-    children: ["Brain", "Spinal Cord", "Cranial Nerves", "Meninges"],
-  },
+    code: "BCH 211",
+    name: "General Biochemistry",
+    slug: "general-biochemistry",
+    semester: CourseSemester.FIRST,
+    description: "Chemistry of biomolecules and basic metabolic processes.",
+    department: "Biochemistry",
+    topics: [
+      {
+        name: "Chemistry of Biomolecules",
+        summary: "Structure and properties of carbohydrates, lipids, proteins and nucleic acids.",
+        children: ["Carbohydrates", "Lipids", "Amino Acids & Proteins", "Nucleic Acids", "Enzymes", "Vitamins"]
+      }
+    ]
+  }
 ];
 
 async function main() {
-  console.log("Starting database seed...");
+  console.log("Starting database seed for Uniuyo 2026...");
 
-  // Seed first admin user
+  // Seed admin user
   const adminPasswordHash = await bcrypt.hash("admin123", 10);
-
-  // Check if admin already exists
-  const existingAdmin = await prisma.facultyUser.findUnique({
+  await prisma.facultyUser.upsert({
     where: { email: "admin@anatomiq.local" },
+    update: {},
+    create: {
+      id: randomUUID(),
+      email: "admin@anatomiq.local",
+      passwordHash: adminPasswordHash,
+      fullName: "Admin User",
+      department: "Human Anatomy",
+      isActive: true,
+    },
   });
 
-  if (!existingAdmin) {
-    console.log("Creating admin user...");
-    await prisma.facultyUser.create({
-      data: {
-        id: randomUUID(),
-        email: "admin@anatomiq.local",
-        passwordHash: adminPasswordHash,
-        fullName: "Admin User",
-        department: "Human Anatomy",
-        isActive: true,
-      },
-    });
-  } else {
-    console.log("Admin user already exists, skipping...");
-  }
-
-  // Check if course exists
-  let course = await prisma.course.findUnique({
-    where: { slug: "human-anatomy" },
-  });
-
-  if (!course) {
-    console.log("Creating Human Anatomy course...");
-    course = await prisma.course.create({
-      data: {
-        id: randomUUID(),
-        code: "ANA101",
-        name: "Human Anatomy",
-        slug: "human-anatomy",
-        semester: CourseSemester.FIRST,
-        description:
-          "University of Uyo Human Anatomy knowledge base for topic-grounded learning and exam generation.",
-      },
-    });
-  } else {
-    console.log("Human Anatomy course already exists, skipping...");
-    // Update existing course with code if it doesn't have one
-    if (!course.code) {
-      await prisma.course.update({
-        where: { id: course.id },
-        data: { code: "ANA101" },
-      });
-    }
-  }
-
-  // Seed additional courses
-  const additionalCourses = [
-    {
-      code: "PHY101",
-      name: "Physiology",
-      slug: "physiology",
-      semester: CourseSemester.FIRST,
-      description: "Study of the functions and mechanisms of the human body systems.",
-      department: "Physiology",
-    },
-    {
-      code: "BCH101",
-      name: "Biochemistry",
-      slug: "biochemistry",
-      semester: CourseSemester.FIRST,
-      description: "Chemical processes and substances in living organisms.",
-      department: "Biochemistry",
-    },
-    {
-      code: "PCL101",
-      name: "Pharmacology",
-      slug: "pharmacology",
-      semester: CourseSemester.SECOND,
-      description: "Study of drugs and their effects on living systems.",
-      department: "Pharmacology",
-    },
-    {
-      code: "PAT101",
-      name: "Pathology",
-      slug: "pathology",
-      semester: CourseSemester.SECOND,
-      description: "Study of disease causes, development, and consequences.",
-      department: "Pathology",
-    },
-    {
-      code: "MCB101",
-      name: "Microbiology",
-      slug: "microbiology",
-      semester: CourseSemester.SECOND,
-      description: "Study of microorganisms including bacteria, viruses, and fungi.",
-      department: "Microbiology",
-    },
-    {
-      code: "LAW101",
-      name: "Law",
-      slug: "law",
-      semester: CourseSemester.SECOND,
-      description: "Legal principles, systems, and jurisprudence.",
-      department: "Law",
-    },
-  ];
-
-  console.log("Seeding additional courses...");
-  for (const courseData of additionalCourses) {
-    const existingCourse = await prisma.course.findUnique({
+  for (const courseData of COURSES_DATA) {
+    console.log(`Processing course: ${courseData.name} (${courseData.code})`);
+    
+    const course = await prisma.course.upsert({
       where: { slug: courseData.slug },
+      update: {
+        code: courseData.code,
+        name: courseData.name,
+        description: courseData.description,
+        semester: courseData.semester,
+        department: courseData.department,
+      },
+      create: {
+        id: randomUUID(),
+        code: courseData.code,
+        name: courseData.name,
+        slug: courseData.slug,
+        description: courseData.description,
+        semester: courseData.semester,
+        department: courseData.department,
+      },
     });
 
-    if (!existingCourse) {
-      console.log(`Creating ${courseData.name} course...`);
-      await prisma.course.create({
-        data: {
-          id: randomUUID(),
-          ...courseData,
+    for (const topicData of courseData.topics) {
+      const topicSlug = slugify(`${courseData.code}-${topicData.name}`, { lower: true, strict: true });
+      
+      const parentTopic = await prisma.topic.upsert({
+        where: { slug: topicSlug },
+        update: {
+          name: topicData.name,
+          summary: topicData.summary,
+          courseId: course.id,
         },
-      });
-    } else {
-      console.log(`${courseData.name} course already exists, skipping...`);
-    }
-  }
-
-  console.log("Seeding anatomy topics...");
-  for (const topic of ANATOMY_TOPICS) {
-    const topicSlug = slugify(topic.name, { lower: true, strict: true });
-
-    // Check if parent topic exists
-    let parent = await prisma.topic.findUnique({
-      where: { slug: topicSlug },
-    });
-
-    if (!parent) {
-      console.log(`Creating topic: ${topic.name}`);
-      parent = await prisma.topic.create({
-        data: {
+        create: {
           id: randomUUID(),
-          name: topic.name,
+          name: topicData.name,
           slug: topicSlug,
-          summary: topic.summary,
+          summary: topicData.summary,
           level: 0,
           isSystem: true,
           courseId: course.id,
         },
       });
-    } else {
-      // Update summary if topic exists
-      await prisma.topic.update({
-        where: { id: parent.id },
-        data: { summary: topic.summary },
-      });
-    }
 
-    for (const childName of topic.children) {
-      const childSlug = slugify(`${topic.name}-${childName}`, { lower: true, strict: true });
-
-      // Check if child topic exists
-      const existingChild = await prisma.topic.findUnique({
-        where: { slug: childSlug },
-      });
-
-      if (!existingChild) {
-        console.log(`Creating subtopic: ${childName}`);
-        await prisma.topic.create({
-          data: {
+      for (const childName of topicData.children) {
+        const childSlug = slugify(`${courseData.code}-${topicData.name}-${childName}`, { lower: true, strict: true });
+        
+        await prisma.topic.upsert({
+          where: { slug: childSlug },
+          update: {
+            name: childName,
+            summary: `${childName} content within ${topicData.name}.`,
+            courseId: course.id,
+            parentTopicId: parentTopic.id,
+          },
+          create: {
             id: randomUUID(),
             name: childName,
             slug: childSlug,
-            summary: `${childName} content within ${topic.name}.`,
+            summary: `${childName} content within ${topicData.name}.`,
             level: 1,
             isSystem: true,
             courseId: course.id,
-            parentTopicId: parent.id,
+            parentTopicId: parentTopic.id,
           },
         });
       }

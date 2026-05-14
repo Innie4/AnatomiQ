@@ -45,7 +45,8 @@ test("signup, login, and guest auth routes issue durable sessions", async () => 
           email,
           password: "StrongPassword123!",
           department: "Human Anatomy",
-          faculty: "Medicine",
+          faculty: "Faculty of Basic Medical Sciences",
+          course: "Human Anatomy",
         }),
       }),
     );

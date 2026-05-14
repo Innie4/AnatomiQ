@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, ReactNode } from "react";
+import { ReactNode, useCallback, useEffect, useState } from "react";
 import { LoaderCircle, AlertCircle } from "lucide-react";
 
 export function AdminAuthWrapper({ children }: { children: (adminKey: string) => ReactNode }) {
@@ -10,22 +10,7 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
   const [error, setError] = useState("");
   const [checking, setChecking] = useState(false);
 
-  useEffect(() => {
-    setMounted(true);
-    const savedKey =
-      sessionStorage.getItem("anatomiq:admin-key") ||
-      localStorage.getItem("anatomiq:admin-key");
-    const wasCleared = sessionStorage.getItem("anatomiq:key-cleared");
-
-    if (wasCleared) {
-      setError("Invalid admin key. Please enter a valid key.");
-      sessionStorage.removeItem("anatomiq:key-cleared");
-    } else if (savedKey) {
-      void verifyKey(savedKey);
-    }
-  }, []);
-
-  async function verifyKey(key: string) {
+  const verifyKey = useCallback(async (key: string) => {
     setChecking(true);
     try {
       const response = await fetch("/api/admin/verify-key", {
@@ -48,7 +33,22 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
     } finally {
       setChecking(false);
     }
-  }
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    const savedKey =
+      sessionStorage.getItem("anatomiq:admin-key") ||
+      localStorage.getItem("anatomiq:admin-key");
+    const wasCleared = sessionStorage.getItem("anatomiq:key-cleared");
+
+    if (wasCleared) {
+      setError("Invalid admin key. Please enter a valid key.");
+      sessionStorage.removeItem("anatomiq:key-cleared");
+    } else if (savedKey) {
+      void verifyKey(savedKey);
+    }
+  }, [verifyKey]);
 
   function handleSubmit() {
     if (inputKey.trim()) {

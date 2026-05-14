@@ -53,6 +53,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             fullName,
             department: "Human Anatomy",
             faculty: null,
+            course: null,
             isActive: true,
             isGuest: false,
             emailVerified: true,
@@ -94,6 +95,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
             fullName: true,
             department: true,
             faculty: true,
+            course: true,
             avatarUrl: true,
             requiresProfileCompletion: true,
           },
@@ -104,6 +106,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
           token.fullName = dbUser.fullName;
           token.department = dbUser.department;
           token.faculty = dbUser.faculty ?? undefined;
+          token.course = dbUser.course ?? undefined;
           token.picture = dbUser.avatarUrl || token.picture;
           token.requiresProfileCompletion = dbUser.requiresProfileCompletion;
         }
@@ -121,6 +124,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
         session.user.department =
           typeof token.department === "string" ? token.department : undefined;
         session.user.faculty = typeof token.faculty === "string" ? token.faculty : undefined;
+        session.user.course = typeof token.course === "string" ? token.course : undefined;
         session.user.requiresProfileCompletion = Boolean(token.requiresProfileCompletion);
       }
 

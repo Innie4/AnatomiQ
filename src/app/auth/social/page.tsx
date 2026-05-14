@@ -7,7 +7,7 @@ import { AlertCircle, ArrowRight, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
 import { APP_NAME } from "@/lib/constants";
-import { AUTH_DEPARTMENTS, AUTH_FACULTIES } from "@/lib/auth-options";
+import { AcademicProfileSelector } from "@/components/academic/academic-profile-selector";
 
 type SocialUserPayload = {
   id: string;
@@ -15,6 +15,7 @@ type SocialUserPayload = {
   fullName: string;
   department: string;
   faculty?: string | null;
+  course?: string | null;
   avatarUrl?: string | null;
   requiresProfileCompletion: boolean;
 };
@@ -55,17 +56,18 @@ export default function SocialAuthPage() {
     fullName: "",
     department: "",
     faculty: "",
+    course: "",
     referralCode: requestedReferral,
   });
 
   useEffect(() => {
-    if (status === "unauthenticated") {
-      setLoading(false);
-      setError("Your social session could not be verified. Please try again.");
+    if (status === "loading" || hasStartedExchange.current) {
       return;
     }
 
-    if (status !== "authenticated" || hasStartedExchange.current) {
+    if (status === "unauthenticated") {
+      setLoading(false);
+      setError("Your social session could not be verified. Please try again.");
       return;
     }
 
@@ -91,6 +93,7 @@ export default function SocialAuthPage() {
                 ? payload.user.department
                 : "",
             faculty: payload.user.faculty || "",
+            course: payload.user.course || "",
             referralCode: requestedReferral,
           });
           return;
@@ -126,6 +129,7 @@ export default function SocialAuthPage() {
           fullName: formData.fullName,
           department: formData.department,
           faculty: formData.faculty,
+          course: formData.course,
           referralCode: formData.referralCode,
         }),
       });
@@ -187,7 +191,7 @@ export default function SocialAuthPage() {
           <form onSubmit={handleSubmit} className="space-y-5">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Profile completion</p>
-              <h2 className="mt-2 text-2xl font-bold text-slate-900">Choose your department and faculty</h2>
+              <h2 className="mt-2 text-2xl font-bold text-slate-900">Choose your academic details</h2>
               <p className="mt-2 text-sm text-slate-600">
                 Your social account is connected. We just need the academic details that keep your experience properly organised.
               </p>
@@ -208,43 +212,16 @@ export default function SocialAuthPage() {
                 />
               </div>
               <div className="md:col-span-2">
-                <label htmlFor="department" className="mb-2 block text-sm font-semibold text-slate-700">
-                  Department
-                </label>
-                <select
-                  id="department"
-                  value={formData.department}
-                  onChange={(event) => setFormData((prev) => ({ ...prev, department: event.target.value }))}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  required
-                >
-                  <option value="">Select your department</option>
-                  {AUTH_DEPARTMENTS.map((department) => (
-                    <option key={department} value={department}>
-                      {department}
-                    </option>
-                  ))}
-                </select>
+                <AcademicProfileSelector
+                  value={{
+                    faculty: formData.faculty,
+                    department: formData.department,
+                    course: formData.course,
+                  }}
+                  onChange={(selection) => setFormData((prev) => ({ ...prev, ...selection }))}
+                />
               </div>
-              <div>
-                <label htmlFor="faculty" className="mb-2 block text-sm font-semibold text-slate-700">
-                  Faculty <span className="text-slate-400">(Optional)</span>
-                </label>
-                <select
-                  id="faculty"
-                  value={formData.faculty}
-                  onChange={(event) => setFormData((prev) => ({ ...prev, faculty: event.target.value }))}
-                  className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                >
-                  <option value="">Select your faculty</option>
-                  {AUTH_FACULTIES.map((faculty) => (
-                    <option key={faculty} value={faculty}>
-                      {faculty}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div>
+              <div className="md:col-span-2">
                 <label htmlFor="referralCode" className="mb-2 block text-sm font-semibold text-slate-700">
                   Referral Code <span className="text-slate-400">(Optional)</span>
                 </label>

@@ -1,7 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { BookOpen, Check, Loader2 } from "lucide-react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { BookOpen, Check, Loader2, Search } from "lucide-react";
 import { useCourses } from "@/hooks/use-courses";
 
 type CourseSelectorProps = {
@@ -20,13 +20,9 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [query, setQuery] = useState("");
 
-  useEffect(() => {
-    setMounted(true);
-    fetchUserCourses();
-  }, []);
-
-  const fetchUserCourses = async () => {
+  const fetchUserCourses = useCallback(async () => {
     try {
       if (typeof window === "undefined") return;
       const token = localStorage.getItem("anatomiq:auth-token");
@@ -50,19 +46,9 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
     } finally {
       setLoading(false);
     }
-  };
+  }, []);
 
-  const toggleCourse = async (courseSlug: string) => {
-    const newSelection = selectedCourses.includes(courseSlug)
-      ? selectedCourses.filter((slug) => slug !== courseSlug)
-      : [...selectedCourses, courseSlug];
-
-    setSelectedCourses(newSelection);
-    await saveCourses(newSelection);
-    onCoursesChange?.(newSelection);
-  };
-
-  const saveCourses = async (courses: string[]) => {
+  const saveCourses = useCallback(async (courses: string[]) => {
     setSaving(true);
     try {
       if (typeof window === "undefined") return;
@@ -85,7 +71,35 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
     } finally {
       setSaving(false);
     }
+  }, []);
+
+  useEffect(() => {
+    setMounted(true);
+    fetchUserCourses();
+  }, [fetchUserCourses]);
+
+  const toggleCourse = async (courseSlug: string) => {
+    const newSelection = selectedCourses.includes(courseSlug)
+      ? selectedCourses.filter((slug) => slug !== courseSlug)
+      : [...selectedCourses, courseSlug];
+
+    setSelectedCourses(newSelection);
+    await saveCourses(newSelection);
+    onCoursesChange?.(newSelection);
   };
+
+  const filteredCourses = useMemo(() => {
+    const search = query.trim().toLowerCase();
+    if (!search) {
+      return courses;
+    }
+
+    return courses.filter((course) =>
+      `${course.code} ${course.name} ${course.department} ${course.description ?? ""}`
+        .toLowerCase()
+        .includes(search),
+    );
+  }, [courses, query]);
 
   // Prevent hydration mismatch
   if (!mounted || loading || coursesLoading) {
@@ -112,9 +126,20 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
         )}
       </div>
 
+      <div className="relative">
+        <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-slate-400" />
+        <input
+          type="search"
+          value={query}
+          onChange={(event) => setQuery(event.target.value)}
+          placeholder="Search courses by code, title, or department..."
+          className="w-full rounded-2xl border border-slate-300 bg-white py-3 pl-10 pr-4 text-sm text-slate-900 placeholder:text-slate-400 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
+        />
+      </div>
+
       <div className={compact ? "space-y-2" : "grid gap-4 md:grid-cols-2"}>
         {(["FIRST", "SECOND"] as const).map((semester) => {
-          const semesterCourses = courses.filter((course) => course.semester === semester);
+          const semesterCourses = filteredCourses.filter((course) => course.semester === semester);
           if (!semesterCourses.length) {
             return null;
           }
@@ -168,6 +193,12 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
       {selectedCourses.length === 0 && (
         <p className="text-sm text-slate-500 text-center py-4">
           Select at least one course to get started
+        </p>
+      )}
+
+      {filteredCourses.length === 0 && (
+        <p className="rounded-xl border border-slate-200 bg-slate-50 px-4 py-3 text-center text-sm text-slate-500">
+          No courses match that search.
         </p>
       )}
     </div>

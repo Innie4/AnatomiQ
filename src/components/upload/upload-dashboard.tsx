@@ -15,7 +15,7 @@ import {
   RefreshCw,
   UploadCloud,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useCallback, useEffect, useState } from "react";
 
 import { MaterialQuestionManager } from "@/components/upload/material-question-manager";
 import { toFriendlyError } from "@/lib/friendly-errors";
@@ -107,32 +107,7 @@ export function UploadDashboard() {
   const [loading, setLoading] = useState(false);
   const [overviewLoading, setOverviewLoading] = useState(false);
 
-  // Load admin key from sessionStorage and verify access
-  useEffect(() => {
-    setMounted(true);
-    const storedKey = sessionStorage.getItem("anatomiq:admin-key");
-    if (!storedKey) {
-      router.push("/upload");
-      return;
-    }
-    setAdminKey(storedKey);
-    // Auto-load overview on mount
-    loadOverviewWithKey(storedKey);
-  }, [router]);
-
-  async function loadMaterials(search?: string) {
-    const query = search?.trim() ? `?q=${encodeURIComponent(search.trim())}` : "";
-    const response = await fetch(`/api/admin-materials${query}`, {
-      headers: { "x-admin-upload-key": adminKey },
-    });
-    const payload = (await response.json()) as { materials?: AdminMaterialOption[]; error?: string };
-    if (!response.ok) {
-      throw new Error(payload.error || "Could not load material targets.");
-    }
-    setMaterials(payload.materials ?? []);
-  }
-
-  async function loadOverviewWithKey(key: string) {
+  const loadOverviewWithKey = useCallback(async (key: string) => {
     setOverviewLoading(true);
     setMessage(null);
     try {
@@ -144,7 +119,15 @@ export function UploadDashboard() {
         throw new Error(payload.error || "Could not load the admin dashboard.");
       }
       setOverview(payload);
-      await loadMaterials();
+      
+      // Load materials as well
+      const matResponse = await fetch("/api/admin-materials", {
+        headers: { "x-admin-upload-key": key },
+      });
+      const matPayload = (await matResponse.json()) as { materials?: AdminMaterialOption[]; error?: string };
+      if (matResponse.ok) {
+        setMaterials(matPayload.materials ?? []);
+      }
     } catch (error) {
       setOverview(null);
       setMaterials([]);
@@ -152,7 +135,38 @@ export function UploadDashboard() {
     } finally {
       setOverviewLoading(false);
     }
-  }
+  }, []);
+
+  const loadMaterials = useCallback(async (search?: string) => {
+    if (!adminKey.trim()) {
+      return;
+    }
+
+    const params = search?.trim() ? `?q=${encodeURIComponent(search.trim())}` : "";
+    const response = await fetch(`/api/admin-materials${params}`, {
+      headers: { "x-admin-upload-key": adminKey },
+    });
+    const payload = (await response.json()) as { materials?: AdminMaterialOption[]; error?: string };
+
+    if (!response.ok) {
+      throw new Error(payload.error || "Could not load materials.");
+    }
+
+    setMaterials(payload.materials ?? []);
+  }, [adminKey]);
+
+  // Load admin key from sessionStorage and verify access
+  useEffect(() => {
+    setMounted(true);
+    const storedKey = sessionStorage.getItem("anatomiq:admin-key");
+    if (!storedKey) {
+      router.push("/upload");
+      return;
+    }
+    setAdminKey(storedKey);
+    // Auto-load overview on mount
+    void loadOverviewWithKey(storedKey);
+  }, [router, loadOverviewWithKey]);
 
   async function loadOverview() {
     await loadOverviewWithKey(adminKey);

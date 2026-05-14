@@ -7,13 +7,15 @@ import { generateToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/email";
 import { serializeFacultyUser, setAuthCookie } from "@/lib/auth-session";
 import { z } from "zod";
+import { isKnownCourse, isKnownDepartment, isKnownFaculty } from "@/lib/auth-options";
 
 const signupSchema = z.object({
   fullName: z.string().min(2, "Name must be at least 2 characters"),
   email: z.string().email("Invalid email address"),
   password: z.string().min(8, "Password must be at least 8 characters"),
-  department: z.string().min(2, "Department is required"),
-  faculty: z.string().optional(),
+  department: z.string().min(2, "Department is required").refine(isKnownDepartment, "Please choose a valid UNIUYO department"),
+  faculty: z.string().min(2, "Faculty is required").refine(isKnownFaculty, "Please choose a valid UNIUYO faculty"),
+  course: z.string().min(2, "Course is required").refine(isKnownCourse, "Please choose a valid UNIUYO course"),
   referralCode: z.string().optional(),
 });
 
@@ -53,7 +55,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { fullName, email, password, department, faculty, referralCode } = validation.data;
+    const { fullName, email, password, department, faculty, course, referralCode } = validation.data;
 
     // Check if user already exists
     const existingUser = await db.facultyUser.findUnique({
@@ -84,6 +86,7 @@ export async function POST(request: NextRequest) {
         passwordHash,
         department,
         faculty,
+        course,
         referralCode: userReferralCode,
         verificationToken,
         emailVerified: false,

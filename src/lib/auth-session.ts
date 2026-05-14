@@ -36,6 +36,7 @@ export function serializeFacultyUser(user: FacultyUser) {
     fullName: user.fullName,
     department: user.department,
     faculty: user.faculty,
+    course: user.course,
     isGuest: user.isGuest,
     avatarUrl: user.avatarUrl,
     preferences: {

@@ -1,7 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
+import { BillingPeriod, SubscriptionTier } from "@prisma/client";
 import { verifyToken } from "@/lib/auth";
 import { paystack } from "@/lib/paystack";
 import { db } from "@/lib/db";
+
+type PaystackVerificationMetadata = {
+  userId?: unknown;
+  tier?: unknown;
+  billingPeriod?: unknown;
+};
+
+function parseSubscriptionTier(value: unknown) {
+  return typeof value === "string" && Object.values(SubscriptionTier).includes(value as SubscriptionTier)
+    ? (value as SubscriptionTier)
+    : null;
+}
+
+function parseBillingPeriod(value: unknown) {
+  return typeof value === "string" && Object.values(BillingPeriod).includes(value as BillingPeriod)
+    ? (value as BillingPeriod)
+    : null;
+}
 
 export async function GET(request: NextRequest) {
   try {
@@ -35,9 +54,20 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, error: "Payment metadata missing" }, { status: 400 });
     }
 
-    const userId = metadata.userId;
-    const tier = metadata.tier;
-    const billingPeriod = metadata.billingPeriod;
+    const typedMetadata = metadata as PaystackVerificationMetadata;
+    const userId = typeof typedMetadata.userId === "string" ? typedMetadata.userId : null;
+    const tier = parseSubscriptionTier(typedMetadata.tier);
+    const billingPeriod = parseBillingPeriod(typedMetadata.billingPeriod);
+    const paidAt = typeof paid_at === "string" ? new Date(paid_at) : new Date();
+    const amountPaid = typeof amount === "number" ? amount / 100 : 0;
+    const customerCode =
+      customer && typeof customer === "object" && "customer_code" in customer && typeof customer.customer_code === "string"
+        ? customer.customer_code
+        : undefined;
+
+    if (!userId || !tier || !billingPeriod) {
+      return NextResponse.json({ success: false, error: "Invalid payment metadata" }, { status: 400 });
+    }
 
     // Calculate subscription dates
     const startDate = new Date();
@@ -67,10 +97,10 @@ export async function GET(request: NextRequest) {
           billingPeriod,
           status: "ACTIVE",
           endDate,
-          lastPaymentDate: new Date(paid_at),
+          lastPaymentDate: paidAt,
           nextPaymentDate,
-          amountPaid: amount / 100,
-          paystackCustomerCode: customer.customer_code,
+          amountPaid,
+          paystackCustomerCode: customerCode,
         },
       });
     } else {
@@ -82,10 +112,10 @@ export async function GET(request: NextRequest) {
           status: "ACTIVE",
           startDate,
           endDate,
-          lastPaymentDate: new Date(paid_at),
+          lastPaymentDate: paidAt,
           nextPaymentDate,
-          amountPaid: amount / 100,
-          paystackCustomerCode: customer.customer_code,
+          amountPaid,
+          paystackCustomerCode: customerCode,
         },
       });
     }
@@ -95,10 +125,10 @@ export async function GET(request: NextRequest) {
       data: {
         subscriptionId: subscription.id,
         userId,
-        amount: amount / 100,
+        amount: amountPaid,
         status: "SUCCESS",
         paystackReference: reference,
-        paidAt: new Date(paid_at),
+        paidAt,
       },
     });
 

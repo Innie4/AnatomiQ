@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import { ArrowLeft, ArrowRight, Check, GraduationCap, Loader2, Sparkles, Users } from "lucide-react";
 
-import { AUTH_DEPARTMENTS, AUTH_FACULTIES } from "@/lib/auth-options";
+import { AcademicProfileSelector } from "@/components/academic/academic-profile-selector";
 
 type SignupStep = 1 | 2 | 3 | 4;
 
@@ -16,6 +16,7 @@ type SignupData = {
   confirmPassword: string;
   department: string;
   faculty: string;
+  course: string;
   referralCode: string;
 };
 
@@ -65,14 +66,9 @@ export function SignupForm() {
     confirmPassword: "",
     department: "",
     faculty: "",
-    referralCode: "",
+    course: "",
+    referralCode: initialReferralCode,
   });
-
-  useEffect(() => {
-    if (initialReferralCode) {
-      setData((prev) => ({ ...prev, referralCode: initialReferralCode }));
-    }
-  }, [initialReferralCode]);
 
   const socialSignupCallbackUrl = useMemo(() => {
     const params = new URLSearchParams({
@@ -135,6 +131,14 @@ export function SignupForm() {
           setError("Please select your department");
           return false;
         }
+        if (!data.faculty) {
+          setError("Please select your faculty");
+          return false;
+        }
+        if (!data.course) {
+          setError("Please select your course");
+          return false;
+        }
         return true;
       default:
         return true;
@@ -174,7 +178,8 @@ export function SignupForm() {
           email: data.email,
           password: data.password,
           department: data.department,
-          faculty: data.faculty || undefined,
+          faculty: data.faculty,
+          course: data.course,
           referralCode: data.referralCode || undefined,
         }),
       });
@@ -211,7 +216,7 @@ export function SignupForm() {
           </div>
           <h2 className="mt-6 text-3xl font-bold leading-tight">Join ANATOMIQ with a setup that stays organised.</h2>
           <p className="mt-4 text-sm leading-6 text-white/85">
-            Create your account with email or social, then keep your department, faculty, and referral details in one clean flow.
+            Create your account with email or social, then keep your department, course, faculty, and referral details in one clean flow.
           </p>
 
           <div className="mt-8 space-y-4">
@@ -229,7 +234,7 @@ export function SignupForm() {
                 <GraduationCap className="h-5 w-5" />
                 <div>
                   <p className="font-semibold">Department first</p>
-                  <p className="text-sm text-white/80">Every account carries the right faculty and department context.</p>
+                  <p className="text-sm text-white/80">Every account carries the right faculty, department, and course context.</p>
                 </div>
               </div>
             </div>
@@ -252,7 +257,7 @@ export function SignupForm() {
                 <p className="text-sm font-semibold uppercase tracking-[0.24em] text-slate-400">Social signup</p>
                 <h3 className="mt-2 text-xl font-bold text-slate-900">Create your account with one tap</h3>
                 <p className="mt-1 text-sm text-slate-600">
-                  After social signup, we’ll still collect your department, faculty, and referral code.
+                  After social signup, we’ll still collect your department, course, faculty, and referral code.
                 </p>
               </div>
               <div className="flex gap-3">
@@ -321,7 +326,7 @@ export function SignupForm() {
                 {step === 1 && "We’ll use this name across your profile and exam results."}
                 {step === 2 && "This email is how you’ll sign in and receive important updates."}
                 {step === 3 && "Use a password you can remember but others can’t guess."}
-                {step === 4 && "Choose your department and faculty, then add any referral code you were given."}
+                {step === 4 && "Choose your faculty, department, and course, then add any referral code you were given."}
               </p>
             </div>
 
@@ -400,44 +405,18 @@ export function SignupForm() {
             )}
 
             {step === 4 && (
-              <div className="grid gap-4 md:grid-cols-2">
-                <div className="md:col-span-2">
-                  <label htmlFor="department" className="mb-2 block text-sm font-semibold text-slate-700">
-                    Department
-                  </label>
-                  <select
-                    id="department"
-                    value={data.department}
-                    onChange={(event) => updateData("department", event.target.value)}
-                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                    autoFocus
-                  >
-                    <option value="">Select your department</option>
-                    {AUTH_DEPARTMENTS.map((department) => (
-                      <option key={department} value={department}>
-                        {department}
-                      </option>
-                    ))}
-                  </select>
-                </div>
-                <div>
-                  <label htmlFor="faculty" className="mb-2 block text-sm font-semibold text-slate-700">
-                    Faculty <span className="text-slate-400">(Optional)</span>
-                  </label>
-                  <select
-                    id="faculty"
-                    value={data.faculty}
-                    onChange={(event) => updateData("faculty", event.target.value)}
-                    className="w-full rounded-2xl border border-slate-300 bg-white px-4 py-3 text-slate-900 focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-100"
-                  >
-                    <option value="">Select your faculty</option>
-                    {AUTH_FACULTIES.map((faculty) => (
-                      <option key={faculty} value={faculty}>
-                        {faculty}
-                      </option>
-                    ))}
-                  </select>
-                </div>
+              <div className="grid gap-4">
+                <AcademicProfileSelector
+                  value={{
+                    faculty: data.faculty,
+                    department: data.department,
+                    course: data.course,
+                  }}
+                  onChange={(selection) => {
+                    setData((prev) => ({ ...prev, ...selection }));
+                    setError(null);
+                  }}
+                />
                 <div>
                   <label htmlFor="referralCode" className="mb-2 block text-sm font-semibold text-slate-700">
                     Referral Code <span className="text-slate-400">(Optional)</span>

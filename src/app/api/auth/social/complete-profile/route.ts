@@ -3,17 +3,16 @@ import { z } from "zod";
 
 import { auth } from "@/lib/auth-config";
 import { signToken } from "@/lib/auth";
-import { AUTH_DEPARTMENTS, AUTH_FACULTIES } from "@/lib/auth-options";
+import { isKnownCourse, isKnownDepartment, isKnownFaculty } from "@/lib/auth-options";
 import { serializeFacultyUser, setAuthCookie } from "@/lib/auth-session";
 import { db } from "@/lib/db";
 import { processReferral } from "@/lib/referral";
 
 const completeProfileSchema = z.object({
   fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
-  department: z.enum(AUTH_DEPARTMENTS, {
-    error: "Please choose your department",
-  }),
-  faculty: z.union([z.enum(AUTH_FACULTIES), z.literal("")]).optional(),
+  department: z.string().min(2, "Please choose your department").refine(isKnownDepartment, "Please choose a valid UNIUYO department"),
+  faculty: z.string().min(2, "Please choose your faculty").refine(isKnownFaculty, "Please choose a valid UNIUYO faculty"),
+  course: z.string().min(2, "Please choose your course").refine(isKnownCourse, "Please choose a valid UNIUYO course"),
   referralCode: z.string().trim().max(50).optional(),
 });
 
@@ -43,7 +42,8 @@ export async function POST(request: NextRequest) {
     data: {
       fullName: payload.data.fullName,
       department: payload.data.department,
-      faculty: payload.data.faculty || null,
+      faculty: payload.data.faculty,
+      course: payload.data.course,
       emailVerified: true,
       requiresProfileCompletion: false,
     },

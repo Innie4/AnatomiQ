@@ -120,6 +120,7 @@ model FacultyUser {
   fullName          String
   department        String         @default("Human Anatomy")
   faculty           String?
+  course            String?
   isActive          Boolean        @default(true)
   isGuest           Boolean        @default(false)
   googleId          String?        @unique

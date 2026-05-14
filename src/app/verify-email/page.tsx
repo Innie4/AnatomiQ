@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
+import { Suspense, useCallback, useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
@@ -12,22 +12,14 @@ function VerifyEmailContent() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token");
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(!!token);
   const [success, setSuccess] = useState(false);
   const [alreadyVerified, setAlreadyVerified] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(token ? null : "Invalid verification link");
 
-  useEffect(() => {
-    if (!token) {
-      setError("Invalid verification link");
-      setLoading(false);
-      return;
-    }
+  const verifyEmail = useCallback(async () => {
+    if (!token) return;
 
-    verifyEmail();
-  }, [token]);
-
-  const verifyEmail = async () => {
     try {
       const response = await fetch("/api/auth/verify-email", {
         method: "POST",
@@ -53,7 +45,11 @@ function VerifyEmailContent() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router, token]);
+
+  useEffect(() => {
+    verifyEmail();
+  }, [verifyEmail]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 flex items-center justify-center p-4">

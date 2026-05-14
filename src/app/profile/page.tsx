@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { User, Mail, Building2, GraduationCap, CreditCard, Edit2, Loader2, Crown, ArrowLeft, Settings, Save, Lock, Trash2 } from "lucide-react";
+import { AcademicProfileSelector } from "@/components/academic/academic-profile-selector";
 import { ReferralCard } from "@/components/referral/referral-card";
 
 type UserProfile = {
@@ -12,6 +14,7 @@ type UserProfile = {
   fullName: string;
   department: string;
   faculty?: string;
+  course?: string | null;
   avatarUrl?: string | null;
   isGuest: boolean;
   preferences?: {
@@ -38,6 +41,7 @@ export default function ProfilePage() {
     fullName: "",
     department: "",
     faculty: "",
+    course: "",
     avatarUrl: "",
   });
   const [preferences, setPreferences] = useState({
@@ -53,11 +57,7 @@ export default function ProfilePage() {
   });
   const [avatarUploading, setAvatarUploading] = useState(false);
 
-  useEffect(() => {
-    loadProfile();
-  }, []);
-
-  const loadProfile = async () => {
+  const loadProfile = useCallback(async () => {
     try {
       const token = localStorage.getItem("anatomiq:auth-token");
       if (!token) {
@@ -81,6 +81,7 @@ export default function ProfilePage() {
         fullName: data.fullName,
         department: data.department,
         faculty: data.faculty || "",
+        course: data.course || "",
         avatarUrl: data.avatarUrl || "",
       });
       setPreferences(data.preferences || preferences);
@@ -91,7 +92,11 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [router, preferences]);
+
+  useEffect(() => {
+    loadProfile();
+  }, [loadProfile]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -345,30 +350,14 @@ export default function ProfilePage() {
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Department
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.department}
-                      onChange={(e) => setFormData({ ...formData, department: e.target.value })}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900"
-                      required
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-semibold text-slate-700 mb-2">
-                      Faculty <span className="text-slate-400">(Optional)</span>
-                    </label>
-                    <input
-                      type="text"
-                      value={formData.faculty}
-                      onChange={(e) => setFormData({ ...formData, faculty: e.target.value })}
-                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900"
-                    />
-                  </div>
+                  <AcademicProfileSelector
+                    value={{
+                      faculty: formData.faculty,
+                      department: formData.department,
+                      course: formData.course,
+                    }}
+                    onChange={(selection) => setFormData((value) => ({ ...value, ...selection }))}
+                  />
 
                   <div>
                     <label className="block text-sm font-semibold text-slate-700 mb-2">
@@ -406,6 +395,7 @@ export default function ProfilePage() {
                           fullName: profile.fullName,
                           department: profile.department,
                           faculty: profile.faculty || "",
+                          course: profile.course || "",
                           avatarUrl: profile.avatarUrl || "",
                         });
                       }}
@@ -435,7 +425,7 @@ export default function ProfilePage() {
 
                   {profile.avatarUrl && (
                     <div className="flex items-center gap-3">
-                      <img src={profile.avatarUrl} alt="" className="h-12 w-12 rounded-full object-cover" />
+                      <Image src={profile.avatarUrl} alt="" width={48} height={48} className="h-12 w-12 rounded-full object-cover" />
                       <div>
                         <div className="text-sm font-semibold text-slate-600">Profile Picture</div>
                         <div className="text-base text-slate-900">Shown in mobile navigation</div>
@@ -457,6 +447,16 @@ export default function ProfilePage() {
                       <div>
                         <div className="text-sm font-semibold text-slate-600">Faculty</div>
                         <div className="text-base text-slate-900">{profile.faculty}</div>
+                      </div>
+                    </div>
+                  )}
+
+                  {profile.course && (
+                    <div className="flex items-start gap-3">
+                      <GraduationCap className="h-5 w-5 text-slate-400 mt-0.5" />
+                      <div>
+                        <div className="text-sm font-semibold text-slate-600">Course</div>
+                        <div className="text-base text-slate-900">{profile.course}</div>
                       </div>
                     </div>
                   )}

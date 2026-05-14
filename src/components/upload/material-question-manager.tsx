@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useEffectEvent, useState } from "react";
+import { useCallback, useEffect, useEffectEvent, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -137,28 +137,7 @@ export function MaterialQuestionManager({
   const selectedMaterial = materials.find((material) => material.id === activeMaterialId) ?? null;
   const estimatedBlocks = bulkInput.trim() ? countManualQuestionBlocks(bulkInput) : 0;
 
-  const syncQuestions = useEffectEvent(async () => {
-    if (!activeMaterialId || !adminKey.trim()) {
-      return;
-    }
-
-    await loadQuestions(activeMaterialId, viewType);
-  });
-
-  useEffect(() => {
-    void syncQuestions();
-  }, [activeMaterialId, adminKey, viewType]);
-
-  useEffect(() => {
-    // Update draft question type when viewType changes
-    setDraftQuestion((prev) => ({
-      ...prev,
-      type: viewType,
-      optionsText: viewType === "MCQ" ? prev.optionsText : "",
-    }));
-  }, [viewType]);
-
-  async function loadQuestions(materialId = activeMaterialId, type = viewType) {
+  const loadQuestions = useCallback(async (materialId = activeMaterialId, type = viewType) => {
     if (!materialId || !adminKey.trim()) {
       return;
     }
@@ -190,13 +169,31 @@ export function MaterialQuestionManager({
     } finally {
       setLoadingQuestions(false);
     }
-  }
+  }, [activeMaterialId, adminKey, viewType]);
 
-  async function refreshEverything(search?: string) {
-    await onRefreshMaterials(search);
-    await onRefreshOverview();
-    await loadQuestions();
-  }
+  useEffect(() => {
+    void loadQuestions();
+  }, [loadQuestions]);
+
+  useEffect(() => {
+    // Update draft question type when viewType changes
+    setDraftQuestion((prev) => {
+      if (prev.type === viewType) return prev;
+      return {
+        ...prev,
+        type: viewType,
+        optionsText: viewType === "MCQ" ? prev.optionsText : "",
+      };
+    });
+  }, [viewType]);
+
+  const refreshEverything = useCallback(async (search?: string) => {
+    await Promise.all([
+      loadQuestions(),
+      onRefreshMaterials(search),
+      onRefreshOverview(),
+    ]);
+  }, [loadQuestions, onRefreshMaterials, onRefreshOverview]);
 
   async function handleBulkUpload() {
     if (!adminKey.trim()) {

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Trophy, Medal, Award, TrendingUp, Calendar, Target } from "lucide-react";
 
@@ -24,11 +24,7 @@ export default function LeaderboardPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchLeaderboard();
-  }, [period]);
-
-  const fetchLeaderboard = async () => {
+  const fetchLeaderboard = useCallback(async () => {
     setLoading(true);
     try {
       const token = localStorage.getItem("token");
@@ -88,12 +84,16 @@ export default function LeaderboardPage() {
       ];
 
       setLeaderboard(mockData);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchLeaderboard();
+  }, [fetchLeaderboard, period]);
 
   const getRankIcon = (rank: number) => {
     switch (rank) {
