@@ -23,7 +23,7 @@ export function UploadLogin() {
 
     try {
       // Verify the key by trying to fetch admin overview
-      const response = await fetch("/api/admin-overview", {
+      const response = await fetch("/api/admin/verify-key", {
         headers: { "x-admin-upload-key": adminKey },
       });
 
@@ -35,7 +35,7 @@ export function UploadLogin() {
       sessionStorage.setItem("anatomiq:admin-key", adminKey);
 
       // Navigate to dashboard
-      router.push("/upload/dashboard");
+      router.push("/admin/upload");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
     } finally {

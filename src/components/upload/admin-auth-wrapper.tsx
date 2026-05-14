@@ -8,25 +8,51 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
   const [adminKey, setAdminKey] = useState("");
   const [inputKey, setInputKey] = useState("");
   const [error, setError] = useState("");
+  const [checking, setChecking] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const savedKey = localStorage.getItem("anatomiq:admin-key");
+    const savedKey =
+      sessionStorage.getItem("anatomiq:admin-key") ||
+      localStorage.getItem("anatomiq:admin-key");
     const wasCleared = sessionStorage.getItem("anatomiq:key-cleared");
 
     if (wasCleared) {
       setError("Invalid admin key. Please enter a valid key.");
       sessionStorage.removeItem("anatomiq:key-cleared");
     } else if (savedKey) {
-      setAdminKey(savedKey);
+      void verifyKey(savedKey);
     }
   }, []);
 
-  function handleSubmit() {
-    if (inputKey) {
+  async function verifyKey(key: string) {
+    setChecking(true);
+    try {
+      const response = await fetch("/api/admin/verify-key", {
+        headers: { "x-admin-upload-key": key },
+      });
+
+      if (!response.ok) {
+        throw new Error("Invalid admin key. Please enter a valid key.");
+      }
+
+      sessionStorage.setItem("anatomiq:admin-key", key);
+      localStorage.removeItem("anatomiq:admin-key");
+      setAdminKey(key);
       setError("");
-      localStorage.setItem("anatomiq:admin-key", inputKey);
-      setAdminKey(inputKey);
+    } catch (verificationError) {
+      sessionStorage.removeItem("anatomiq:admin-key");
+      localStorage.removeItem("anatomiq:admin-key");
+      setAdminKey("");
+      setError(verificationError instanceof Error ? verificationError.message : "Invalid admin key.");
+    } finally {
+      setChecking(false);
+    }
+  }
+
+  function handleSubmit() {
+    if (inputKey.trim()) {
+      void verifyKey(inputKey.trim());
     }
   }
 
@@ -72,10 +98,10 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
           />
           <button
             onClick={handleSubmit}
-            disabled={!inputKey}
+            disabled={!inputKey || checking}
             className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#0969da] to-[#0ca678] px-4 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
           >
-            Continue
+            {checking ? "Checking..." : "Continue"}
           </button>
         </div>
       </div>

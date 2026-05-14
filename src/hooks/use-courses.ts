@@ -5,6 +5,7 @@ type Course = {
   code: string;
   name: string;
   slug: string;
+  semester: "FIRST" | "SECOND";
   department: string;
   description: string | null;
 };

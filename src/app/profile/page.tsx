@@ -3,10 +3,8 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { User, Mail, Building2, GraduationCap, CreditCard, Edit2, Loader2, Crown, ArrowLeft } from "lucide-react";
-import { formatNaira } from "@/lib/pricing";
+import { User, Mail, Building2, GraduationCap, CreditCard, Edit2, Loader2, Crown, ArrowLeft, Settings, Save, Lock, Trash2 } from "lucide-react";
 import { ReferralCard } from "@/components/referral/referral-card";
-import { CourseSelector } from "@/components/courses/course-selector";
 
 type UserProfile = {
   id: string;
@@ -14,7 +12,14 @@ type UserProfile = {
   fullName: string;
   department: string;
   faculty?: string;
+  avatarUrl?: string | null;
   isGuest: boolean;
+  preferences?: {
+    theme: "light" | "dark" | "system";
+    emailNotifications: boolean;
+    referralNotifications: boolean;
+    subscriptionNotifications: boolean;
+  };
   subscription?: {
     tier: string;
     billingPeriod: string;
@@ -33,7 +38,20 @@ export default function ProfilePage() {
     fullName: "",
     department: "",
     faculty: "",
+    avatarUrl: "",
   });
+  const [preferences, setPreferences] = useState({
+    theme: "system" as "light" | "dark" | "system",
+    emailNotifications: true,
+    referralNotifications: true,
+    subscriptionNotifications: true,
+  });
+  const [passwordData, setPasswordData] = useState({
+    currentPassword: "",
+    newPassword: "",
+    confirmPassword: "",
+  });
+  const [avatarUploading, setAvatarUploading] = useState(false);
 
   useEffect(() => {
     loadProfile();
@@ -63,7 +81,10 @@ export default function ProfilePage() {
         fullName: data.fullName,
         department: data.department,
         faculty: data.faculty || "",
+        avatarUrl: data.avatarUrl || "",
       });
+      setPreferences(data.preferences || preferences);
+      localStorage.setItem("anatomiq:user", JSON.stringify(data));
     } catch (error) {
       console.error("Profile load error:", error);
       alert("Failed to load profile");
@@ -96,6 +117,145 @@ export default function ProfilePage() {
     } catch (error) {
       console.error("Profile update error:", error);
       alert("Failed to update profile");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleAvatarUpload = async (file: File | null) => {
+    if (!file) {
+      return;
+    }
+
+    setAvatarUploading(true);
+    try {
+      const token = localStorage.getItem("anatomiq:auth-token");
+      const form = new FormData();
+      form.append("file", file);
+
+      const response = await fetch("/api/profile/avatar", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+        body: form,
+      });
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to upload profile picture");
+      }
+
+      setFormData((value) => ({ ...value, avatarUrl: data.avatarUrl }));
+      await loadProfile();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to upload profile picture");
+    } finally {
+      setAvatarUploading(false);
+    }
+  };
+
+  const applyTheme = (theme: "light" | "dark" | "system") => {
+    const resolvedTheme =
+      theme === "dark" ||
+      (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+        ? "dark"
+        : "light";
+    document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+    localStorage.setItem("anatomiq:theme", theme);
+  };
+
+  const handleSaveSettings = async () => {
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("anatomiq:auth-token");
+      const response = await fetch("/api/profile", {
+        method: "PATCH",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          themePreference: preferences.theme,
+          emailNotifications: preferences.emailNotifications,
+          referralNotifications: preferences.referralNotifications,
+          subscriptionNotifications: preferences.subscriptionNotifications,
+        }),
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to save settings");
+      }
+
+      applyTheme(preferences.theme);
+      await loadProfile();
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to save settings");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleChangePassword = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (passwordData.newPassword !== passwordData.confirmPassword) {
+      alert("Passwords do not match");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("anatomiq:auth-token");
+      const response = await fetch("/api/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          currentPassword: passwordData.currentPassword,
+          newPassword: passwordData.newPassword,
+        }),
+      });
+
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to change password");
+      }
+
+      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
+      alert("Password changed successfully.");
+    } catch (error) {
+      alert(error instanceof Error ? error.message : "Failed to change password");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!confirm("Are you sure you want to delete your account? This action cannot be undone.")) {
+      return;
+    }
+
+    const confirmation = prompt('Type "DELETE" to confirm account deletion:');
+    if (confirmation !== "DELETE") {
+      return;
+    }
+
+    setLoading(true);
+    try {
+      const token = localStorage.getItem("anatomiq:auth-token");
+      const response = await fetch("/api/auth/delete-account", {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (!response.ok) {
+        throw new Error("Failed to delete account");
+      }
+
+      localStorage.clear();
+      router.push("/signin");
+    } catch {
+      alert("Failed to delete account");
     } finally {
       setLoading(false);
     }
@@ -210,6 +370,26 @@ export default function ProfilePage() {
                     />
                   </div>
 
+                  <div>
+                    <label className="block text-sm font-semibold text-slate-700 mb-2">
+                      Profile picture <span className="text-slate-400">(Optional)</span>
+                    </label>
+                    <input
+                      type="file"
+                      accept="image/png,image/jpeg,image/webp"
+                      onChange={(e) => void handleAvatarUpload(e.target.files?.[0] ?? null)}
+                      className="mb-3 w-full rounded-xl border border-dashed border-slate-300 bg-white px-4 py-3 text-slate-900"
+                    />
+                    {avatarUploading ? <p className="mb-3 text-sm text-slate-500">Uploading profile picture...</p> : null}
+                    <input
+                      type="url"
+                      value={formData.avatarUrl}
+                      onChange={(e) => setFormData({ ...formData, avatarUrl: e.target.value })}
+                      className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3 text-slate-900"
+                      placeholder="https://..."
+                    />
+                  </div>
+
                   <div className="flex gap-3 pt-4">
                     <button
                       type="submit"
@@ -226,6 +406,7 @@ export default function ProfilePage() {
                           fullName: profile.fullName,
                           department: profile.department,
                           faculty: profile.faculty || "",
+                          avatarUrl: profile.avatarUrl || "",
                         });
                       }}
                       className="rounded-xl border-2 border-slate-300 bg-white px-6 py-3 font-semibold text-slate-700 hover:bg-slate-50"
@@ -252,6 +433,16 @@ export default function ProfilePage() {
                     </div>
                   </div>
 
+                  {profile.avatarUrl && (
+                    <div className="flex items-center gap-3">
+                      <img src={profile.avatarUrl} alt="" className="h-12 w-12 rounded-full object-cover" />
+                      <div>
+                        <div className="text-sm font-semibold text-slate-600">Profile Picture</div>
+                        <div className="text-base text-slate-900">Shown in mobile navigation</div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="flex items-start gap-3">
                     <Building2 className="h-5 w-5 text-slate-400 mt-0.5" />
                     <div>
@@ -273,10 +464,80 @@ export default function ProfilePage() {
               )}
             </div>
 
-            {/* My Courses Section */}
             <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-lg">
-              <h2 className="text-2xl font-bold text-slate-900 mb-6">My Courses</h2>
-              <CourseSelector />
+              <div className="mb-6 flex items-center gap-2">
+                <Settings className="h-5 w-5 text-slate-600" />
+                <h2 className="text-2xl font-bold text-slate-900">Settings</h2>
+              </div>
+
+              <div className="space-y-6">
+                <div>
+                  <label className="block text-sm font-semibold text-slate-700 mb-2">Theme</label>
+                  <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-100 p-1">
+                    {(["system", "light", "dark"] as const).map((theme) => (
+                      <button
+                        key={theme}
+                        type="button"
+                        onClick={() => setPreferences({ ...preferences, theme })}
+                        className={`rounded-lg px-3 py-2 text-sm font-semibold capitalize ${
+                          preferences.theme === theme ? "bg-white text-blue-600 shadow-sm" : "text-slate-600"
+                        }`}
+                      >
+                        {theme}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {[
+                  ["emailNotifications", "Email notifications"],
+                  ["referralNotifications", "Referral updates"],
+                  ["subscriptionNotifications", "Subscription reminders"],
+                ].map(([key, label]) => (
+                  <label key={key} className="flex items-center justify-between rounded-xl border border-slate-200 p-4">
+                    <span className="font-semibold text-slate-900">{label}</span>
+                    <input
+                      type="checkbox"
+                      checked={preferences[key as keyof typeof preferences] as boolean}
+                      onChange={(event) =>
+                        setPreferences({ ...preferences, [key]: event.target.checked })
+                      }
+                      className="h-5 w-5"
+                    />
+                  </label>
+                ))}
+
+                <button
+                  onClick={() => void handleSaveSettings()}
+                  disabled={loading}
+                  className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-5 py-3 text-sm font-semibold text-white shadow-lg disabled:opacity-60"
+                >
+                  <Save className="h-4 w-4" />
+                  Save settings
+                </button>
+              </div>
+
+              <form onSubmit={handleChangePassword} className="mt-8 border-t border-slate-200 pt-6">
+                <div className="mb-4 flex items-center gap-2">
+                  <Lock className="h-5 w-5 text-slate-600" />
+                  <h3 className="text-lg font-bold text-slate-900">Change Password</h3>
+                </div>
+                <div className="grid gap-3 md:grid-cols-3">
+                  <input type="password" value={passwordData.currentPassword} onChange={(e) => setPasswordData({ ...passwordData, currentPassword: e.target.value })} className="rounded-xl border border-slate-300 px-4 py-3" placeholder="Current password" required />
+                  <input type="password" value={passwordData.newPassword} onChange={(e) => setPasswordData({ ...passwordData, newPassword: e.target.value })} className="rounded-xl border border-slate-300 px-4 py-3" placeholder="New password" minLength={8} required />
+                  <input type="password" value={passwordData.confirmPassword} onChange={(e) => setPasswordData({ ...passwordData, confirmPassword: e.target.value })} className="rounded-xl border border-slate-300 px-4 py-3" placeholder="Confirm password" required />
+                </div>
+                <button type="submit" disabled={loading} className="mt-4 rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+                  Update password
+                </button>
+              </form>
+
+              <div className="mt-8 border-t border-slate-200 pt-6">
+                <button onClick={handleDeleteAccount} disabled={loading} className="inline-flex items-center gap-2 rounded-xl bg-red-600 px-5 py-3 text-sm font-semibold text-white hover:bg-red-700 disabled:opacity-60">
+                  <Trash2 className="h-4 w-4" />
+                  Delete account
+                </button>
+              </div>
             </div>
           </div>
 

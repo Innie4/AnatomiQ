@@ -11,11 +11,11 @@ export default async function ExamPage({
 }: {
   searchParams: Promise<{ course?: string; topic?: string; subtopic?: string }>;
 }) {
-  const topics = await getTopicTree();
   const params = await searchParams;
+  const topics = await getTopicTree(undefined, params.course);
 
   // Fetch available courses
-  let courses: Array<{ id: string; code: string; name: string; slug: string }> = [];
+  let courses: Array<{ id: string; code: string; name: string; slug: string; semester: "FIRST" | "SECOND" }> = [];
   if (hasDatabase) {
     try {
       courses = await db.course.findMany({
@@ -24,15 +24,16 @@ export default async function ExamPage({
           code: true,
           name: true,
           slug: true,
+          semester: true,
         },
-        orderBy: { code: "asc" },
+        orderBy: [{ semester: "asc" }, { code: "asc" }],
       });
     } catch {
       // If database fails, use default course
-      courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy" }];
+      courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy", semester: "FIRST" }];
     }
   } else {
-    courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy" }];
+    courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy", semester: "FIRST" }];
   }
 
   return (

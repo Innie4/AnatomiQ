@@ -32,14 +32,23 @@ export async function PUT(request: NextRequest) {
     }
 
     const { selectedCourses } = validation.data;
+    const uniqueSelections = [...new Set(selectedCourses)];
+
+    const existingCourses = await db.course.findMany({
+      where: {
+        slug: { in: uniqueSelections },
+      },
+      select: { slug: true },
+    });
+    const validSlugs = existingCourses.map((course) => course.slug);
 
     // Update user's selected courses
     await db.facultyUser.update({
       where: { id: payload.userId },
-      data: { selectedCourses },
+      data: { selectedCourses: validSlugs },
     });
 
-    return NextResponse.json({ success: true });
+    return NextResponse.json({ success: true, selectedCourses: validSlugs });
   } catch (error) {
     console.error("Error updating courses:", error);
     return NextResponse.json(

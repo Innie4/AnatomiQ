@@ -25,8 +25,9 @@ export async function GET(request: NextRequest) {
     }
 
     const search = request.nextUrl.searchParams.get("search");
+    const courseSlug = request.nextUrl.searchParams.get("courseSlug") || undefined;
     const sanitizedSearch = search ? sanitizeSearchQuery(search) : undefined;
-    const topics = await getTopicTree(sanitizedSearch);
+    const topics = await getTopicTree(sanitizedSearch, courseSlug);
     return ok({ topics });
   } catch (error) {
     return handleRouteError(error);

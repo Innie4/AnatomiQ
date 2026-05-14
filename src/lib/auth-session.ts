@@ -38,6 +38,12 @@ export function serializeFacultyUser(user: FacultyUser) {
     faculty: user.faculty,
     isGuest: user.isGuest,
     avatarUrl: user.avatarUrl,
+    preferences: {
+      theme: user.themePreference,
+      emailNotifications: user.emailNotifications,
+      referralNotifications: user.referralNotifications,
+      subscriptionNotifications: user.subscriptionNotifications,
+    },
     requiresProfileCompletion: user.requiresProfileCompletion,
   };
 }

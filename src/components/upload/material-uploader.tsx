@@ -147,6 +147,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
                 placeholder="e.g., Cardiovascular System Overview"
+                aria-label="Material title"
               />
             </div>
 
@@ -160,6 +161,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 onChange={(e) => setCourseCode(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
                 placeholder="e.g., ANA101"
+                aria-label="Course code"
               />
             </div>
 
@@ -173,6 +175,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 onChange={(e) => setCourseName(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
                 placeholder="e.g., Human Anatomy"
+                aria-label="Course name"
               />
             </div>
 
@@ -186,6 +189,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 onChange={(e) => setTopicName(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
                 placeholder="e.g., Cardiovascular System"
+                aria-label="Topic name"
               />
             </div>
 
@@ -199,6 +203,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 onChange={(e) => setSubtopicName(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
                 placeholder="e.g., Heart Anatomy"
+                aria-label="Subtopic name (optional)"
               />
             </div>
 
@@ -221,7 +226,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
           <div className="flex items-center gap-4 pt-4">
             <button
               onClick={() => void handleUpload()}
-              disabled={loading || !file || !title || !courseCode || !courseName || !topicName}
+              disabled={loading}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0969da] to-[#0ca678] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
             >
               {loading ? (

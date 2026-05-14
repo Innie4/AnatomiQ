@@ -9,6 +9,7 @@ export function AppLayoutWrapper({ children }: { children: React.ReactNode }) {
   // Pages that should not have navigation (fullscreen/auth pages)
   const noLayoutPages = [
     "/upload",
+    "/admin",
     "/exam-session",
     "/signin",
     "/signup",

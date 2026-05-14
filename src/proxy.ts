@@ -6,7 +6,14 @@ const publicRoutes = [
   "/signin",
   "/signup",
   "/auth/social",
+  "/admin",
+  "/upload",
+  "/api",
   "/api/auth",
+  "/api/courses",
+  "/api/health",
+  "/api/topics",
+  "/api/topic-question-types",
   "/_next",
   "/favicon.ico",
   "/anatomiQ.png",
@@ -18,7 +25,10 @@ export function proxy(request: NextRequest) {
   // Check for auth token on protected routes
   if (!publicRoutes.some((route) => pathname.startsWith(route))) {
     const token = request.cookies.get("anatomiq:auth-token")?.value;
-    const hasToken = token || request.headers.get("authorization");
+    const hasToken =
+      token ||
+      request.headers.get("authorization") ||
+      request.headers.get("x-admin-upload-key");
 
     // Redirect to signin if not authenticated
     if (!hasToken) {

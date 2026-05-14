@@ -9,12 +9,11 @@ export async function GET(request: NextRequest) {
         code: true,
         name: true,
         slug: true,
+        semester: true,
         department: true,
         description: true,
       },
-      orderBy: {
-        name: "asc",
-      },
+      orderBy: [{ semester: "asc" }, { code: "asc" }, { name: "asc" }],
     });
 
     return NextResponse.json({ courses });

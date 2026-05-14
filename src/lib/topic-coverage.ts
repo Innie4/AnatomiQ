@@ -54,7 +54,7 @@ function buildFallbackTopicCoverage(search?: string) {
   );
 }
 
-export async function getTopicCoverage(search?: string) {
+export async function getTopicCoverage(search?: string, courseSlug?: string) {
   if (!hasDatabase) {
     return buildFallbackTopicCoverage(search);
   }
@@ -66,6 +66,7 @@ export async function getTopicCoverage(search?: string) {
     const topics = await db.topic.findMany({
       where: {
         level: 0,
+        ...(courseSlug ? { course: { slug: courseSlug } } : {}),
         ...(search
           ? {
               OR: [
@@ -139,10 +140,5 @@ export async function getTopicCoverage(search?: string) {
   } catch (error) {
     console.error("Falling back to static anatomy topics because the database is unavailable.", error);
     return buildFallbackTopicCoverage(search);
-  } finally {
-    // Ensure connection is cleaned up
-    await db.$disconnect().catch(() => {
-      // Ignore disconnect errors
-    });
   }
 }

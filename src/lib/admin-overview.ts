@@ -29,41 +29,29 @@ export async function getAdminOverview() {
     // Test database connection
     await db.$connect();
 
-    const [
-      totalMaterials,
-      readyMaterials,
-      processingMaterials,
-      failedMaterials,
-      totalChunks,
-      totalQuestions,
-      totalConcepts,
-      recentMaterials,
-      topicCoverage,
-    ] = await Promise.all([
-      db.material.count(),
-      db.material.count({ where: { status: MaterialStatus.READY } }),
-      db.material.count({ where: { status: MaterialStatus.PROCESSING } }),
-      db.material.count({ where: { status: MaterialStatus.FAILED } }),
-      db.contentChunk.count(),
-      db.question.count(),
-      db.concept.count(),
-      db.material.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 8,
-        include: {
-          topic: true,
-          subtopic: true,
-          course: true,
-          _count: {
-            select: {
-              ContentChunk: true,
-              Question: true,
-            },
+    const totalMaterials = await db.material.count();
+    const readyMaterials = await db.material.count({ where: { status: MaterialStatus.READY } });
+    const processingMaterials = await db.material.count({ where: { status: MaterialStatus.PROCESSING } });
+    const failedMaterials = await db.material.count({ where: { status: MaterialStatus.FAILED } });
+    const totalChunks = await db.contentChunk.count();
+    const totalQuestions = await db.question.count();
+    const totalConcepts = await db.concept.count();
+    const recentMaterials = await db.material.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      include: {
+        topic: true,
+        subtopic: true,
+        course: true,
+        _count: {
+          select: {
+            ContentChunk: true,
+            Question: true,
           },
         },
-      }),
-      getTopicCoverage(),
-    ]);
+      },
+    });
+    const topicCoverage = await getTopicCoverage();
 
     const statusDistribution = [
       { label: "Ready", value: readyMaterials, status: MaterialStatus.READY },
@@ -115,9 +103,5 @@ export async function getAdminOverview() {
   } catch (error) {
     console.error("Falling back to an empty admin overview because the database is unavailable.", error);
     return emptyState;
-  } finally {
-    await db.$disconnect().catch(() => {
-      // Ignore disconnect errors
-    });
   }
 }

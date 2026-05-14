@@ -6,9 +6,15 @@ import { useCourses } from "@/hooks/use-courses";
 
 type CourseSelectorProps = {
   onCoursesChange?: (courses: string[]) => void;
+  compact?: boolean;
 };
 
-export function CourseSelector({ onCoursesChange }: CourseSelectorProps) {
+const semesterLabels = {
+  FIRST: "First semester",
+  SECOND: "Second semester",
+};
+
+export function CourseSelector({ onCoursesChange, compact = false }: CourseSelectorProps) {
   const { courses, loading: coursesLoading } = useCourses();
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +43,7 @@ export function CourseSelector({ onCoursesChange }: CourseSelectorProps) {
 
       if (response.ok) {
         const data = await response.json();
-        setSelectedCourses(data.user.selectedCourses || []);
+        setSelectedCourses(data.selectedCourses || data.user?.selectedCourses || []);
       }
     } catch (error) {
       console.error("Error fetching user courses:", error);
@@ -106,43 +112,57 @@ export function CourseSelector({ onCoursesChange }: CourseSelectorProps) {
         )}
       </div>
 
-      <div className="space-y-2">
-        {courses.map((course) => (
-          <label
-            key={course.id}
-            className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
-              selectedCourses.includes(course.slug)
-                ? "border-blue-500 bg-blue-50"
-                : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
-            }`}
-          >
-            <div className="relative">
-              <input
-                type="checkbox"
-                checked={selectedCourses.includes(course.slug)}
-                onChange={() => toggleCourse(course.slug)}
-                className="peer sr-only"
-              />
-              <div
-                className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
-                  selectedCourses.includes(course.slug)
-                    ? "border-blue-600 bg-blue-600"
-                    : "border-slate-300 bg-white"
-                }`}
-              >
-                {selectedCourses.includes(course.slug) && (
-                  <Check className="h-3 w-3 text-white" />
-                )}
-              </div>
+      <div className={compact ? "space-y-2" : "grid gap-4 md:grid-cols-2"}>
+        {(["FIRST", "SECOND"] as const).map((semester) => {
+          const semesterCourses = courses.filter((course) => course.semester === semester);
+          if (!semesterCourses.length) {
+            return null;
+          }
+
+          return (
+            <div key={semester} className="space-y-2">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">
+                {semesterLabels[semester]}
+              </p>
+              {semesterCourses.map((course) => (
+                <label
+                  key={course.id}
+                  className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+                    selectedCourses.includes(course.slug)
+                      ? "border-blue-500 bg-blue-50"
+                      : "border-slate-200 bg-white hover:border-slate-300 hover:bg-slate-50"
+                  }`}
+                >
+                  <div className="relative">
+                    <input
+                      type="checkbox"
+                      checked={selectedCourses.includes(course.slug)}
+                      onChange={() => toggleCourse(course.slug)}
+                      className="peer sr-only"
+                    />
+                    <div
+                      className={`h-5 w-5 rounded border-2 flex items-center justify-center transition-all ${
+                        selectedCourses.includes(course.slug)
+                          ? "border-blue-600 bg-blue-600"
+                          : "border-slate-300 bg-white"
+                      }`}
+                    >
+                      {selectedCourses.includes(course.slug) && (
+                        <Check className="h-3 w-3 text-white" />
+                      )}
+                    </div>
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-medium text-sm text-slate-900 truncate">
+                      {course.name}
+                    </div>
+                    <div className="text-xs text-slate-500">{course.code}</div>
+                  </div>
+                </label>
+              ))}
             </div>
-            <div className="flex-1 min-w-0">
-              <div className="font-medium text-sm text-slate-900 truncate">
-                {course.name}
-              </div>
-              <div className="text-xs text-slate-500">{course.code}</div>
-            </div>
-          </label>
-        ))}
+          );
+        })}
       </div>
 
       {selectedCourses.length === 0 && (

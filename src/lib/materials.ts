@@ -365,7 +365,7 @@ export async function processMaterial(materialId: string) {
           }
         }
       }
-    });
+    }, { timeout: 30000 });
 
     return {
       materialId,

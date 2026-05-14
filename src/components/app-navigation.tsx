@@ -3,11 +3,10 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import { Home, BookOpen, FileQuestion, User, CreditCard } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
-import { RandomizeExamButton } from "./randomize-exam-button";
-import { CourseSelector } from "./courses/course-selector";
 
 const navigationLinks = [
   {
@@ -33,6 +32,12 @@ const navigationLinks = [
     label: "Pricing",
     icon: CreditCard,
     description: "View subscription plans"
+  },
+  {
+    href: "/profile",
+    label: "Profile",
+    icon: User,
+    description: "Account and settings"
   },
 ];
 
@@ -61,6 +66,19 @@ const mobileNavigationLinks = [
 
 export function AppNavigation() {
   const pathname = usePathname();
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    try {
+      const storedUser = localStorage.getItem("anatomiq:user");
+      if (storedUser) {
+        const parsed = JSON.parse(storedUser) as { avatarUrl?: string | null };
+        setAvatarUrl(parsed.avatarUrl || null);
+      }
+    } catch {
+      setAvatarUrl(null);
+    }
+  }, []);
 
   // Don't show navigation on upload pages and exam sessions
   if (pathname?.startsWith("/upload") || pathname?.startsWith("/exam-session")) {
@@ -130,11 +148,6 @@ export function AppNavigation() {
             })}
           </nav>
 
-          {/* Course Selector */}
-          <div className="border-t border-slate-200 p-4">
-            <CourseSelector />
-          </div>
-
           {/* Profile Button */}
           <div className="border-t border-slate-200 p-4">
             <Link
@@ -187,7 +200,15 @@ export function AppNavigation() {
                 {active && (
                   <div className="absolute -top-1 left-1/2 h-1 w-12 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#0969da] to-[#0ca678]" />
                 )}
-                <Icon className={`h-6 w-6 ${active ? "scale-110" : ""} transition-transform`} />
+                {link.href === "/profile" && avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt=""
+                    className={`h-6 w-6 rounded-full object-cover ring-2 ${active ? "scale-110 ring-[#0969da]" : "ring-slate-200"} transition-transform`}
+                  />
+                ) : (
+                  <Icon className={`h-6 w-6 ${active ? "scale-110" : ""} transition-transform`} />
+                )}
                 <span className={`text-xs font-semibold ${active ? "text-[#0969da]" : ""}`}>
                   {link.label}
                 </span>

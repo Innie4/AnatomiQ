@@ -1,4 +1,4 @@
-import { PrismaClient } from "@prisma/client";
+import { CourseSemester, PrismaClient } from "@prisma/client";
 import slugify from "slugify";
 import bcrypt from "bcryptjs";
 import { randomUUID } from "crypto";
@@ -88,6 +88,7 @@ async function main() {
         code: "ANA101",
         name: "Human Anatomy",
         slug: "human-anatomy",
+        semester: CourseSemester.FIRST,
         description:
           "University of Uyo Human Anatomy knowledge base for topic-grounded learning and exam generation.",
       },
@@ -109,6 +110,7 @@ async function main() {
       code: "PHY101",
       name: "Physiology",
       slug: "physiology",
+      semester: CourseSemester.FIRST,
       description: "Study of the functions and mechanisms of the human body systems.",
       department: "Physiology",
     },
@@ -116,6 +118,7 @@ async function main() {
       code: "BCH101",
       name: "Biochemistry",
       slug: "biochemistry",
+      semester: CourseSemester.FIRST,
       description: "Chemical processes and substances in living organisms.",
       department: "Biochemistry",
     },
@@ -123,6 +126,7 @@ async function main() {
       code: "PCL101",
       name: "Pharmacology",
       slug: "pharmacology",
+      semester: CourseSemester.SECOND,
       description: "Study of drugs and their effects on living systems.",
       department: "Pharmacology",
     },
@@ -130,6 +134,7 @@ async function main() {
       code: "PAT101",
       name: "Pathology",
       slug: "pathology",
+      semester: CourseSemester.SECOND,
       description: "Study of disease causes, development, and consequences.",
       department: "Pathology",
     },
@@ -137,6 +142,7 @@ async function main() {
       code: "MCB101",
       name: "Microbiology",
       slug: "microbiology",
+      semester: CourseSemester.SECOND,
       description: "Study of microorganisms including bacteria, viruses, and fungi.",
       department: "Microbiology",
     },
@@ -144,6 +150,7 @@ async function main() {
       code: "LAW101",
       name: "Law",
       slug: "law",
+      semester: CourseSemester.SECOND,
       description: "Legal principles, systems, and jurisprudence.",
       department: "Law",
     },

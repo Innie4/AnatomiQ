@@ -12,6 +12,17 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
 
   useEffect(() => {
     setMounted(true);
+    const applyTheme = (theme: string | null) => {
+      const resolvedTheme =
+        theme === "dark" ||
+        (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
+          ? "dark"
+          : "light";
+      document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+    };
+
+    applyTheme(localStorage.getItem("anatomiq:theme") || "system");
+
     // Check if splash has been shown in this session
     const splashShown = sessionStorage.getItem("anatomiq:splash-shown");
     if (splashShown === "true") {

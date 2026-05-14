@@ -97,6 +97,7 @@ model Course {
   code        String     @unique
   name        String
   slug        String     @unique
+  semester    CourseSemester @default(FIRST)
   department  String     @default("Human Anatomy")
   description String?
   createdAt   DateTime   @default(now())
@@ -104,6 +105,11 @@ model Course {
   Material    Material[]
   Question    Question[]
   Topic       Topic[]
+}
+
+enum CourseSemester {
+  FIRST
+  SECOND
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -119,6 +125,10 @@ model FacultyUser {
   googleId          String?        @unique
   facebookId        String?        @unique
   avatarUrl         String?
+  themePreference   String         @default("system")
+  emailNotifications Boolean       @default(true)
+  referralNotifications Boolean    @default(true)
+  subscriptionNotifications Boolean @default(true)
   requiresProfileCompletion Boolean @default(false)
   referralCode      String?        @unique
   referredBy        String?

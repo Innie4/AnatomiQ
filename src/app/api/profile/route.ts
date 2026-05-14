@@ -48,6 +48,12 @@ export async function GET(request: NextRequest) {
       avatarUrl: user.avatarUrl,
       selectedCourses: user.selectedCourses,
       referralCode: user.referralCode,
+      preferences: {
+        theme: user.themePreference,
+        emailNotifications: user.emailNotifications,
+        referralNotifications: user.referralNotifications,
+        subscriptionNotifications: user.subscriptionNotifications,
+      },
       subscription: subscription
         ? {
             tier: subscription.tier,
@@ -80,7 +86,16 @@ export async function PATCH(request: NextRequest) {
     }
 
     const body = await request.json();
-    const { fullName, department, faculty } = body;
+    const {
+      fullName,
+      department,
+      faculty,
+      avatarUrl,
+      themePreference,
+      emailNotifications,
+      referralNotifications,
+      subscriptionNotifications,
+    } = body;
 
     // Update user
     const user = await db.facultyUser.update({
@@ -88,7 +103,15 @@ export async function PATCH(request: NextRequest) {
       data: {
         fullName: fullName || undefined,
         department: department || undefined,
-        faculty: faculty || undefined,
+        faculty: faculty ?? undefined,
+        avatarUrl: avatarUrl ?? undefined,
+        themePreference: ["light", "dark", "system"].includes(themePreference) ? themePreference : undefined,
+        emailNotifications:
+          typeof emailNotifications === "boolean" ? emailNotifications : undefined,
+        referralNotifications:
+          typeof referralNotifications === "boolean" ? referralNotifications : undefined,
+        subscriptionNotifications:
+          typeof subscriptionNotifications === "boolean" ? subscriptionNotifications : undefined,
       },
     });
 
@@ -98,6 +121,13 @@ export async function PATCH(request: NextRequest) {
       fullName: user.fullName,
       department: user.department,
       faculty: user.faculty,
+      avatarUrl: user.avatarUrl,
+      preferences: {
+        theme: user.themePreference,
+        emailNotifications: user.emailNotifications,
+        referralNotifications: user.referralNotifications,
+        subscriptionNotifications: user.subscriptionNotifications,
+      },
     });
   } catch (error) {
     console.error("Profile update error:", error);

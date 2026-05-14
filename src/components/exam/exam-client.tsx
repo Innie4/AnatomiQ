@@ -14,6 +14,7 @@ type CourseCard = {
   code: string;
   name: string;
   slug: string;
+  semester: "FIRST" | "SECOND";
 };
 
 type TopicCard = {
@@ -68,6 +69,14 @@ export function ExamClient({
   // Fetch available question types when topic/subtopic changes
   useEffect(() => {
     async function fetchAvailability() {
+      if (!topicSlug) {
+        setAvailability({
+          availableTypes: [],
+          counts: { MCQ: 0, SHORT_ANSWER: 0, THEORY: 0 },
+        });
+        return;
+      }
+
       try {
         const params = new URLSearchParams({ topicSlug });
         if (resolvedSubtopicSlug) {
@@ -247,7 +256,11 @@ export function ExamClient({
             <span className="text-sm font-semibold text-slate-700">Course</span>
             <select
               value={courseSlug}
-              onChange={(event) => setCourseSlug(event.target.value)}
+              onChange={(event) => {
+                const nextCourse = event.target.value;
+                setCourseSlug(nextCourse);
+                router.push(`/exam?course=${nextCourse}`);
+              }}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
             >
               {courses.map((course) => (

@@ -1,6 +1,11 @@
 import { describe, it, before, after } from "node:test";
 import assert from "node:assert";
 import { PrismaClient } from "@prisma/client";
+import { createRequire } from "node:module";
+
+const require = createRequire(import.meta.url);
+const { loadEnvConfig } = require("@next/env") as { loadEnvConfig: (dir: string) => void };
+loadEnvConfig(process.cwd());
 
 const BASE_URL = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
 const ADMIN_KEY = process.env.ADMIN_UPLOAD_KEY || "test-admin-key";

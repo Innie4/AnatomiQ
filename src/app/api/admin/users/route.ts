@@ -1,34 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
-import { verifyToken } from "@/lib/auth";
+import { authenticateRequest } from "@/lib/auth";
 import { db } from "@/lib/db";
-
-// Admin emails - in production, this should be in environment variables or database
-const ADMIN_EMAILS = ["admin@anatomiq.com", "innie4@example.com"];
-
-function isAdmin(email: string): boolean {
-  return ADMIN_EMAILS.includes(email.toLowerCase());
-}
 
 export async function GET(request: NextRequest) {
   try {
-    const authHeader = request.headers.get("authorization");
-    if (!authHeader?.startsWith("Bearer ")) {
+    const auth = await authenticateRequest(db, request);
+    if (!auth) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
-    const token = authHeader.substring(7);
-    const payload = verifyToken(token);
-    if (!payload) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
-    }
-
-    // Verify admin access
-    const adminUser = await db.facultyUser.findUnique({
-      where: { id: payload.userId },
-    });
-
-    if (!adminUser || !isAdmin(adminUser.email)) {
-      return NextResponse.json({ error: "Forbidden: Admin access required" }, { status: 403 });
     }
 
     const { searchParams } = new URL(request.url);

@@ -48,7 +48,9 @@
       "Bash(/tmp/batch_implementation.sh)",
       "Bash(timeout 10 bash -c 'while [[ -n $\\(git status --short\\) ]]; do sleep 1; done')",
       "Bash(tasklist)",
-      "Bash(findstr /i git)"
+      "Bash(findstr /i git)",
+      "Bash(timeout 10 tail -f C:\\\\Users\\\\Dell-Pc\\\\AppData\\\\Local\\\\Temp\\\\claude\\\\C--Users-Dell-Pc-AnatomiQ\\\\aec90135-5f77-43b3-a0c0-258a1071a96e\\\\tasks\\\\bnaade70a.output)",
+      "Bash(EDITOR=true git commit *)"
     ]
   }
 }

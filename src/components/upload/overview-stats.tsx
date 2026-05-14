@@ -27,7 +27,7 @@ type AdminOverview = {
   }>;
 };
 
-export function OverviewStats({ adminKey }: { adminKey: string }) {
+export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string; autoLoad?: boolean }) {
   const [overview, setOverview] = useState<AdminOverview | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -61,11 +61,11 @@ export function OverviewStats({ adminKey }: { adminKey: string }) {
   }
 
   useEffect(() => {
-    if (adminKey) {
+    if (adminKey && autoLoad) {
       void loadOverview();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [adminKey]);
+  }, [adminKey, autoLoad]);
 
   if (error) {
     return (
@@ -80,14 +80,59 @@ export function OverviewStats({ adminKey }: { adminKey: string }) {
 
   if (loading && !overview) {
     return (
-      <div className="flex items-center justify-center rounded-2xl border border-slate-200 bg-white p-12">
-        <LoaderCircle className="h-8 w-8 animate-spin text-slate-400" />
+      <div className="space-y-6">
+        <div>
+          <h2 className="text-2xl font-bold text-slate-900">Dashboard Overview</h2>
+          <p className="mt-1 text-sm text-slate-600">System statistics and recent activity</p>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {["Total materials", "Ready materials", "Knowledge chunks", "Question bank"].map((label) => (
+            <div key={label} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm">
+              <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{label}</p>
+              <div className="mt-4 h-8 w-16 animate-pulse rounded bg-slate-200" />
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   if (!overview) {
-    return null;
+    return (
+      <div className="space-y-6">
+        <div className="flex items-center justify-between">
+          <div>
+            <h2 className="text-2xl font-bold text-slate-900">Dashboard Overview</h2>
+            <p className="mt-1 text-sm text-slate-600">System statistics and recent activity</p>
+          </div>
+          <button
+            onClick={() => void loadOverview()}
+            disabled={loading}
+            className="inline-flex items-center gap-2 rounded-xl border-2 border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-900 shadow-sm transition-all hover:border-[#0969da] hover:bg-[#f0f6ff] disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <RefreshCw className={`h-4 w-4 ${loading ? "animate-spin" : ""}`} />
+            Refresh
+          </button>
+        </div>
+        <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
+          {[
+            { label: "Total materials", helper: "Uploaded anatomy assets", icon: Database, color: "text-blue-600" },
+            { label: "Ready materials", helper: "Processed sources", icon: CheckCircle2, color: "text-emerald-600" },
+            { label: "Knowledge chunks", helper: "Semantic sections", icon: Layers3, color: "text-purple-600" },
+            { label: "Question bank", helper: "Stored questions", icon: FileChartColumn, color: "text-amber-600" },
+          ].map((item) => (
+            <div key={item.label} className="rounded-2xl border border-slate-200 bg-white p-6 shadow-sm transition-shadow hover:shadow-md">
+              <div className="flex items-center justify-between">
+                <p className="text-xs font-semibold uppercase tracking-wider text-slate-500">{item.label}</p>
+                <item.icon className={`h-5 w-5 ${item.color}`} />
+              </div>
+              <p className="mt-4 text-4xl font-bold text-slate-900">0</p>
+              <p className="mt-2 text-sm text-slate-600">{item.helper}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -112,14 +157,14 @@ export function OverviewStats({ adminKey }: { adminKey: string }) {
       <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {[
           {
-            label: "Total Materials",
+            label: "Total materials",
             value: overview.summary.totalMaterials,
             helper: "Uploaded anatomy assets",
             icon: Database,
             color: "text-blue-600",
           },
           {
-            label: "Ready Materials",
+            label: "Ready materials",
             value: overview.summary.readyMaterials,
             helper: "Processed sources",
             icon: CheckCircle2,

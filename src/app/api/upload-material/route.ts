@@ -23,7 +23,12 @@ export async function POST(request: Request) {
     console.log("[upload-material] Authenticated user:", auth.userId);
 
     console.log("[upload-material] Parsing form data");
-    const formData = await request.formData();
+    let formData: FormData;
+    try {
+      formData = await request.formData();
+    } catch {
+      return fail("The uploaded file exceeds the 25MB limit or could not be parsed.", 413);
+    }
     const file = formData.get("file");
 
     if (!(file instanceof File)) {
