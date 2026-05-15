@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { Home, BookOpen, FileQuestion, User, CreditCard } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
+import { NotificationBell } from "@/components/notifications/notification-bell";
 
 const navigationLinks = [
   {
@@ -73,12 +74,17 @@ export function AppNavigation() {
       const storedUser = localStorage.getItem("anatomiq:user");
       if (storedUser) {
         const parsed = JSON.parse(storedUser) as { avatarUrl?: string | null };
-        setAvatarUrl(parsed.avatarUrl || null);
+        const newUrl = parsed.avatarUrl || null;
+        if (newUrl !== avatarUrl) {
+          setAvatarUrl(newUrl);
+        }
       }
     } catch {
-      setAvatarUrl(null);
+      if (avatarUrl !== null) {
+        setAvatarUrl(null);
+      }
     }
-  }, []);
+  }, [avatarUrl]);
 
   // Don't show navigation on upload pages and exam sessions
   if (pathname?.startsWith("/upload") || pathname?.startsWith("/exam-session")) {
@@ -98,21 +104,24 @@ export function AppNavigation() {
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 flex-col border-r border-slate-200 bg-white lg:flex">
         <div className="flex h-full flex-col">
           {/* Logo */}
-          <div className="flex items-center gap-3 border-b border-slate-200 px-6 py-5">
-            <div className="relative h-10 w-10">
-              <Image
-                src="/anatomiQ.png"
-                alt={APP_NAME}
-                width={40}
-                height={40}
-                className="object-contain"
-                priority
-              />
+          <div className="flex items-center justify-between gap-3 border-b border-slate-200 px-6 py-5">
+            <div className="flex items-center gap-3">
+              <div className="relative h-10 w-10">
+                <Image
+                  src="/anatomiQ.png"
+                  alt={APP_NAME}
+                  width={40}
+                  height={40}
+                  className="object-contain"
+                  priority
+                />
+              </div>
+              <div>
+                <div className="text-lg font-bold text-slate-900">{APP_NAME}</div>
+                <div className="text-xs text-slate-500">Anatomy Learning</div>
+              </div>
             </div>
-            <div>
-              <div className="text-lg font-bold text-slate-900">{APP_NAME}</div>
-              <div className="text-xs text-slate-500">Anatomy Learning</div>
-            </div>
+            <NotificationBell />
           </div>
 
           {/* Navigation Links */}
@@ -163,7 +172,8 @@ export function AppNavigation() {
 
       {/* Mobile Top Header (No Menu) */}
       <header className="fixed top-0 z-40 w-full border-b border-slate-200 bg-white/95 backdrop-blur-xl lg:hidden">
-        <div className="flex items-center justify-center px-4 py-3">
+        <div className="flex items-center justify-between px-4 py-3">
+          <div className="h-10 w-10" />
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-9 w-9">
               <Image
@@ -177,6 +187,7 @@ export function AppNavigation() {
             </div>
             <div className="text-base font-bold text-slate-900">{APP_NAME}</div>
           </Link>
+          <NotificationBell />
         </div>
       </header>
 
@@ -201,9 +212,11 @@ export function AppNavigation() {
                   <div className="absolute -top-1 left-1/2 h-1 w-12 -translate-x-1/2 rounded-full bg-gradient-to-r from-[#0969da] to-[#0ca678]" />
                 )}
                 {link.href === "/profile" && avatarUrl ? (
-                  <img
+                  <Image
                     src={avatarUrl}
                     alt=""
+                    width={24}
+                    height={24}
                     className={`h-6 w-6 rounded-full object-cover ring-2 ${active ? "scale-110 ring-[#0969da]" : "ring-slate-200"} transition-transform`}
                   />
                 ) : (

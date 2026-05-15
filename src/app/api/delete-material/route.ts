@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextRequest } from "next/server";
 import { handleRouteError, ok, fail } from "@/lib/api";
 import { authenticateRequest } from "@/lib/auth";
 import { db } from "@/lib/db";

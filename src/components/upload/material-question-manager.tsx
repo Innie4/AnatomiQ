@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useEffectEvent, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   AlertCircle,
   CheckCircle2,
@@ -172,19 +172,63 @@ export function MaterialQuestionManager({
   }, [activeMaterialId, adminKey, viewType]);
 
   useEffect(() => {
-    void loadQuestions();
-  }, [loadQuestions]);
+    let cancelled = false;
+    const materialId = activeMaterialId;
+    const type = viewType;
 
+    if (!materialId || !adminKey.trim()) return;
+
+    const fetchQuestions = async () => {
+      if (cancelled) return;
+      setLoadingQuestions(true);
+      setQuestionMessage(null);
+
+      try {
+        const response = await fetch(`/api/material-questions?materialId=${encodeURIComponent(materialId)}&type=${encodeURIComponent(type)}`, {
+          headers: {
+            "x-admin-upload-key": adminKey,
+          },
+        });
+        const payload = (await response.json()) as { questions?: ManualQuestionRecord[]; error?: string };
+
+        if (cancelled) return;
+
+        if (!response.ok) {
+          throw new Error(payload.error || "Could not load linked manual questions.");
+        }
+
+        const mapped = (payload.questions ?? []).map(toEditableQuestion);
+        setQuestions(mapped);
+        setCurrentQuestionIndex(0);
+        setDraftQuestion(buildEmptyQuestion(Math.max(1, ...mapped.map((question) => question.manualOrder + 1), 1)));
+      } catch (error) {
+        if (cancelled) return;
+        setQuestionMessage({
+          tone: "error",
+          text: error instanceof Error ? error.message : "Could not load linked manual questions.",
+        });
+      } finally {
+        if (!cancelled) setLoadingQuestions(false);
+      }
+    };
+
+    fetchQuestions();
+    return () => { cancelled = true; };
+  }, [activeMaterialId, adminKey, viewType]);
+
+  const prevViewType = useRef(viewType);
   useEffect(() => {
-    // Update draft question type when viewType changes
-    setDraftQuestion((prev) => {
-      if (prev.type === viewType) return prev;
-      return {
-        ...prev,
-        type: viewType,
-        optionsText: viewType === "MCQ" ? prev.optionsText : "",
-      };
-    });
+    if (prevViewType.current !== viewType) {
+      prevViewType.current = viewType;
+      setDraftQuestion((prev) => {
+        if (prev.type === viewType) return prev;
+        return {
+          ...prev,
+          type: viewType,
+          optionsText: viewType === "MCQ" ? prev.optionsText : "",
+        };
+      });
+    }
   }, [viewType]);
 
   const refreshEverything = useCallback(async (search?: string) => {

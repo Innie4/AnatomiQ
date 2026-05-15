@@ -38,42 +38,87 @@ export default function BillingPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
+    const fetchBillingHistory = async () => {
+      try {
+        const token = localStorage.getItem("anatomiq:auth-token");
+        if (!token) {
+          if (!cancelled) router.push("/signin");
+          return;
+        }
+
+        const response = await fetch("/api/billing/history", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        });
+
+        if (!response.ok) {
+          throw new Error("Failed to fetch billing history");
+        }
+
+        const data = await response.json();
+        if (!cancelled) {
+          setPayments(data.payments);
+          setSubscriptions(data.subscriptions);
+        }
+      } catch (err) {
+        if (!cancelled) {
+          setError(err instanceof Error ? err.message : "An unknown error occurred");
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
     fetchBillingHistory();
-  }, []);
-
-  const fetchBillingHistory = async () => {
-    try {
-      const token = localStorage.getItem("token");
-      if (!token) {
-        router.push("/auth/signin");
-        return;
-      }
-
-      const response = await fetch("/api/billing/history", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch billing history");
-      }
-
-      const data = await response.json();
-      setPayments(data.payments);
-      setSubscriptions(data.subscriptions);
-    } catch (err: any) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+    return () => { cancelled = true; };
+  }, [router]);
 
   const formatCurrency = (amount: number, currency: string) => {
     return new Intl.NumberFormat("en-NG", {
       style: "currency",
       currency: currency,
-    }).format(amount / 100);
+    }).format(amount);
+  };
+
+  const downloadInvoice = (payment: Payment) => {
+    const lines = [
+      "AnatomiQ Invoice",
+      `Reference: ${payment.paystackReference}`,
+      `Date: ${formatDate(payment.paidAt || payment.createdAt)}`,
+      `Plan: ${payment.subscription.tier} - ${payment.subscription.billingPeriod}`,
+      `Amount: ${formatCurrency(payment.amount, payment.currency)}`,
+      `Status: ${payment.status}`,
+    ];
+    const body = lines
+      .map((line, index) => `BT /F1 ${index === 0 ? 20 : 12} Tf 72 ${740 - index * 28} Td (${line.replace(/[()\\]/g, "")}) Tj ET`)
+      .join("\n");
+    const objects = [
+      "<< /Type /Catalog /Pages 2 0 R >>",
+      "<< /Type /Pages /Kids [3 0 R] /Count 1 >>",
+      "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 4 0 R >> >> /Contents 5 0 R >>",
+      "<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>",
+      `<< /Length ${body.length} >> stream\n${body}\nendstream`,
+    ];
+    let pdf = "%PDF-1.4\n";
+    const offsets = [0];
+    objects.forEach((object, index) => {
+      offsets.push(pdf.length);
+      pdf += `${index + 1} 0 obj\n${object}\nendobj\n`;
+    });
+    const xrefOffset = pdf.length;
+    pdf += `xref\n0 ${objects.length + 1}\n0000000000 65535 f \n`;
+    pdf += offsets.slice(1).map((offset) => `${String(offset).padStart(10, "0")} 00000 n \n`).join("");
+    pdf += `trailer << /Root 1 0 R /Size ${objects.length + 1} >>\nstartxref\n${xrefOffset}\n%%EOF`;
+    const blob = new Blob([pdf], { type: "application/pdf" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = `anatomiq-invoice-${payment.paystackReference}.pdf`;
+    anchor.click();
+    URL.revokeObjectURL(url);
   };
 
   const formatDate = (dateString: string) => {
@@ -238,10 +283,7 @@ export default function BillingPage() {
                           </td>
                           <td className="px-6 py-4">
                             <button
-                              onClick={() => {
-                                // TODO: Generate and download invoice PDF
-                                alert("Invoice download coming soon!");
-                              }}
+                              onClick={() => downloadInvoice(payment)}
                               className="flex items-center gap-2 text-blue-600 hover:text-blue-700 text-sm font-medium"
                             >
                               <Download className="h-4 w-4" />

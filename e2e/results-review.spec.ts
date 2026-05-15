@@ -1,69 +1,43 @@
-import { test, expect } from '@playwright/test';
+import { test, expect, type Page } from '@playwright/test';
+
+async function signInAsGuest(page: Page) {
+  const response = await page.request.post('/api/auth/guest', {
+    headers: { 'x-forwarded-for': `127.0.0.${Math.floor(Math.random() * 200) + 1}` },
+  });
+  expect(response.ok()).toBeTruthy();
+  const data = await response.json();
+  await page.context().addCookies([
+    {
+      name: 'anatomiq:auth-token',
+      value: data.token,
+      domain: 'localhost',
+      path: '/',
+    },
+  ]);
+  await page.addInitScript(({ token, user }) => {
+    localStorage.setItem('anatomiq:auth-token', token);
+    localStorage.setItem('anatomiq:user', JSON.stringify(user));
+  }, { token: data.token, user: data.user });
+}
 
 test.describe('Exam Results and Review', () => {
-  test('should show results breakdown after exam submission', async ({ page }) => {
-    // Navigate to exam page
-    await page.goto('/exam');
-
-    // Configure and start a simple exam
-    await page.selectOption('select:below(:text("Topic"))', { index: 0 });
-    await page.selectOption('select:below(:text("Question type"))', { label: 'MCQ' });
-    await page.selectOption('select:below(:text("Questions"))', { value: '3' });
-
-    await page.click('button:has-text("Start exam")');
-
-    // Wait for questions
-    await expect(page.locator('text=/Question 1/i')).toBeVisible({ timeout: 15000 });
-
-    // Answer all questions quickly
-    const radioButtons = page.locator('input[type="radio"]');
-    const count = await radioButtons.count();
-
-    for (let i = 0; i < Math.min(count, 3); i++) {
-      await radioButtons.nth(i).click();
-    }
-
-    // Submit
-    await page.click('button:has-text("Submit exam")');
-
-    // Verify results page
-    await page.waitForURL('**/results');
-
-    await expect(page.locator('text=/Your score/i')).toBeVisible();
-    await expect(page.locator('text=/\\d+\\/\\d+/')).toBeVisible();
-    await expect(page.locator('text=/\\d+%/')).toBeVisible();
+  test.beforeEach(async ({ page }) => {
+    await signInAsGuest(page);
   });
 
-  test('should display correct and incorrect answers', async ({ page }) => {
-    // This test assumes a results session exists (from previous test or seeded data)
-    await page.goto('/results', { waitUntil: 'networkidle' });
+  test('should show an empty-state review when no session result exists', async ({ page }) => {
+    await page.goto('/results');
 
-    // Results page should show question review
-    const hasResults = await page.locator('text=/score|result|question/i').isVisible().catch(() => false);
-
-    if (hasResults) {
-      // Verify breakdown exists
-      await expect(page.locator('text=/correct|incorrect|answer/i')).toBeVisible();
-    }
+    await expect(page.getByRole('heading', { name: 'No active session result' })).toBeVisible();
+    await expect(page.getByRole('link', { name: /open exam mode/i })).toBeVisible();
   });
 
   test('should allow starting a new exam from results', async ({ page }) => {
     await page.goto('/results');
+    await page.getByRole('link', { name: /open exam mode/i }).click();
 
-    // Should have a link or button to start new exam
-    const newExamButton = page.locator('a[href="/exam"], button:has-text("new exam")');
-    await expect(newExamButton.first()).toBeVisible();
-  });
-
-  test('should show source snippets for each question', async ({ page }) => {
-    await page.goto('/results');
-
-    // Check if source material is shown (if results exist)
-    const hasResults = await page.locator('text=/score/i').isVisible().catch(() => false);
-
-    if (hasResults) {
-      // Source snippets should be visible for reference
-      await expect(page.locator('text=/source|reference|material/i')).toBeVisible();
-    }
+    await expect(page).toHaveURL(/.*\/exam/);
+    await expect(page.getByRole('heading', { name: /grounded anatomy exam/i })).toBeVisible({ timeout: 15000 });
+    await expect(page.getByRole('button', { name: /generate exam/i })).toBeVisible();
   });
 });

@@ -6,12 +6,20 @@ import { AppLayoutWrapper } from "./app-layout-wrapper";
 import { PWAInstall } from "./pwa-install";
 
 export function ClientLayout({ children }: { children: React.ReactNode }) {
+  const [mounted, setMounted] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [hasShownSplash, setHasShownSplash] = useState(false);
-  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
     setMounted(true);
+
+    // Initialize splash state from sessionStorage on mount
+    const splashShown = sessionStorage.getItem("anatomiq:splash-shown");
+    if (splashShown === "true") {
+      setShowSplash(false);
+      setHasShownSplash(true);
+    }
+
     const applyTheme = (theme: string | null) => {
       const resolvedTheme =
         theme === "dark" ||
@@ -22,13 +30,6 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     };
 
     applyTheme(localStorage.getItem("anatomiq:theme") || "system");
-
-    // Check if splash has been shown in this session
-    const splashShown = sessionStorage.getItem("anatomiq:splash-shown");
-    if (splashShown === "true") {
-      setShowSplash(false);
-      setHasShownSplash(true);
-    }
   }, []);
 
   const handleSplashComplete = () => {

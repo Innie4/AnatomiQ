@@ -40,7 +40,7 @@ export default function AboutPage() {
           <div className="text-slate-700 space-y-4 leading-relaxed">
             <p>
               Founded in 2026, AnatomiQ was born from a simple observation: medical students needed better,
-              more personalized tools to prepare for their anatomy exams. Traditional study methods weren't
+              more personalized tools to prepare for their anatomy exams. Traditional study methods weren&apos;t
               keeping pace with the demands of modern medical education.
             </p>
             <p>

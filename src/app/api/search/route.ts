@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import { db } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 
 export async function GET(request: NextRequest) {
   try {
@@ -30,7 +31,7 @@ export async function GET(request: NextRequest) {
     const searchTerm = query.toLowerCase();
 
     // Search topics
-    const topicWhere: any = {
+    const topicWhere: Prisma.TopicWhereInput = {
       OR: [
         { name: { contains: searchTerm, mode: "insensitive" } },
         { summary: { contains: searchTerm, mode: "insensitive" } },
@@ -59,7 +60,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Search materials
-    const materialWhere: any = {
+    const materialWhere: Prisma.MaterialWhereInput = {
       OR: [
         { title: { contains: searchTerm, mode: "insensitive" } },
         { extractedText: { contains: searchTerm, mode: "insensitive" } },
@@ -95,7 +96,7 @@ export async function GET(request: NextRequest) {
     });
 
     // Search questions
-    const questionWhere: any = {
+    const questionWhere: Prisma.QuestionWhereInput = {
       OR: [
         { stem: { contains: searchTerm, mode: "insensitive" } },
         { answer: { contains: searchTerm, mode: "insensitive" } },
@@ -111,7 +112,7 @@ export async function GET(request: NextRequest) {
       }
     }
     if (type) {
-      questionWhere.type = type;
+      questionWhere.type = type as "MCQ" | "SHORT_ANSWER" | "THEORY";
     }
 
     const questions = await db.question.findMany({

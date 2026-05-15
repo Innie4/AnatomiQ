@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import { db } from "@/lib/db";
+import { generatePaymentReference, initializePaystackPayment } from "@/lib/paystack";
+import { PRICING } from "@/lib/pricing";
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,27 +33,14 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Find current active subscription
-    const currentSubscription = await db.subscription.findFirst({
-      where: {
-        userId: payload.userId,
-        status: "ACTIVE",
-      },
+    const user = await db.facultyUser.findUnique({
+      where: { id: payload.userId },
     });
 
-    if (currentSubscription) {
-      // Cancel current subscription
-      await db.subscription.update({
-        where: { id: currentSubscription.id },
-        data: {
-          status: "CANCELLED",
-          autoRenew: false,
-        },
-      });
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
-    // Create new subscription with PENDING status
-    // (will be activated after payment)
     const newSubscription = await db.subscription.create({
       data: {
         userId: payload.userId,
@@ -62,19 +51,36 @@ export async function POST(request: NextRequest) {
       },
     });
 
-    // TODO: Integrate with Paystack to initiate payment
-    // const paymentUrl = await initiatePaystackPayment({
-    //   email: user.email,
-    //   amount: getSubscriptionAmount(tier, billingPeriod),
-    //   plan: tier,
-    //   metadata: { subscriptionId: newSubscription.id }
-    // });
+    try {
+      const pricing = PRICING[tier as keyof typeof PRICING];
+      const amount = billingPeriod === "MONTHLY" ? pricing.monthly : pricing.annual;
+      const reference = generatePaymentReference();
+      const payment = await initializePaystackPayment({
+        email: user.email,
+        amountInKobo: amount * 100,
+        reference,
+        callbackUrl: `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/payment/callback`,
+        metadata: {
+          userId: user.id,
+          tier,
+          billingPeriod,
+          subscriptionId: newSubscription.id,
+          userFullName: user.fullName,
+        },
+      });
 
-    return NextResponse.json({
-      message: "Subscription upgrade initiated",
-      subscription: newSubscription,
-      // paymentUrl, // Redirect user here to complete payment
-    });
+      return NextResponse.json({
+        message: "Subscription upgrade initiated",
+        subscription: newSubscription,
+        paymentUrl: payment.authorizationUrl,
+        authorizationUrl: payment.authorizationUrl,
+        reference: payment.reference,
+        accessCode: payment.accessCode,
+      });
+    } catch (paymentError) {
+      await db.subscription.delete({ where: { id: newSubscription.id } });
+      throw paymentError;
+    }
   } catch (error) {
     console.error("Upgrade subscription error:", error);
     return NextResponse.json(

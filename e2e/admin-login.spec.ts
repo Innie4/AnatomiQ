@@ -1,12 +1,16 @@
 import { test, expect } from '@playwright/test';
+import { getEnvValue } from './test-env';
 
 test.describe('Admin Login Flow', () => {
+  const adminKey = getEnvValue('ADMIN_UPLOAD_KEY');
+
   test('should login with valid credentials', async ({ page }) => {
+    test.skip(!adminKey, 'ADMIN_UPLOAD_KEY is required for the valid admin login e2e test.');
     await page.goto('/upload');
 
     // Enter admin key
-    await page.fill('input[type="password"]', process.env.ADMIN_UPLOAD_KEY || 'test-key');
-    await page.click('button:has-text("Unlock dashboard")');
+    await page.fill('input[type="password"]', adminKey || '');
+    await page.click('button:has-text("Continue")');
 
     // Verify dashboard loads
     await expect(page.locator('text=Total materials')).toBeVisible();
@@ -17,26 +21,17 @@ test.describe('Admin Login Flow', () => {
     await page.goto('/upload');
 
     await page.fill('input[type="password"]', 'invalid-key-12345');
-    await page.click('button:has-text("Unlock dashboard")');
+    await page.click('button:has-text("Continue")');
 
     // Should show error
     await expect(page.locator('text=/unauthorized|invalid|error/i')).toBeVisible();
   });
 
-  test('should show/hide admin key with eye toggle', async ({ page }) => {
+  test('should keep admin key masked before submit', async ({ page }) => {
     await page.goto('/upload');
 
-    const input = page.locator('input[placeholder*="ADMIN_UPLOAD_KEY"]');
+    const input = page.getByPlaceholder('Enter admin key');
 
-    // Initially password type
-    await expect(input).toHaveAttribute('type', 'password');
-
-    // Click eye icon to show
-    await page.click('button[aria-label*="Show admin key"]');
-    await expect(input).toHaveAttribute('type', 'text');
-
-    // Click again to hide
-    await page.click('button[aria-label*="Hide admin key"]');
     await expect(input).toHaveAttribute('type', 'password');
   });
 });

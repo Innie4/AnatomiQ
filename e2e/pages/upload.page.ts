@@ -9,7 +9,7 @@ export class UploadPage {
 
   async unlockDashboard(adminKey: string) {
     await this.page.fill('input[type="password"]', adminKey);
-    await this.page.click('button:has-text("Unlock dashboard")');
+    await this.page.click('button:has-text("Continue")');
     // Wait for dashboard to load
     await expect(this.page.locator('text=Total materials')).toBeVisible();
   }
@@ -17,10 +17,12 @@ export class UploadPage {
   async fillMaterialForm(data: {
     title: string;
     course: string;
+    courseCode?: string;
     topic: string;
     subtopic?: string;
   }) {
     await this.page.fill('input[aria-label="Material title"]', data.title);
+    await this.page.fill('input[aria-label="Course code"]', data.courseCode || 'ANA101');
     await this.page.fill('input[aria-label="Course name"]', data.course);
     await this.page.fill('input[aria-label="Topic name"]', data.topic);
     if (data.subtopic) {

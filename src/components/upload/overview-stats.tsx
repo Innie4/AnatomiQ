@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Database, CheckCircle2, Layers3, FileChartColumn, RefreshCw, LoaderCircle, AlertCircle } from "lucide-react";
 
 type AdminOverview = {
@@ -32,7 +32,7 @@ export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string;
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  async function loadOverview() {
+  const loadOverview = useCallback(async () => {
     setLoading(true);
     setError("");
     try {
@@ -42,7 +42,6 @@ export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string;
 
       if (!response.ok) {
         if (response.status === 401) {
-          // Invalid admin key - clear it and force re-authentication
           localStorage.removeItem("anatomiq:admin-key");
           sessionStorage.setItem("anatomiq:key-cleared", "true");
           window.location.reload();
@@ -58,13 +57,42 @@ export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string;
     } finally {
       setLoading(false);
     }
-  }
+  }, [adminKey]);
 
   useEffect(() => {
-    if (adminKey && autoLoad) {
-      void loadOverview();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    if (!adminKey || !autoLoad) return;
+    let cancelled = false;
+
+    const fetchOverview = async () => {
+      if (cancelled) return;
+      setLoading(true);
+      setError("");
+      try {
+        const response = await fetch("/api/admin-overview", {
+          headers: { "x-admin-upload-key": adminKey },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("anatomiq:admin-key");
+            sessionStorage.setItem("anatomiq:key-cleared", "true");
+            window.location.reload();
+            return;
+          }
+          throw new Error("Failed to load overview");
+        }
+
+        const data = await response.json();
+        if (!cancelled) setOverview(data);
+      } catch (err) {
+        if (!cancelled) setError(err instanceof Error ? err.message : "Failed to load overview");
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    fetchOverview();
+    return () => { cancelled = true; };
   }, [adminKey, autoLoad]);
 
   if (error) {

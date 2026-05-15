@@ -5,7 +5,7 @@ declare module 'paystack-node' {
     reference?: string;
     currency?: string;
     callback_url?: string;
-    metadata?: Record<string, any>;
+    metadata?: Record<string, unknown>;
     channels?: string[];
     split_code?: string;
     subaccount?: string;
@@ -41,8 +41,8 @@ declare module 'paystack-node' {
         first_name?: string;
         last_name?: string;
       };
-      metadata?: Record<string, any>;
-      [key: string]: any;
+      metadata?: Record<string, unknown>;
+      [key: string]: unknown;
     };
   }
 

@@ -1,7 +1,3 @@
-// Email sending functionality
-// For now, this will log emails to console
-// In production, integrate with SendGrid, AWS SES, or similar service
-
 type EmailData = {
   to: string;
   subject: string;
@@ -9,28 +5,77 @@ type EmailData = {
   text?: string;
 };
 
-/**
- * Send an email (stub for now - logs to console)
- * TODO: Integrate with actual email service in production
- */
-export async function sendEmail(data: EmailData): Promise<boolean> {
-  console.log("📧 Email would be sent:", {
-    to: data.to,
-    subject: data.subject,
-    preview: data.text?.substring(0, 100) || data.html.substring(0, 100),
-  });
+type SendGridPersonalization = {
+  to: Array<{ email: string }>;
+  subject: string;
+};
 
-  // In production, replace with actual email service:
-  // const sgMail = require('@sendgrid/mail');
-  // sgMail.setApiKey(process.env.SENDGRID_API_KEY);
-  // await sgMail.send(data);
+function parseEmailAddress(value: string) {
+  const match = value.match(/^\s*(?:"?([^"<]*)"?\s*)?<([^>]+)>\s*$/);
 
-  return true;
+  if (match) {
+    return {
+      name: match[1]?.trim() || undefined,
+      email: match[2].trim(),
+    };
+  }
+
+  return { email: value.trim() };
 }
 
-/**
- * Send password reset email
- */
+async function sendWithSendGrid(data: EmailData) {
+  const apiKey = process.env.SENDGRID_API_KEY;
+  const from = process.env.EMAIL_FROM;
+
+  if (!apiKey || !from) {
+    throw new Error("Email service is not configured. Set SENDGRID_API_KEY and EMAIL_FROM.");
+  }
+
+  const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+    method: "POST",
+    headers: {
+      Authorization: `Bearer ${apiKey}`,
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      personalizations: [
+        {
+          to: [{ email: data.to }],
+          subject: data.subject,
+        } satisfies SendGridPersonalization,
+      ],
+      from: parseEmailAddress(from),
+      content: [
+        ...(data.text ? [{ type: "text/plain", value: data.text }] : []),
+        { type: "text/html", value: data.html },
+      ],
+    }),
+  });
+
+  if (!response.ok) {
+    const detail = await response.text();
+    throw new Error(`SendGrid email failed with ${response.status}: ${detail}`);
+  }
+}
+
+export async function sendEmail(data: EmailData): Promise<boolean> {
+  try {
+    await sendWithSendGrid(data);
+    return true;
+  } catch (error) {
+    if (process.env.NODE_ENV !== "production") {
+      console.info("[email] Development email fallback", {
+        to: data.to,
+        subject: data.subject,
+        preview: data.text?.slice(0, 100) || data.html.slice(0, 100),
+      });
+      return true;
+    }
+
+    throw error;
+  }
+}
+
 export async function sendPasswordResetEmail(
   email: string,
   resetToken: string,
@@ -43,7 +88,7 @@ export async function sendPasswordResetEmail(
       <h2 style="color: #0969da;">Reset Your Password</h2>
       <p>You requested to reset your password for your AnatomiQ account.</p>
       <p>Click the button below to reset your password:</p>
-      <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #0969da 0%, #0ca678 100%); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Reset Password</a>
+      <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background: #0969da; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Reset Password</a>
       <p>Or copy and paste this link into your browser:</p>
       <p style="color: #666; word-break: break-all;">${resetUrl}</p>
       <p style="color: #999; font-size: 14px; margin-top: 30px;">This link will expire in 1 hour.</p>
@@ -51,8 +96,7 @@ export async function sendPasswordResetEmail(
     </div>
   `;
 
-  const text = `
-Reset Your Password
+  const text = `Reset Your Password
 
 You requested to reset your password for your AnatomiQ account.
 
@@ -61,8 +105,7 @@ ${resetUrl}
 
 This link will expire in 1 hour.
 
-If you didn't request this, you can safely ignore this email.
-  `;
+If you didn't request this, you can safely ignore this email.`;
 
   return sendEmail({
     to: email,
@@ -72,9 +115,6 @@ If you didn't request this, you can safely ignore this email.
   });
 }
 
-/**
- * Send email verification email
- */
 export async function sendVerificationEmail(
   email: string,
   verificationToken: string,
@@ -87,23 +127,21 @@ export async function sendVerificationEmail(
       <h2 style="color: #0969da;">Verify Your Email</h2>
       <p>Welcome to AnatomiQ! Please verify your email address to complete your registration.</p>
       <p>Click the button below to verify your email:</p>
-      <a href="${verifyUrl}" style="display: inline-block; padding: 12px 24px; background: linear-gradient(135deg, #0969da 0%, #0ca678 100%); color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Verify Email</a>
+      <a href="${verifyUrl}" style="display: inline-block; padding: 12px 24px; background: #0969da; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Verify Email</a>
       <p>Or copy and paste this link into your browser:</p>
       <p style="color: #666; word-break: break-all;">${verifyUrl}</p>
       <p style="color: #999; font-size: 14px; margin-top: 30px;">This link will expire in 1 hour.</p>
     </div>
   `;
 
-  const text = `
-Verify Your Email
+  const text = `Verify Your Email
 
 Welcome to AnatomiQ! Please verify your email address to complete your registration.
 
 Click this link to verify your email:
 ${verifyUrl}
 
-This link will expire in 1 hour.
-  `;
+This link will expire in 1 hour.`;
 
   return sendEmail({
     to: email,

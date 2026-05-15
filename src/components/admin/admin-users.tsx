@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { Ban, CheckCircle, LoaderCircle, Search } from "lucide-react";
 
 type User = {
@@ -21,7 +21,7 @@ export function AdminUsers({ adminKey }: { adminKey: string }) {
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
 
-  async function loadUsers() {
+  const loadUsers = useCallback(async () => {
     setLoading(true);
     try {
       const params = searchTerm.trim() ? `?search=${encodeURIComponent(searchTerm.trim())}` : "";
@@ -40,7 +40,7 @@ export function AdminUsers({ adminKey }: { adminKey: string }) {
     } finally {
       setLoading(false);
     }
-  }
+  }, [adminKey, searchTerm]);
 
   async function toggleUserStatus(userId: string, currentStatus: boolean) {
     const response = await fetch(`/api/admin/users/${userId}`, {
@@ -67,7 +67,7 @@ export function AdminUsers({ adminKey }: { adminKey: string }) {
     }, 200);
 
     return () => window.clearTimeout(handle);
-  }, [adminKey, searchTerm]);
+  }, [loadUsers]);
 
   return (
     <div className="space-y-6">

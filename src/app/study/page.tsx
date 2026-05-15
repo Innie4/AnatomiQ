@@ -17,7 +17,9 @@ type Flashcard = {
   id: string;
   question: string;
   answer: string;
+  explanation?: string | null;
   topic: string;
+  course?: string;
   difficulty: string;
 };
 
@@ -32,42 +34,23 @@ export default function StudyModePage() {
 
   const loadFlashcards = useCallback(async () => {
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("anatomiq:auth-token");
       if (!token) {
-        router.push("/auth/signin");
+        router.push("/signin");
         return;
       }
 
-      // TODO: Replace with actual API endpoint
-      // For now, using mock data
-      const mockCards: Flashcard[] = [
-        {
-          id: "1",
-          question: "What are the three layers of the heart wall?",
-          answer:
-            "The three layers are:\n1. Epicardium (outer layer)\n2. Myocardium (middle muscular layer)\n3. Endocardium (inner layer)",
-          topic: "Cardiovascular System",
-          difficulty: "INTERMEDIATE",
-        },
-        {
-          id: "2",
-          question: "Define the anatomical position",
-          answer:
-            "The anatomical position is a standard reference position where the body is standing upright, feet together, arms at the sides with palms facing forward, and head facing forward.",
-          topic: "Basic Anatomy",
-          difficulty: "FOUNDATIONAL",
-        },
-        {
-          id: "3",
-          question: "What is the function of the hippocampus?",
-          answer:
-            "The hippocampus is primarily involved in memory formation and spatial navigation. It plays a crucial role in converting short-term memories into long-term memories.",
-          topic: "Neuroanatomy",
-          difficulty: "ADVANCED",
-        },
-      ];
+      const response = await fetch("/api/flashcards", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      setFlashcards(mockCards);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to load flashcards");
+      }
+
+      const data = await response.json();
+      setFlashcards(data.flashcards || []);
     } catch (err) {
       console.error("Failed to load flashcards:", err);
     } finally {
@@ -116,7 +99,11 @@ export default function StudyModePage() {
     if (!card) return;
 
     setMasteredCards((prev) => new Set(prev).add(card.id));
-    difficultCards.delete(card.id);
+    setDifficultCards((prev) => {
+      const next = new Set(prev);
+      next.delete(card.id);
+      return next;
+    });
     handleNext();
   };
 
@@ -125,7 +112,11 @@ export default function StudyModePage() {
     if (!card) return;
 
     setDifficultCards((prev) => new Set(prev).add(card.id));
-    masteredCards.delete(card.id);
+    setMasteredCards((prev) => {
+      const next = new Set(prev);
+      next.delete(card.id);
+      return next;
+    });
     handleNext();
   };
 
@@ -155,6 +146,18 @@ export default function StudyModePage() {
 
   const currentCard = flashcards[currentIndex];
   const progress = ((currentIndex + 1) / flashcards.length) * 100;
+
+  if (!currentCard) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 px-4 py-16">
+        <div className="mx-auto max-w-3xl rounded-2xl border border-slate-200 bg-white p-8 text-center shadow">
+          <Brain className="mx-auto mb-4 h-12 w-12 text-blue-600" />
+          <h1 className="text-3xl font-bold text-slate-900">No flashcards yet</h1>
+          <p className="mt-3 text-slate-600">Upload and process material, or generate exam questions, to build your study deck.</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 py-16 px-4">
@@ -222,7 +225,7 @@ export default function StudyModePage() {
                     >
                       {currentCard.difficulty}
                     </span>
-                    <span className="text-sm text-slate-600">{currentCard.topic}</span>
+                    <span className="text-sm text-slate-600">{currentCard.course || currentCard.topic}</span>
                   </div>
                   <div className="flex items-center justify-center h-full min-h-[200px]">
                     <p className="text-2xl font-bold text-slate-900 text-center">
@@ -246,6 +249,9 @@ export default function StudyModePage() {
                     <p className="text-lg leading-relaxed whitespace-pre-line">
                       {currentCard.answer}
                     </p>
+                    {currentCard.explanation ? (
+                      <p className="mt-4 text-sm leading-6 text-white/80">{currentCard.explanation}</p>
+                    ) : null}
                   </div>
                 </div>
                 <p className="text-center opacity-90 text-sm">Click to see question</p>

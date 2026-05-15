@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 declare module 'flutterwave-node-v3' {
   interface FlutterwaveConfig {
     public_key: string;
@@ -18,7 +19,7 @@ declare module 'flutterwave-node-v3' {
       description?: string;
       logo?: string;
     };
-    meta?: Record<string, any>;
+    meta?: Record<string, unknown>;
   }
 
   interface PaymentResponse {
@@ -26,7 +27,7 @@ declare module 'flutterwave-node-v3' {
     message: string;
     data: {
       link: string;
-      [key: string]: any;
+      [key: string]: unknown;
     };
   }
 
@@ -48,8 +49,8 @@ declare module 'flutterwave-node-v3' {
         email: string;
         name: string;
       };
-      meta?: Record<string, any>;
-      [key: string]: any;
+      meta?: Record<string, unknown>;
+      [key: string]: unknown;
     };
   }
 

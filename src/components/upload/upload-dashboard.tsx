@@ -120,7 +120,6 @@ export function UploadDashboard() {
       }
       setOverview(payload);
       
-      // Load materials as well
       const matResponse = await fetch("/api/admin-materials", {
         headers: { "x-admin-upload-key": key },
       });
@@ -155,7 +154,6 @@ export function UploadDashboard() {
     setMaterials(payload.materials ?? []);
   }, [adminKey]);
 
-  // Load admin key from sessionStorage and verify access
   useEffect(() => {
     setMounted(true);
     const storedKey = sessionStorage.getItem("anatomiq:admin-key");
@@ -164,7 +162,6 @@ export function UploadDashboard() {
       return;
     }
     setAdminKey(storedKey);
-    // Auto-load overview on mount
     void loadOverviewWithKey(storedKey);
   }, [router, loadOverviewWithKey]);
 

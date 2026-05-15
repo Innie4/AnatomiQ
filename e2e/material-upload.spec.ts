@@ -2,12 +2,16 @@ import { test, expect } from '@playwright/test';
 import { UploadPage } from './pages/upload.page';
 import path from 'path';
 import fs from 'fs';
+import { getEnvValue } from './test-env';
 
 test.describe('Material Upload and Processing', () => {
+  const adminKey = getEnvValue('ADMIN_UPLOAD_KEY');
+  test.skip(!adminKey, 'ADMIN_UPLOAD_KEY is required for material upload e2e tests.');
+
   test.beforeEach(async ({ page }) => {
     const uploadPage = new UploadPage(page);
     await uploadPage.goto();
-    await uploadPage.unlockDashboard(process.env.ADMIN_UPLOAD_KEY || 'test-key');
+    await uploadPage.unlockDashboard(adminKey || '');
   });
 
   test('should display admin dashboard stats', async ({ page }) => {
@@ -36,7 +40,7 @@ test.describe('Material Upload and Processing', () => {
 
   test('should upload a text file and process it', async ({ page }) => {
     // Create a temporary test file
-    const testFilePath = path.join(process.cwd(), 'e2e', 'fixtures', 'test-material.txt');
+    const testFilePath = path.join(process.cwd(), 'test-results', 'e2e-test-material.txt');
     const testFileDir = path.dirname(testFilePath);
 
     if (!fs.existsSync(testFileDir)) {
@@ -74,12 +78,15 @@ test.describe('Material Upload and Processing', () => {
     await uploadPage.waitForProcessingComplete();
 
     // Verify processing stats appear
-    await expect(page.locator('text=Characters')).toBeVisible();
-    await expect(page.locator('text=Chunks')).toBeVisible();
-    await expect(page.locator('text=Method')).toBeVisible();
+    const processingCard = page.getByRole('heading', { name: 'Processing Complete' }).locator('..');
+    await expect(processingCard.getByText('Characters Extracted')).toBeVisible();
+    await expect(processingCard.getByText('Knowledge Chunks')).toBeVisible();
+    await expect(processingCard.getByText('Extraction Method')).toBeVisible();
 
-    // Cleanup
-    fs.unlinkSync(testFilePath);
+    // Cleanup the runtime file, leaving tracked fixtures untouched.
+    if (fs.existsSync(testFilePath)) {
+      fs.unlinkSync(testFilePath);
+    }
   });
 
   test('should display recent materials list', async ({ page }) => {

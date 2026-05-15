@@ -15,6 +15,27 @@ type TopicOption = {
   isSubtopic: boolean;
 };
 
+type ChildTopic = {
+  id: string;
+  slug: string;
+  name: string;
+};
+
+type TopicData = {
+  id: string;
+  slug: string;
+  name: string;
+  childTopics?: ChildTopic[];
+};
+
+type StartExamPayload = {
+  topicSlug: string;
+  subtopicSlug?: string;
+  type: typeof types[number];
+  count: number;
+  durationMinutes?: number;
+};
+
 export function RandomizeExamButton({ className }: { className?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -23,7 +44,6 @@ export function RandomizeExamButton({ className }: { className?: string }) {
     setLoading(true);
 
     try {
-      // Fetch all available topics from API
       const topicsResponse = await fetch("/api/topics");
       if (!topicsResponse.ok) {
         throw new Error("Failed to fetch topics");
@@ -32,10 +52,8 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       const topicsData = await topicsResponse.json();
       const allTopics: TopicOption[] = [];
 
-      // Flatten all topics and subtopics into a single array
       if (topicsData.topics && Array.isArray(topicsData.topics)) {
-        topicsData.topics.forEach((topic: any) => {
-          // Add main topic (topic slug IS the courseSlug)
+        (topicsData.topics as TopicData[]).forEach((topic) => {
           allTopics.push({
             id: topic.id,
             slug: topic.slug,
@@ -44,14 +62,13 @@ export function RandomizeExamButton({ className }: { className?: string }) {
             isSubtopic: false,
           });
 
-          // Add subtopics if they exist (childTopics, not children)
           if (topic.childTopics && Array.isArray(topic.childTopics)) {
-            topic.childTopics.forEach((subtopic: any) => {
+            topic.childTopics.forEach((subtopic) => {
               allTopics.push({
                 id: subtopic.id,
                 slug: subtopic.slug,
                 name: subtopic.name,
-                courseSlug: topic.slug, // Parent topic's slug is the courseSlug
+                courseSlug: topic.slug,
                 isSubtopic: true,
               });
             });
@@ -63,7 +80,6 @@ export function RandomizeExamButton({ className }: { className?: string }) {
         throw new Error("No topics available");
       }
 
-      // Filter topics that have processed material by checking available question types
       const topicsWithMaterial: TopicOption[] = [];
 
       for (const topic of allTopics) {
@@ -76,13 +92,11 @@ export function RandomizeExamButton({ className }: { className?: string }) {
           const availabilityResponse = await fetch(`/api/topic-question-types?${params}`);
           if (availabilityResponse.ok) {
             const data = await availabilityResponse.json();
-            // Only include topics that have at least one available question type
             if (data.availableTypes && data.availableTypes.length > 0) {
               topicsWithMaterial.push(topic);
             }
           }
         } catch {
-          // Skip topics that error out
           continue;
         }
       }
@@ -91,25 +105,21 @@ export function RandomizeExamButton({ className }: { className?: string }) {
         throw new Error("No topics with processed material available. Please upload and process anatomy material first.");
       }
 
-      // Generate random exam parameters from topics with material only
       const randomTopic = topicsWithMaterial[Math.floor(Math.random() * topicsWithMaterial.length)];
       const randomType = types[Math.floor(Math.random() * types.length)];
-      const randomCount = Math.floor(Math.random() * 13) + 8; // 8-20 questions
+      const randomCount = Math.floor(Math.random() * 13) + 8;
       const randomTimer = timerOptions[Math.floor(Math.random() * timerOptions.length)];
 
-      // Build payload based on whether it's a subtopic or main topic
-      const payload: any = {
-        topicSlug: randomTopic.courseSlug, // Always use the parent topic slug
+      const payload: StartExamPayload = {
+        topicSlug: randomTopic.courseSlug,
         type: randomType,
         count: randomCount,
       };
 
-      // Add subtopicSlug only if this is a subtopic
       if (randomTopic.isSubtopic) {
         payload.subtopicSlug = randomTopic.slug;
       }
 
-      // Only add durationMinutes if it's greater than 0
       if (randomTimer > 0) {
         payload.durationMinutes = randomTimer;
       }
@@ -131,10 +141,8 @@ export function RandomizeExamButton({ className }: { className?: string }) {
 
       const examData = await response.json();
 
-      // Store in sessionStorage
       sessionStorage.setItem("anatomiq:active-exam", JSON.stringify(examData));
 
-      // Navigate to exam session
       router.push("/exam-session");
     } catch (error) {
       console.error("Failed to randomize exam:", error);

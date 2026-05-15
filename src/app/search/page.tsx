@@ -85,8 +85,8 @@ function SearchPageContent() {
       const data = await response.json();
       setResults(data.results);
       setCounts(data.counts);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Search failed");
     } finally {
       setLoading(false);
     }

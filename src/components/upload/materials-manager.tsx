@@ -33,35 +33,43 @@ export function MaterialsManager({ adminKey }: { adminKey: string }) {
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
-  async function loadMaterials(query = "") {
-    setLoading(true);
-    try {
-      const url = query
-        ? `/api/admin-materials?q=${encodeURIComponent(query)}`
-        : "/api/admin-materials";
+  useEffect(() => {
+    if (!adminKey) return;
+    let cancelled = false;
 
-      const response = await fetch(url, {
-        headers: { "x-admin-upload-key": adminKey },
-      });
+    const loadMaterials = async (query = "") => {
+      if (cancelled) return;
+      try {
+        const url = query
+          ? `/api/admin-materials?q=${encodeURIComponent(query)}`
+          : "/api/admin-materials";
 
-      if (!response.ok) {
-        if (response.status === 401) {
-          localStorage.removeItem("anatomiq:admin-key");
-          sessionStorage.setItem("anatomiq:key-cleared", "true");
-          window.location.reload();
-          return;
+        const response = await fetch(url, {
+          headers: { "x-admin-upload-key": adminKey },
+        });
+
+        if (!response.ok) {
+          if (response.status === 401) {
+            localStorage.removeItem("anatomiq:admin-key");
+            sessionStorage.setItem("anatomiq:key-cleared", "true");
+            window.location.reload();
+            return;
+          }
+          throw new Error("Failed to load materials");
         }
-        throw new Error("Failed to load materials");
-      }
 
-      const data = await response.json();
-      setMaterials(data.materials || []);
-    } catch (error) {
-      setMessage({ tone: "error", text: toFriendlyError(error) });
-    } finally {
-      setLoading(false);
-    }
-  }
+        const data = await response.json();
+        if (!cancelled) setMaterials(data.materials || []);
+      } catch (error) {
+        if (!cancelled) setMessage({ tone: "error", text: toFriendlyError(error) });
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadMaterials(searchQuery);
+    return () => { cancelled = true; };
+  }, [adminKey, searchQuery]);
 
   async function handleDelete(materialId: string, title: string) {
     if (!confirm(`Are you sure you want to delete "${title}"? This action cannot be undone.`)) {
@@ -87,19 +95,13 @@ export function MaterialsManager({ adminKey }: { adminKey: string }) {
       }
 
       setMessage({ tone: "success", text: `"${title}" deleted successfully.` });
-      await loadMaterials(searchQuery);
+      setMaterials(prev => prev.filter(m => m.id !== materialId));
     } catch (error) {
       setMessage({ tone: "error", text: toFriendlyError(error) });
     } finally {
       setDeletingId(null);
     }
   }
-
-  useEffect(() => {
-    if (adminKey) {
-      void loadMaterials();
-    }
-  }, [adminKey]);
 
   return (
     <div className="space-y-6">
@@ -138,7 +140,6 @@ export function MaterialsManager({ adminKey }: { adminKey: string }) {
             value={searchQuery}
             onChange={(e) => {
               setSearchQuery(e.target.value);
-              void loadMaterials(e.target.value);
             }}
             placeholder="Search materials by title, topic, or subtopic..."
             className="flex-1 bg-transparent outline-none placeholder:text-slate-400"

@@ -33,6 +33,7 @@ import { sampleArray, sha256 } from "@/lib/utils";
 type TopicSelection = {
   courseId: string;
   courseName: string;
+  courseSlug: string;
   topicId: string;
   topicName: string;
   subtopicId?: string | null;
@@ -149,6 +150,7 @@ async function findSelection(topicSlug: string, subtopicSlug?: string) {
   return {
     courseId: topic.courseId,
     courseName: topic.course.name,
+    courseSlug: topic.course.slug,
     topicId: topic.id,
     topicName: topic.name,
     subtopicId: subtopic?.id,

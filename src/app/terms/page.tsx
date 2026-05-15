@@ -16,7 +16,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">1. Acceptance of Terms</h2>
             <p className="text-slate-700 leading-relaxed">
-              By accessing and using AnatomiQ ("the Service"), you accept and agree to be bound by these Terms of Service.
+              By accessing and using AnatomiQ (&quot;the Service&quot;), you accept and agree to be bound by these Terms of Service.
               If you do not agree to these terms, please do not use the Service. We reserve the right to modify these terms
               at any time, and your continued use constitutes acceptance of any changes.
             </p>
@@ -57,7 +57,7 @@ export default function TermsPage() {
               AnatomiQ offers both free and paid subscription tiers. Paid subscriptions are billed monthly or annually
               as selected. You authorize us to charge your payment method for all fees. Subscriptions automatically renew
               unless canceled before the renewal date. Refunds are provided at our discretion and only for unused portions
-              of paid subscriptions. We reserve the right to change pricing with 30 days' notice.
+              of paid subscriptions. We reserve the right to change pricing with 30 days&apos; notice.
             </p>
           </section>
 
@@ -84,7 +84,7 @@ export default function TermsPage() {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">7. Limitation of Liability</h2>
             <p className="text-slate-700 leading-relaxed">
-              AnatomiQ is provided "as is" without warranties of any kind. We are not liable for any indirect, incidental,
+              AnatomiQ is provided &quot;as is&quot; without warranties of any kind. We are not liable for any indirect, incidental,
               special, or consequential damages arising from your use of the Service, including but not limited to exam
               performance, lost data, or service interruptions. Our total liability shall not exceed the amount you paid
               for the Service in the past 12 months.

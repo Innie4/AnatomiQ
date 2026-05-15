@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { verifyToken } from "@/lib/auth";
 import { db } from "@/lib/db";
+import type { Prisma } from "@prisma/client";
 
 // GET /api/exam-results - Retrieve user's exam history
 export async function GET(request: NextRequest) {
@@ -20,7 +21,7 @@ export async function GET(request: NextRequest) {
     const courseSlug = searchParams.get("courseSlug");
     const limit = parseInt(searchParams.get("limit") || "50");
 
-    const where: any = { userId: payload.userId };
+    const where: Prisma.ExamResultWhereInput = { userId: payload.userId };
     if (courseSlug) {
       where.courseSlug = courseSlug;
     }

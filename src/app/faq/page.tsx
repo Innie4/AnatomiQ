@@ -37,7 +37,7 @@ export default function FAQPage() {
         },
         {
           q: "Are exam results saved?",
-          a: "Currently, results are session-only for privacy. A premium feature for saving exam history is coming soon.",
+          a: "Yes. Signed-in users have completed exam results saved to their History page, while the immediate review screen remains available after submission.",
         },
       ],
     },

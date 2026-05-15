@@ -32,9 +32,9 @@ export default function ContactPage() {
 
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch (error: any) {
+    } catch (error) {
       setStatus("error");
-      setErrorMessage(error.message);
+      setErrorMessage(error instanceof Error ? error.message : "Failed to send message");
     }
   };
 
@@ -52,7 +52,7 @@ export default function ContactPage() {
           <Mail className="h-16 w-16 text-blue-600 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-slate-900 mb-4">Contact Us</h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Have a question or feedback? We'd love to hear from you. Send us a message and we'll respond as soon as possible.
+            Have a question or feedback? We&apos;d love to hear from you. Send us a message and we&apos;ll respond as soon as possible.
           </p>
         </div>
 
@@ -82,7 +82,7 @@ export default function ContactPage() {
               </div>
               <h2 className="text-2xl font-bold text-slate-900 mb-2">Message Sent!</h2>
               <p className="text-slate-600 mb-6">
-                Thank you for contacting us. We'll get back to you within 24-48 hours.
+                Thank you for contacting us. We&apos;ll get back to you within 24-48 hours.
               </p>
               <button
                 onClick={() => setStatus("idle")}

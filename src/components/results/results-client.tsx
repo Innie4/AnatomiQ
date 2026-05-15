@@ -6,6 +6,7 @@ import { useEffect, useState } from "react";
 type StoredResult = {
   submittedAt: string;
   timedOut: boolean;
+  savedResult?: boolean;
   selection: {
     topicName: string;
     subtopicName?: string | null;
@@ -46,7 +47,8 @@ export function ResultsClient() {
     setMounted(true);
     const raw = sessionStorage.getItem("anatomiq:last-result");
     if (raw) {
-      setResult(JSON.parse(raw) as StoredResult);
+      const parsed = JSON.parse(raw) as StoredResult;
+      setResult(parsed);
     }
   }, []);
 
@@ -86,7 +88,8 @@ export function ResultsClient() {
           {result.selection.subtopicName ? ` / ${result.selection.subtopicName}` : ""}
         </h1>
         <p className="mt-3 text-base leading-7 text-slate-600">
-          Submitted {new Date(result.submittedAt).toLocaleString()}. This review lives only in your current browser session.
+          Submitted {new Date(result.submittedAt).toLocaleString()}.
+          {result.savedResult ? " This result has been saved to your exam history." : " This review is available in your current browser session."}
         </p>
 
         {result.grade ? (

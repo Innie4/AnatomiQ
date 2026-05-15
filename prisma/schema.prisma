@@ -17,8 +17,8 @@ model AnalyticsCounter {
   questionType QuestionType?
   count        Int           @default(0)
   createdAt    DateTime      @default(now())
-  updatedAt DateTime      @updatedAt
-  topic     Topic?        @relation(fields: [topicId], references: [id], onDelete: Cascade)
+  updatedAt    DateTime      @updatedAt
+  topic        Topic?        @relation(fields: [topicId], references: [id], onDelete: Cascade)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -31,8 +31,8 @@ model AuditLog {
   details       String?
   ipAddress     String?
   userAgent     String?
-  createdAt   DateTime    @default(now())
-  facultyUser FacultyUser @relation(fields: [facultyUserId], references: [id], onDelete: Cascade)
+  createdAt     DateTime    @default(now())
+  facultyUser   FacultyUser @relation(fields: [facultyUserId], references: [id], onDelete: Cascade)
 
   @@index([action, createdAt])
   @@index([facultyUserId, createdAt])
@@ -41,14 +41,14 @@ model AuditLog {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Concept {
-  id                              String        @id @default(uuid())
-  name                            String
-  slug                            String
-  scopeKey                        String        @unique
-  description                     String?
-  aliases                         String?
-  topicId                         String
-  subtopicId                      String?
+  id          String        @id @default(uuid())
+  name        String
+  slug        String
+  scopeKey    String        @unique
+  description String?
+  aliases     String?
+  topicId     String
+  subtopicId  String?
   createdAt   DateTime      @default(now())
   updatedAt   DateTime      @updatedAt
   subtopic    Topic?        @relation("Concept_subtopicIdToTopic", fields: [subtopicId], references: [id])
@@ -63,45 +63,45 @@ model ConceptFact {
   chunkId       String
   fact          String
   sourceSnippet String?
-  createdAt DateTime     @default(now())
-  chunk     ContentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
-  concept   Concept      @relation(fields: [conceptId], references: [id], onDelete: Cascade)
+  createdAt     DateTime     @default(now())
+  chunk         ContentChunk @relation(fields: [chunkId], references: [id], onDelete: Cascade)
+  concept       Concept      @relation(fields: [conceptId], references: [id], onDelete: Cascade)
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ContentChunk {
-  id                                   String        @id @default(uuid())
-  materialId                           String
-  topicId                              String
-  subtopicId                           String?
-  sequence                             Int
-  heading                              String?
-  text                                 String
-  conceptSummary                       String?
-  tokenEstimate                        Int?
-  sourceHash                           String
-  embedding                            String?
-  citations                            String?
-  createdAt   DateTime      @default(now())
-  ConceptFact ConceptFact[]
-  material    Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
-  subtopic    Topic?        @relation("ContentChunk_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  topic       Topic         @relation("ContentChunk_topicIdToTopic", fields: [topicId], references: [id])
+  id             String        @id @default(uuid())
+  materialId     String
+  topicId        String
+  subtopicId     String?
+  sequence       Int
+  heading        String?
+  text           String
+  conceptSummary String?
+  tokenEstimate  Int?
+  sourceHash     String
+  embedding      String?
+  citations      String?
+  createdAt      DateTime      @default(now())
+  ConceptFact    ConceptFact[]
+  material       Material      @relation(fields: [materialId], references: [id], onDelete: Cascade)
+  subtopic       Topic?        @relation("ContentChunk_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic          Topic         @relation("ContentChunk_topicIdToTopic", fields: [topicId], references: [id])
 
   @@unique([materialId, sequence])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Course {
-  id          String     @id @default(uuid())
-  code        String     @unique
+  id          String         @id @default(uuid())
+  code        String         @unique
   name        String
-  slug        String     @unique
+  slug        String         @unique
   semester    CourseSemester @default(FIRST)
-  department  String     @default("Human Anatomy")
+  department  String         @default("Human Anatomy")
   description String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
   Material    Material[]
   Question    Question[]
   Topic       Topic[]
@@ -114,79 +114,80 @@ enum CourseSemester {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model FacultyUser {
-  id                String         @id @default(uuid())
-  email             String         @unique
-  passwordHash      String?
-  fullName          String
-  department        String         @default("Human Anatomy")
-  faculty           String?
-  course            String?
-  isActive          Boolean        @default(true)
-  isGuest           Boolean        @default(false)
-  googleId          String?        @unique
-  facebookId        String?        @unique
-  avatarUrl         String?
-  themePreference   String         @default("system")
-  emailNotifications Boolean       @default(true)
-  referralNotifications Boolean    @default(true)
-  subscriptionNotifications Boolean @default(true)
-  requiresProfileCompletion Boolean @default(false)
-  referralCode      String?        @unique
-  referredBy        String?
-  referralCount     Int            @default(0)
-  selectedCourses   String[]       @default([])
-  resetToken        String?        @unique
-  resetTokenExpiry  DateTime?
-  emailVerified     Boolean        @default(false)
-  verificationToken String?        @unique
-  createdAt         DateTime       @default(now())
-  updatedAt         DateTime       @updatedAt
-  AuditLog          AuditLog[]
-  Subscription      Subscription[]
-  ReferralsGiven    Referral[]     @relation("ReferrerRelation")
-  ReferralReceived  Referral?      @relation("ReferredUserRelation")
-  ExamResults       ExamResult[]
-  Notifications     Notification[]
+  id                        String         @id @default(uuid())
+  email                     String         @unique
+  passwordHash              String?
+  fullName                  String
+  department                String         @default("Human Anatomy")
+  faculty                   String?
+  course                    String?
+  isActive                  Boolean        @default(true)
+  isGuest                   Boolean        @default(false)
+  googleId                  String?        @unique
+  facebookId                String?        @unique
+  avatarUrl                 String?
+  themePreference           String         @default("system")
+  emailNotifications        Boolean        @default(true)
+  referralNotifications     Boolean        @default(true)
+  subscriptionNotifications Boolean        @default(true)
+  requiresProfileCompletion Boolean        @default(false)
+  referralCode              String?        @unique
+  referredBy                String?
+  referralCount             Int            @default(0)
+  selectedCourses           String[]       @default([])
+  resetToken                String?        @unique
+  resetTokenExpiry          DateTime?
+  emailVerified             Boolean        @default(false)
+  verificationToken         String?        @unique
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+  AuditLog                  AuditLog[]
+  Subscription              Subscription[]
+  ReferralsGiven            Referral[]     @relation("ReferrerRelation")
+  ReferralReceived          Referral?      @relation("ReferredUserRelation")
+  ExamResults               ExamResult[]
+  Notifications             Notification[]
 
   @@index([referredBy])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Subscription {
-  id                    String           @id @default(uuid())
-  userId                String
-  tier                  SubscriptionTier @default(FREE)
-  billingPeriod         BillingPeriod    @default(MONTHLY)
-  status                SubscriptionStatus @default(ACTIVE)
-  startDate             DateTime         @default(now())
-  endDate               DateTime?
-  autoRenew             Boolean          @default(true)
-  paystackCustomerCode  String?
+  id                       String             @id @default(uuid())
+  userId                   String
+  tier                     SubscriptionTier   @default(FREE)
+  billingPeriod            BillingPeriod      @default(MONTHLY)
+  status                   SubscriptionStatus @default(ACTIVE)
+  startDate                DateTime           @default(now())
+  endDate                  DateTime?
+  autoRenew                Boolean            @default(true)
+  paystackCustomerCode     String?
   paystackSubscriptionCode String?
-  lastPaymentDate       DateTime?
-  nextPaymentDate       DateTime?
-  amountPaid            Int?
-  currency              String           @default("NGN")
-  createdAt             DateTime         @default(now())
-  updatedAt             DateTime         @updatedAt
-  user                  FacultyUser      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  PaymentHistory        PaymentHistory[]
+  paystackEmailToken       String?
+  lastPaymentDate          DateTime?
+  nextPaymentDate          DateTime?
+  amountPaid               Int?
+  currency                 String             @default("NGN")
+  createdAt                DateTime           @default(now())
+  updatedAt                DateTime           @updatedAt
+  user                     FacultyUser        @relation(fields: [userId], references: [id], onDelete: Cascade)
+  PaymentHistory           PaymentHistory[]
 
   @@index([userId, status])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model PaymentHistory {
-  id                String       @id @default(uuid())
+  id                String        @id @default(uuid())
   subscriptionId    String
   userId            String
   amount            Int
-  currency          String       @default("NGN")
+  currency          String        @default("NGN")
   status            PaymentStatus
-  paystackReference String       @unique
+  paystackReference String        @unique
   paidAt            DateTime?
-  createdAt         DateTime     @default(now())
-  subscription      Subscription @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
+  createdAt         DateTime      @default(now())
+  subscription      Subscription  @relation(fields: [subscriptionId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([paystackReference])
@@ -194,14 +195,14 @@ model PaymentHistory {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Referral {
-  id              String         @id @default(uuid())
-  referrerId      String
-  referredUserId  String         @unique
-  status          ReferralStatus @default(PENDING)
-  createdAt       DateTime       @default(now())
-  completedAt     DateTime?
-  referrer        FacultyUser    @relation("ReferrerRelation", fields: [referrerId], references: [id], onDelete: Cascade)
-  referredUser    FacultyUser    @relation("ReferredUserRelation", fields: [referredUserId], references: [id], onDelete: Cascade)
+  id             String         @id @default(uuid())
+  referrerId     String
+  referredUserId String         @unique
+  status         ReferralStatus @default(PENDING)
+  createdAt      DateTime       @default(now())
+  completedAt    DateTime?
+  referrer       FacultyUser    @relation("ReferrerRelation", fields: [referrerId], references: [id], onDelete: Cascade)
+  referredUser   FacultyUser    @relation("ReferredUserRelation", fields: [referredUserId], references: [id], onDelete: Cascade)
 
   @@index([referrerId])
   @@index([referredUserId])
@@ -239,58 +240,58 @@ enum PaymentStatus {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Material {
-  id                               String         @id @default(uuid())
-  title                            String
-  fileName                         String
-  fileType                         String
-  mimeType                         String
-  kind                             MaterialKind
-  courseId                         String
-  topicId                          String
-  subtopicId                       String?
-  storageKey                       String
-  storageUrl                       String
-  extractedText                    String?
-  extractedHash                    String?
-  status                           MaterialStatus @default(UPLOADED)
-  processingNotes                  String?
-  metadata                         String?
-  sourcePages                      Int?
-  createdAt                        DateTime       @default(now())
-  updatedAt                        DateTime       @updatedAt
-  ContentChunk ContentChunk[]
-  course       Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  subtopic     Topic?         @relation("Material_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  topic        Topic          @relation("Material_topicIdToTopic", fields: [topicId], references: [id])
-  Question     Question[]
+  id              String         @id @default(uuid())
+  title           String
+  fileName        String
+  fileType        String
+  mimeType        String
+  kind            MaterialKind
+  courseId        String
+  topicId         String
+  subtopicId      String?
+  storageKey      String
+  storageUrl      String
+  extractedText   String?
+  extractedHash   String?
+  status          MaterialStatus @default(UPLOADED)
+  processingNotes String?
+  metadata        String?
+  sourcePages     Int?
+  createdAt       DateTime       @default(now())
+  updatedAt       DateTime       @updatedAt
+  ContentChunk    ContentChunk[]
+  course          Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  subtopic        Topic?         @relation("Material_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic           Topic          @relation("Material_topicIdToTopic", fields: [topicId], references: [id])
+  Question        Question[]
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Question {
-  id                               String                @id @default(uuid())
-  courseId                         String
-  topicId                          String
-  subtopicId                       String?
-  materialId                       String?
-  type                             QuestionType
-  stem                             String
-  options                          String?
-  answer                           String
-  explanation                      String?
-  difficulty                       Difficulty
-  authoringMode                    QuestionAuthoringMode @default(GENERATED)
-  sourceChunkIds                   String
-  sourceSnippet                    String
-  questionHash                     String                @unique
-  textFingerprint                  String?
-  embedding                        String?
-  createdAt                        DateTime              @default(now())
-  updatedAt                        DateTime              @updatedAt
-  manualOrder Int?
-  course      Course    @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  material    Material? @relation(fields: [materialId], references: [id])
-  subtopic    Topic?    @relation("Question_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  topic       Topic     @relation("Question_topicIdToTopic", fields: [topicId], references: [id])
+  id              String                @id @default(uuid())
+  courseId        String
+  topicId         String
+  subtopicId      String?
+  materialId      String?
+  type            QuestionType
+  stem            String
+  options         String?
+  answer          String
+  explanation     String?
+  difficulty      Difficulty
+  authoringMode   QuestionAuthoringMode @default(GENERATED)
+  sourceChunkIds  String
+  sourceSnippet   String
+  questionHash    String                @unique
+  textFingerprint String?
+  embedding       String?
+  createdAt       DateTime              @default(now())
+  updatedAt       DateTime              @updatedAt
+  manualOrder     Int?
+  course          Course                @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  material        Material?             @relation(fields: [materialId], references: [id])
+  subtopic        Topic?                @relation("Question_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic           Topic                 @relation("Question_topicIdToTopic", fields: [topicId], references: [id])
 
   @@unique([materialId, manualOrder])
   @@index([materialId, manualOrder])
@@ -301,28 +302,28 @@ model Question {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Topic {
-  id                                          String             @id @default(uuid())
-  name                                        String
-  slug                                        String             @unique
-  summary                                     String?
-  level                                       Int                @default(0)
-  isSystem                                    Boolean            @default(false)
-  courseId                                    String
-  parentTopicId                               String?
-  createdAt                                   DateTime           @default(now())
-  updatedAt                                   DateTime           @updatedAt
-  AnalyticsCounter                            AnalyticsCounter[]
-  conceptsAsSubtopic                          Concept[]          @relation("Concept_subtopicIdToTopic")
-  conceptsAsTopic                             Concept[]          @relation("Concept_topicIdToTopic")
-  chunksAsSubtopic                            ContentChunk[]     @relation("ContentChunk_subtopicIdToTopic")
-  chunksAsTopic                               ContentChunk[]     @relation("ContentChunk_topicIdToTopic")
-  materialsAsSubtopic                         Material[]         @relation("Material_subtopicIdToTopic")
-  materials                                   Material[]         @relation("Material_topicIdToTopic")
-  questionsAsSubtopic                         Question[]         @relation("Question_subtopicIdToTopic")
-  questions                                   Question[]         @relation("Question_topicIdToTopic")
-  course                                      Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  parentTopic                                 Topic?             @relation("TopicToTopic", fields: [parentTopicId], references: [id])
-  childTopics                                 Topic[]            @relation("TopicToTopic")
+  id                  String             @id @default(uuid())
+  name                String
+  slug                String             @unique
+  summary             String?
+  level               Int                @default(0)
+  isSystem            Boolean            @default(false)
+  courseId            String
+  parentTopicId       String?
+  createdAt           DateTime           @default(now())
+  updatedAt           DateTime           @updatedAt
+  AnalyticsCounter    AnalyticsCounter[]
+  conceptsAsSubtopic  Concept[]          @relation("Concept_subtopicIdToTopic")
+  conceptsAsTopic     Concept[]          @relation("Concept_topicIdToTopic")
+  chunksAsSubtopic    ContentChunk[]     @relation("ContentChunk_subtopicIdToTopic")
+  chunksAsTopic       ContentChunk[]     @relation("ContentChunk_topicIdToTopic")
+  materialsAsSubtopic Material[]         @relation("Material_subtopicIdToTopic")
+  materials           Material[]         @relation("Material_topicIdToTopic")
+  questionsAsSubtopic Question[]         @relation("Question_subtopicIdToTopic")
+  questions           Question[]         @relation("Question_topicIdToTopic")
+  course              Course             @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  parentTopic         Topic?             @relation("TopicToTopic", fields: [parentTopicId], references: [id])
+  childTopics         Topic[]            @relation("TopicToTopic")
 
   @@unique([courseId, name, parentTopicId])
 }
@@ -365,18 +366,18 @@ enum QuestionType {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model ExamResult {
-  id              String      @id @default(uuid())
-  userId          String
-  courseSlug      String
-  topicSlug       String
-  subtopicSlug    String?
-  type            String
-  score           Float
-  totalQuestions  Int
-  correctAnswers  Int
-  duration        Int
-  completedAt     DateTime    @default(now())
-  user            FacultyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  id             String      @id @default(uuid())
+  userId         String
+  courseSlug     String
+  topicSlug      String
+  subtopicSlug   String?
+  type           String
+  score          Float
+  totalQuestions Int
+  correctAnswers Int
+  duration       Int
+  completedAt    DateTime    @default(now())
+  user           FacultyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@index([userId])
   @@index([userId, completedAt])
@@ -403,4 +404,25 @@ model Notification {
 
   @@index([userId])
   @@index([userId, read])
+}
+
+enum ContactMessageStatus {
+  NEW
+  REVIEWED
+  RESOLVED
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model ContactMessage {
+  id        String               @id @default(uuid())
+  name      String
+  email     String
+  subject   String
+  message   String
+  status    ContactMessageStatus @default(NEW)
+  createdAt DateTime             @default(now())
+  updatedAt DateTime             @updatedAt
+
+  @@index([email])
+  @@index([status, createdAt])
 }

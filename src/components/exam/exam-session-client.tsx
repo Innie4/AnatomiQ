@@ -18,6 +18,7 @@ type ExamQuestion = {
 
 type ExamData = {
   selection: {
+    courseSlug: string;
     topicName: string;
     subtopicName?: string | null;
   };
@@ -71,7 +72,9 @@ export function ExamSessionClient() {
     try {
       const data = JSON.parse(stored) as ExamData;
       setExamData(data);
-      setTimeLeft(data.config.durationMinutes > 0 ? data.config.durationMinutes * 60 : null);
+      if (data.config.durationMinutes > 0) {
+        setTimeLeft(data.config.durationMinutes * 60);
+      }
     } catch {
       router.push("/exam");
     }
@@ -152,11 +155,40 @@ export function ExamSessionClient() {
         throw new Error(gradePayload.error || "Could not grade this exam.");
       }
 
+      const token = localStorage.getItem("anatomiq:auth-token");
+      const duration =
+        examData.config.durationMinutes > 0 && typeof timeLeft === "number"
+          ? examData.config.durationMinutes * 60 - timeLeft
+          : 0;
+      let savedResult = false;
+
+      if (token) {
+        const saveResponse = await fetch("/api/exam-results", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify({
+            courseSlug: examData.selection.courseSlug,
+            topicSlug: examData.config.topicSlug,
+            subtopicSlug: examData.config.subtopicSlug || null,
+            type: examData.config.type,
+            score: gradePayload.percentage,
+            totalQuestions: gradePayload.total,
+            correctAnswers: gradePayload.score,
+            duration,
+          }),
+        });
+        savedResult = saveResponse.ok;
+      }
+
       sessionStorage.setItem(
         "anatomiq:last-result",
         JSON.stringify({
           submittedAt: new Date().toISOString(),
           timedOut,
+          savedResult,
           config: examData.config,
           selection: examData.selection,
           questions: examData.questions,

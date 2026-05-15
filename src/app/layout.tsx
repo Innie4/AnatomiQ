@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { IBM_Plex_Mono, Newsreader, Plus_Jakarta_Sans } from "next/font/google";
 
 import { APP_NAME, APP_TAGLINE } from "@/lib/constants";
@@ -37,17 +37,18 @@ export const metadata: Metadata = {
     apple: "/anatomiQ.png",
   },
   manifest: "/manifest.json",
-  themeColor: "#0969da",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
     title: APP_NAME,
   },
-  viewport: {
-    width: "device-width",
-    initialScale: 1,
-    maximumScale: 1,
-  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#0969da",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
 };
 
 export default function RootLayout({

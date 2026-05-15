@@ -26,64 +26,25 @@ export default function LeaderboardPage() {
 
   const fetchLeaderboard = useCallback(async () => {
     setLoading(true);
+    setError("");
     try {
-      const token = localStorage.getItem("token");
+      const token = localStorage.getItem("anatomiq:auth-token");
       if (!token) {
-        router.push("/auth/signin");
+        router.push("/signin");
         return;
       }
 
-      // TODO: Replace with actual API endpoint
-      // For now, using mock data
-      const mockData: LeaderboardEntry[] = [
-        {
-          rank: 1,
-          userId: "1",
-          fullName: "Ada Obi",
-          department: "Human Anatomy",
-          score: 9850,
-          examsCompleted: 45,
-          avgScore: 92.5,
-        },
-        {
-          rank: 2,
-          userId: "2",
-          fullName: "Chukwuma Nwosu",
-          department: "Physiology",
-          score: 9200,
-          examsCompleted: 42,
-          avgScore: 89.8,
-        },
-        {
-          rank: 3,
-          userId: "3",
-          fullName: "Blessing Eze",
-          department: "Biochemistry",
-          score: 8750,
-          examsCompleted: 38,
-          avgScore: 88.2,
-        },
-        {
-          rank: 4,
-          userId: "4",
-          fullName: "Emmanuel Udoh",
-          department: "Pharmacology",
-          score: 8500,
-          examsCompleted: 40,
-          avgScore: 87.5,
-        },
-        {
-          rank: 5,
-          userId: "5",
-          fullName: "Grace Okoro",
-          department: "Human Anatomy",
-          score: 8200,
-          examsCompleted: 36,
-          avgScore: 86.1,
-        },
-      ];
+      const response = await fetch(`/api/leaderboard?period=${period}`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
 
-      setLeaderboard(mockData);
+      if (!response.ok) {
+        const data = await response.json();
+        throw new Error(data.error || "Failed to load leaderboard");
+      }
+
+      const data = await response.json();
+      setLeaderboard(data.leaderboard || []);
     } catch (err) {
       setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
@@ -185,6 +146,12 @@ export default function LeaderboardPage() {
             All Time
           </button>
         </div>
+
+        {leaderboard.length === 0 && (
+          <div className="mb-8 rounded-2xl border border-slate-200 bg-white p-8 text-center shadow-lg">
+            <p className="text-slate-600">No saved exam results for this period yet.</p>
+          </div>
+        )}
 
         {/* Top 3 Podium */}
         {leaderboard.length >= 3 && (

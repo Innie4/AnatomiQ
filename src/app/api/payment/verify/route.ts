@@ -8,6 +8,7 @@ type PaystackVerificationMetadata = {
   userId?: unknown;
   tier?: unknown;
   billingPeriod?: unknown;
+  subscriptionId?: unknown;
 };
 
 function parseSubscriptionTier(value: unknown) {
@@ -58,6 +59,7 @@ export async function GET(request: NextRequest) {
     const userId = typeof typedMetadata.userId === "string" ? typedMetadata.userId : null;
     const tier = parseSubscriptionTier(typedMetadata.tier);
     const billingPeriod = parseBillingPeriod(typedMetadata.billingPeriod);
+    const subscriptionId = typeof typedMetadata.subscriptionId === "string" ? typedMetadata.subscriptionId : null;
     const paidAt = typeof paid_at === "string" ? new Date(paid_at) : new Date();
     const amountPaid = typeof amount === "number" ? amount / 100 : 0;
     const customerCode =
@@ -80,11 +82,22 @@ export async function GET(request: NextRequest) {
 
     const nextPaymentDate = new Date(endDate);
 
-    // Create or update subscription
-    const existingSubscription = await db.subscription.findFirst({
+    await db.subscription.updateMany({
       where: {
         userId,
         status: "ACTIVE",
+        ...(subscriptionId ? { id: { not: subscriptionId } } : {}),
+      },
+      data: {
+        status: "CANCELLED",
+        autoRenew: false,
+      },
+    });
+
+    const existingSubscription = await db.subscription.findFirst({
+      where: {
+        userId,
+        ...(subscriptionId ? { id: subscriptionId } : { status: "PENDING" }),
       },
     });
 

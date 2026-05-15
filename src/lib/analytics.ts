@@ -1,4 +1,4 @@
-import { CounterMetric, type QuestionType } from "@prisma/client";
+import { CounterMetric, type Prisma, type QuestionType } from "@prisma/client";
 
 import { db } from "@/lib/db";
 import { hasDatabase } from "@/lib/env";
@@ -15,7 +15,7 @@ export async function incrementCounter(params: {
   const key = `${params.metric}:${params.topicId ?? "none"}:${params.questionType ?? "all"}`;
 
   try {
-    const createData: Record<string, unknown> = {
+    const createData: Prisma.AnalyticsCounterUncheckedCreateInput = {
       key,
       metric: params.metric,
       count: 1,
@@ -34,7 +34,7 @@ export async function incrementCounter(params: {
       update: {
         count: { increment: 1 },
       },
-      create: createData as any,
+      create: createData,
     });
   } catch (error) {
     console.error("Skipping analytics counter update because the database is unavailable.", error);

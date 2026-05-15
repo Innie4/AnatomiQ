@@ -19,28 +19,33 @@ function QuestionsPageContent({ adminKey }: { adminKey: string }) {
   const [materials, setMaterials] = useState<MaterialOption[]>([]);
   const [loading, setLoading] = useState(false);
 
-  async function loadMaterials(search = "") {
-    setLoading(true);
-    try {
-      const url = search
-        ? `/api/admin-materials?q=${encodeURIComponent(search)}`
-        : "/api/admin-materials";
-
-      const response = await fetch(url, {
-        headers: { "x-admin-upload-key": adminKey },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setMaterials(data.materials || []);
-      }
-    } finally {
-      setLoading(false);
-    }
-  }
-
   useEffect(() => {
-    void loadMaterials();
+    if (!adminKey) return;
+
+    let cancelled = false;
+
+    const loadMaterials = async (search = "") => {
+      if (cancelled) return;
+      try {
+        const url = search
+          ? `/api/admin-materials?q=${encodeURIComponent(search)}`
+          : "/api/admin-materials";
+
+        const response = await fetch(url, {
+          headers: { "x-admin-upload-key": adminKey },
+        });
+
+        if (!cancelled && response.ok) {
+          const data = await response.json();
+          setMaterials(data.materials || []);
+        }
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
+    };
+
+    loadMaterials();
+    return () => { cancelled = true; };
   }, [adminKey]);
 
   return (
@@ -54,7 +59,23 @@ function QuestionsPageContent({ adminKey }: { adminKey: string }) {
         <MaterialQuestionManager
           adminKey={adminKey}
           materials={materials}
-          onRefreshMaterials={loadMaterials}
+          onRefreshMaterials={async (search) => {
+            setLoading(true);
+            try {
+              const url = search
+                ? `/api/admin-materials?q=${encodeURIComponent(search)}`
+                : "/api/admin-materials";
+              const response = await fetch(url, {
+                headers: { "x-admin-upload-key": adminKey },
+              });
+              if (response.ok) {
+                const data = await response.json();
+                setMaterials(data.materials || []);
+              }
+            } finally {
+              setLoading(false);
+            }
+          }}
           onRefreshOverview={async () => {}}
           overviewLoading={loading}
         />

@@ -16,7 +16,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">1. Introduction</h2>
             <p className="text-slate-700 leading-relaxed">
-              AnatomiQ ("we", "our", or "us") is committed to protecting your privacy. This Privacy Policy explains
+              AnatomiQ (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains
               how we collect, use, disclose, and safeguard your information when you use our platform. By using AnatomiQ,
               you consent to the practices described in this policy.
             </p>
@@ -73,7 +73,7 @@ export default function PrivacyPage() {
             <ul className="list-disc list-inside space-y-2 text-slate-700 ml-4">
               <li><strong>Service Providers:</strong> Payment processors (Paystack, Flutterwave), email services, and cloud hosting providers</li>
               <li><strong>AI Services:</strong> OpenAI and other AI providers for question generation (course materials only, not personal data)</li>
-              <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and users' safety</li>
+              <li><strong>Legal Requirements:</strong> When required by law or to protect our rights and users&apos; safety</li>
               <li><strong>Business Transfers:</strong> In the event of a merger, acquisition, or sale of assets</li>
             </ul>
           </section>
@@ -134,7 +134,7 @@ export default function PrivacyPage() {
           </section>
 
           <section>
-            <h2 className="text-2xl font-bold text-slate-900 mb-4">10. Children's Privacy</h2>
+            <h2 className="text-2xl font-bold text-slate-900 mb-4">10. Children&apos;s Privacy</h2>
             <p className="text-slate-700 leading-relaxed">
               AnatomiQ is intended for users 18 years and older. We do not knowingly collect information from children
               under 18 without parental consent. If we discover we have collected such information, we will delete it

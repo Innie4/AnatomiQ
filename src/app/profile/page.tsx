@@ -84,7 +84,12 @@ export default function ProfilePage() {
         course: data.course || "",
         avatarUrl: data.avatarUrl || "",
       });
-      setPreferences(data.preferences || preferences);
+      setPreferences(data.preferences || {
+        theme: "system",
+        emailNotifications: true,
+        referralNotifications: true,
+        subscriptionNotifications: true,
+      });
       localStorage.setItem("anatomiq:user", JSON.stringify(data));
     } catch (error) {
       console.error("Profile load error:", error);
@@ -92,7 +97,7 @@ export default function ProfilePage() {
     } finally {
       setLoading(false);
     }
-  }, [router, preferences]);
+  }, [router]);
 
   useEffect(() => {
     loadProfile();

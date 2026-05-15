@@ -90,7 +90,7 @@ export default function HelpPage() {
         <div className="bg-white rounded-2xl border border-slate-200 p-8 shadow-lg text-center">
           <h2 className="text-2xl font-bold text-slate-900 mb-4">Still Need Help?</h2>
           <p className="text-slate-600 mb-6">
-            Can't find what you're looking for? Check our FAQ or contact support.
+            Can&apos;t find what you&apos;re looking for? Check our FAQ or contact support.
           </p>
           <div className="flex gap-4 justify-center">
             <Link

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Clock, Award, Target, TrendingUp, Calendar } from "lucide-react";
 
@@ -23,11 +23,7 @@ export default function HistoryPage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  useEffect(() => {
-    fetchResults();
-  }, []);
-
-  const fetchResults = async () => {
+  const fetchResults = useCallback(async () => {
     try {
       const token = localStorage.getItem("token");
       if (!token) {
@@ -47,12 +43,16 @@ export default function HistoryPage() {
 
       const data = await response.json();
       setResults(data.results);
-    } catch (err: any) {
-      setError(err.message);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "An unknown error occurred");
     } finally {
       setLoading(false);
     }
-  };
+  }, [router]);
+
+  useEffect(() => {
+    fetchResults();
+  }, [fetchResults]);
 
   const getScoreColor = (score: number) => {
     if (score >= 80) return "text-green-600";

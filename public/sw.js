@@ -5,7 +5,7 @@ const DYNAMIC_CACHE = 'anatomiq-dynamic-v1';
 // Assets to cache on install
 const STATIC_ASSETS = [
   '/',
-  '/dashboard',
+  '/topics',
   '/profile',
   '/offline',
   '/manifest.json',
@@ -54,7 +54,20 @@ self.addEventListener('fetch', (event) => {
   const { request } = event;
   const url = new URL(request.url);
 
-  // Skip non-GET requests
+  if (request.method === 'POST' && url.pathname === '/api/exam-results') {
+    event.respondWith(
+      fetch(request.clone()).catch(async () => {
+        await queueExamResult(request.clone());
+        await registerExamResultSync();
+        return new Response(JSON.stringify({ queued: true, offline: true }), {
+          status: 202,
+          headers: { 'Content-Type': 'application/json' },
+        });
+      })
+    );
+    return;
+  }
+
   if (request.method !== 'GET') {
     return;
   }
@@ -130,8 +143,89 @@ self.addEventListener('sync', (event) => {
 });
 
 async function syncExamResults() {
-  // TODO: Implement background sync for exam results
-  console.log('[SW] Syncing exam results...');
+  const queued = await readQueuedExamResults();
+
+  for (const item of queued) {
+    try {
+      const response = await fetch('/api/exam-results', {
+        method: 'POST',
+        headers: item.headers,
+        body: item.body,
+      });
+
+      if (response.ok) {
+        await deleteQueuedExamResult(item.id);
+      }
+    } catch (error) {
+      console.error('[SW] Failed to sync exam result:', error);
+    }
+  }
+}
+
+function openExamResultQueue() {
+  return new Promise((resolve, reject) => {
+    const request = indexedDB.open('anatomiq-offline', 1);
+
+    request.onupgradeneeded = () => {
+      request.result.createObjectStore('exam-results', {
+        keyPath: 'id',
+        autoIncrement: true,
+      });
+    };
+    request.onsuccess = () => resolve(request.result);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function queueExamResult(request) {
+  const db = await openExamResultQueue();
+  const body = await request.text();
+  const headers = {};
+  request.headers.forEach((value, key) => {
+    if (key.toLowerCase() !== 'content-length') {
+      headers[key] = value;
+    }
+  });
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('exam-results', 'readwrite');
+    transaction.objectStore('exam-results').add({
+      url: request.url,
+      body,
+      headers,
+      createdAt: new Date().toISOString(),
+    });
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+async function readQueuedExamResults() {
+  const db = await openExamResultQueue();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('exam-results', 'readonly');
+    const request = transaction.objectStore('exam-results').getAll();
+    request.onsuccess = () => resolve(request.result || []);
+    request.onerror = () => reject(request.error);
+  });
+}
+
+async function deleteQueuedExamResult(id) {
+  const db = await openExamResultQueue();
+
+  return new Promise((resolve, reject) => {
+    const transaction = db.transaction('exam-results', 'readwrite');
+    transaction.objectStore('exam-results').delete(id);
+    transaction.oncomplete = () => resolve();
+    transaction.onerror = () => reject(transaction.error);
+  });
+}
+
+async function registerExamResultSync() {
+  if ('sync' in self.registration) {
+    await self.registration.sync.register('sync-exam-results');
+  }
 }
 
 // Push notifications
