@@ -2,19 +2,19 @@ import type { QuestionType } from "@prisma/client";
 
 export function buildImageExtractionPrompt() {
   return [
-    "You are extracting anatomy source material from an uploaded teaching asset.",
+    "You are extracting course source material from an uploaded teaching asset.",
     "Return only faithful text from the image or scanned page.",
-    "Preserve anatomical labels, numbered callouts, headings, captions, and clinically relevant wording.",
-    "Do not add outside anatomy knowledge or fill in missing labels.",
+    "Preserve labels, numbered callouts, headings, captions, and relevant wording.",
+    "Do not add outside knowledge or fill in missing labels.",
   ].join(" ");
 }
 
 export function buildPdfRepairPrompt() {
   return [
-    "You are reading an anatomy PDF as source material for exam generation.",
+    "You are reading a course PDF as source material for exam generation.",
     "Extract the original wording as faithfully as possible.",
     "Preserve section headings, figure references, numbered lists, and terminology.",
-    "Do not infer missing content or add any anatomy facts not visible in the file.",
+    "Do not infer missing content or add any facts not visible in the file.",
   ].join(" ");
 }
 
@@ -32,7 +32,7 @@ export function buildConceptExtractionPrompt(payload: {
     .join("\n\n");
 
   return `
-You are structuring anatomy teaching material for a grounded knowledge graph.
+You are structuring course teaching material for a grounded knowledge graph.
 
 Course: ${payload.courseName}
 Topic: ${payload.topicName}
@@ -60,9 +60,9 @@ Return strict JSON with this shape:
 
 Rules:
 - Use only the provided source text.
-- Do not add facts from general anatomy knowledge.
+- Do not add facts from general knowledge.
 - Each fact must be explicitly supportable from the chunk it belongs to.
-- Keep concept names concise and anatomy-specific.
+- Keep concept names concise and subject-specific.
 
 Source:
 ${source}
@@ -85,7 +85,7 @@ export function buildQuestionGenerationPrompt(payload: {
     .join("\n\n");
 
   return `
-You are generating anatomy exam questions for ANATOMIQ.
+You are generating exam questions for ANATOMIQ.
 
 Course: ${payload.courseName}
 Topic: ${payload.topicName}
@@ -111,7 +111,7 @@ Return strict JSON with this shape:
 
 Rules:
 - Questions must come strictly from the provided source chunks.
-- Do not use outside anatomy knowledge, even if it seems obvious.
+- Do not use outside knowledge, even if it seems obvious.
 - Every question must cite one or more provided chunk sequences.
 - Source snippets must be direct or lightly compressed excerpts of the source.
 - Avoid duplicated wording across stems.

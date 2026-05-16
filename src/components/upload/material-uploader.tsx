@@ -26,8 +26,8 @@ type ProcessResult = {
 export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; onSuccess?: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
-  const [courseCode, setCourseCode] = useState("ANA101");
-  const [courseName, setCourseName] = useState("Human Anatomy");
+  const [courseCode, setCourseCode] = useState("GEN101");
+  const [courseName, setCourseName] = useState("");
   const [topicName, setTopicName] = useState("");
   const [subtopicName, setSubtopicName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -111,7 +111,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
       <div>
         <h2 className="text-2xl font-bold text-slate-900">Upload New Material</h2>
         <p className="mt-1 text-sm text-slate-600">
-          Add anatomy materials that will be processed and indexed for exam generation
+          Add course materials that will be processed and indexed for exam generation
         </p>
       </div>
 
@@ -146,7 +146,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
-                placeholder="e.g., Cardiovascular System Overview"
+                placeholder="e.g., Biology Fundamentals"
               />
             </div>
 
@@ -159,7 +159,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 value={courseCode}
                 onChange={(e) => setCourseCode(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
-                placeholder="e.g., ANA101"
+                placeholder="e.g., GEN101"
               />
             </div>
 
@@ -172,7 +172,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
-                placeholder="e.g., Human Anatomy"
+                placeholder="e.g., General Studies"
               />
             </div>
 
@@ -185,7 +185,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 value={topicName}
                 onChange={(e) => setTopicName(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
-                placeholder="e.g., Cardiovascular System"
+                placeholder="e.g., Introductory Biology"
               />
             </div>
 
@@ -198,7 +198,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 value={subtopicName}
                 onChange={(e) => setSubtopicName(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
-                placeholder="e.g., Heart Anatomy"
+                placeholder="e.g., Cell Structure"
               />
             </div>
 

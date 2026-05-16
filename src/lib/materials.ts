@@ -201,7 +201,7 @@ async function enrichChunkConcepts(material: Awaited<ReturnType<typeof getMateri
         sequence: chunk.sequence,
         heading: chunk.heading,
         suggestedSubtopic: material.subtopic?.name ?? null,
-        conceptSummary: chunk.heading || "Core anatomy content",
+        conceptSummary: chunk.heading || "Core course content",
         concepts: [],
       })),
       semanticChunks,

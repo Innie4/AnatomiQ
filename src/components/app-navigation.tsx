@@ -19,7 +19,7 @@ const navigationLinks = [
     href: "/topics",
     label: "Topics",
     icon: BookOpen,
-    description: "Explore anatomy topics"
+    description: "Explore topics"
   },
   {
     href: "/exam",
@@ -63,7 +63,7 @@ export function AppNavigation() {
             </div>
             <div>
               <div className="text-lg font-bold text-slate-900">{APP_NAME}</div>
-              <div className="text-xs text-slate-500">Anatomy Learning</div>
+              <div className="text-xs text-slate-500">Public Course Learning</div>
             </div>
           </div>
 

@@ -1,5 +1,5 @@
 export const APP_NAME = "ANATOMIQ";
-export const APP_TAGLINE = "Smarter anatomy. Better recall.";
+export const APP_TAGLINE = "Smarter learning. Better recall.";
 
 export const MAX_UPLOAD_SIZE_BYTES = 25 * 1024 * 1024;
 export const MATERIAL_TEXT_PREVIEW_LIMIT = 1200;
@@ -37,29 +37,29 @@ export const TIMER_OPTIONS = [
   { label: "180 minutes (3 hours)", value: 180 },
 ] as const;
 
-export const DEFAULT_ANATOMY_TOPICS = [
+export const DEFAULT_TOPICS = [
   {
-    name: "General Anatomy",
-    slug: "general-anatomy",
-    summary: "Foundational terminology, body planes, and organization of the human body.",
-    children: ["Anatomical Terminology", "Body Planes", "Surface Anatomy"],
+    name: "General Science",
+    slug: "general-science",
+    summary: "Foundational principles across biology, chemistry, and physics.",
+    children: ["Scientific Method", "Cell Biology", "Atomic Structure"],
   },
   {
-    name: "Upper Limb",
-    slug: "upper-limb",
-    summary: "Regional anatomy of the shoulder, arm, forearm, and hand.",
-    children: ["Shoulder Region", "Arm", "Forearm", "Hand"],
+    name: "Human Anatomy",
+    slug: "human-anatomy",
+    summary: "Regional anatomy of the human body including limbs, thorax, and neuroanatomy.",
+    children: ["Upper Limb", "Thorax", "Neuroanatomy"],
   },
   {
-    name: "Thorax",
-    slug: "thorax",
-    summary: "Thoracic wall, lungs, pleura, mediastinum, and heart anatomy.",
-    children: ["Thoracic Wall", "Lungs and Pleura", "Mediastinum", "Heart"],
+    name: "Mathematics",
+    slug: "mathematics",
+    summary: "Core mathematical concepts from algebra to calculus.",
+    children: ["Algebra", "Calculus", "Statistics"],
   },
   {
-    name: "Neuroanatomy",
-    slug: "neuroanatomy",
-    summary: "Brain, spinal cord, cranial nerves, and clinically relevant pathways.",
-    children: ["Brain", "Spinal Cord", "Cranial Nerves", "Meninges"],
+    name: "Computer Science",
+    slug: "computer-science",
+    summary: "Fundamentals of programming, algorithms, and data structures.",
+    children: ["Programming Basics", "Algorithms", "Databases"],
   },
 ];

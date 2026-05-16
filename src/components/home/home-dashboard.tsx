@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { Search, Stethoscope, ArrowRight } from "lucide-react";
+import { Search, GraduationCap, ArrowRight } from "lucide-react";
 import { useDeferredValue, useState, useRef, useEffect } from "react";
 
 import { FadeIn } from "@/components/motion/fade-in";
@@ -70,8 +70,8 @@ export function HomeDashboard({
           <FadeIn className="relative">
             <p className="text-xl font-semibold text-sky-800">{APP_TAGLINE}</p>
             <p className="mt-4 max-w-2xl text-lg leading-8 text-slate-600">
-              Public anatomy learning, topic-grounded question generation, and clean exam delivery built to stay
-              faithful to uploaded Human Anatomy source material.
+              Public course learning, topic-grounded question generation, and clean exam delivery built to stay
+              faithful to uploaded course source material.
             </p>
 
             <div className="glass-panel mt-8 max-w-2xl rounded-[2rem] p-4">
@@ -86,7 +86,7 @@ export function HomeDashboard({
                         setShowSuggestions(true);
                       }}
                       onFocus={() => setShowSuggestions(true)}
-                      placeholder="Search anatomy topics, regions, or subtopics"
+                      placeholder="Search topics, regions, or subtopics"
                       className="w-full bg-transparent text-base text-slate-900 outline-none placeholder:text-slate-400"
                     />
                   </div>
@@ -142,7 +142,7 @@ export function HomeDashboard({
                 </div>
                 <div className="metric-ring flex h-20 w-20 items-center justify-center rounded-full shadow-lg shadow-sky-100">
                   <div className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-sky-700">
-                    <Stethoscope className="h-6 w-6" />
+                    <GraduationCap className="h-6 w-6" />
                   </div>
                 </div>
               </div>
@@ -156,7 +156,7 @@ export function HomeDashboard({
                       <div className="flex items-center justify-between gap-4">
                         <div>
                           <p className="text-sm font-semibold text-slate-900">{item.topic}</p>
-                          <p className="mt-1 text-sm text-slate-500">High-interest anatomy region</p>
+                          <p className="mt-1 text-sm text-slate-500">High-interest topic</p>
                         </div>
                         <div className="text-right">
                           <p className="text-2xl font-semibold text-sky-700">{String(item.count).padStart(2, "0")}</p>
@@ -179,7 +179,7 @@ export function HomeDashboard({
           <div className="mb-8 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">Topic catalog</p>
-              <h2 className="display-title mt-2 text-4xl text-slate-950">Explore the anatomy map</h2>
+              <h2 className="display-title mt-2 text-4xl text-slate-950">Explore the topic map</h2>
             </div>
             <Link href="/topics" className="text-sm font-semibold text-sky-700 hover:text-sky-800">
               Open full explorer

@@ -95,8 +95,8 @@ export function UploadDashboard() {
   const [mounted, setMounted] = useState(false);
   const [adminKey, setAdminKey] = useState("");
   const [title, setTitle] = useState("");
-  const [courseCode, setCourseCode] = useState("ANA101");
-  const [courseName, setCourseName] = useState("Human Anatomy");
+  const [courseCode, setCourseCode] = useState("GEN101");
+  const [courseName, setCourseName] = useState("");
   const [topicName, setTopicName] = useState("");
   const [subtopicName, setSubtopicName] = useState("");
   const [file, setFile] = useState<File | null>(null);
@@ -229,7 +229,7 @@ export function UploadDashboard() {
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">Faculty operations</p>
             <h1 className="display-title mt-2 text-4xl text-slate-950 sm:text-5xl">Material upload and processing dashboard</h1>
             <p className="mt-4 max-w-2xl text-base leading-7 text-slate-600">
-              Manage anatomy source files, grounded knowledge chunks, and faculty-authored question banks from one workspace.
+              Manage course source files, grounded knowledge chunks, and faculty-authored question banks from one workspace.
             </p>
           </div>
           <div className="flex gap-3">
@@ -254,7 +254,7 @@ export function UploadDashboard() {
       {overview ? (
         <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
           {[
-            { label: "Total materials", value: overview.summary.totalMaterials, helper: "Uploaded anatomy assets", icon: Database },
+            { label: "Total materials", value: overview.summary.totalMaterials, helper: "Uploaded course materials", icon: Database },
             { label: "Ready materials", value: overview.summary.readyMaterials, helper: "Processed sources", icon: CheckCircle2 },
             { label: "Knowledge chunks", value: overview.summary.totalChunks, helper: "Semantic sections", icon: Layers3 },
             { label: "Question bank", value: overview.summary.totalQuestions, helper: "Stored questions", icon: FileChartColumn },
@@ -276,13 +276,13 @@ export function UploadDashboard() {
           <div className="flex items-start justify-between gap-4">
             <div>
               <p className="text-sm font-semibold uppercase tracking-[0.16em] text-sky-700">Upload composer</p>
-              <h2 className="mt-2 text-3xl font-semibold text-slate-950">Add new anatomy material</h2>
+              <h2 className="mt-2 text-3xl font-semibold text-slate-950">Add new course material</h2>
             </div>
             <UploadCloud className="h-8 w-8 text-sky-700" />
           </div>
           <div className="mt-8 grid gap-4 md:grid-cols-2">
             <input value={title} onChange={(event) => setTitle(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Title" aria-label="Material title" />
-            <input value={courseCode} onChange={(event) => setCourseCode(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course Code (e.g., ANA101)" aria-label="Course code" />
+            <input value={courseCode} onChange={(event) => setCourseCode(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course Code (e.g., GEN101)" aria-label="Course code" />
             <input value={courseName} onChange={(event) => setCourseName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Course Name" aria-label="Course name" />
             <input value={topicName} onChange={(event) => setTopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Topic" aria-label="Topic name" />
             <input value={subtopicName} onChange={(event) => setSubtopicName(event.target.value)} className="rounded-2xl border border-slate-200 bg-white px-4 py-3 outline-none" placeholder="Subtopic" aria-label="Subtopic name (optional)" />
@@ -337,7 +337,7 @@ export function UploadDashboard() {
               ))}
             </div>
           ) : (
-            <div className="mt-6 rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm leading-6 text-slate-600">Unlock the dashboard to inspect processing states, recent uploads, and anatomy coverage.</div>
+            <div className="mt-6 rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm leading-6 text-slate-600">Unlock the dashboard to inspect processing states, recent uploads, and course coverage.</div>
           )}
         </section>
 
@@ -379,7 +379,7 @@ export function UploadDashboard() {
                   </div>
                 </div>
               );
-            }) : <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm text-slate-600">No uploaded anatomy material has been recorded yet.</div>}
+            }) : <div className="rounded-2xl border border-slate-200 bg-white/80 p-5 text-sm text-slate-600">No uploaded course material has been recorded yet.</div>}
           </div>
         </section>
       </section>

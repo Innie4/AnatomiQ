@@ -5,46 +5,52 @@ import { randomUUID } from "crypto";
 
 const prisma = new PrismaClient();
 
-const ANATOMY_TOPICS = [
+const DEFAULT_TOPICS = [
   {
-    name: "General Anatomy",
-    summary: "Foundational principles, anatomical terminology, planes, and body organization.",
-    children: ["Anatomical Terminology", "Body Planes", "Surface Anatomy"],
+    courseName: "General Science",
+    courseCode: "GEN101",
+    courseDescription: "Foundational principles across biology, chemistry, and physics.",
+    topics: [
+      {
+        name: "Scientific Method",
+        summary: "Introduction to research, hypothesis testing, and scientific inquiry.",
+        children: ["Observation", "Hypothesis", "Experimentation", "Conclusion"],
+      },
+      {
+        name: "Cell Biology",
+        summary: "Study of cell structure, function, and organization.",
+        children: ["Cell Membrane", "Nucleus", "Organelles"],
+      },
+    ],
   },
   {
-    name: "Upper Limb",
-    summary: "Bones, joints, muscles, vessels, nerves, and clinical correlations of the upper limb.",
-    children: ["Shoulder Region", "Arm", "Forearm", "Hand"],
+    courseName: "Human Anatomy",
+    courseCode: "ANA101",
+    courseDescription: "University of Uyo Human Anatomy knowledge base for topic-grounded learning.",
+    topics: [
+      {
+        name: "General Anatomy",
+        summary: "Foundational principles, anatomical terminology, planes, and body organization.",
+        children: ["Anatomical Terminology", "Body Planes", "Surface Anatomy"],
+      },
+      {
+        name: "Neuroanatomy",
+        summary: "Central nervous system structures, pathways, cranial nerves, and meninges.",
+        children: ["Brain", "Spinal Cord", "Cranial Nerves"],
+      },
+    ],
   },
   {
-    name: "Lower Limb",
-    summary: "Regional anatomy of the pelvis, thigh, leg, foot, and gait-related structures.",
-    children: ["Gluteal Region", "Thigh", "Leg", "Foot"],
-  },
-  {
-    name: "Thorax",
-    summary: "Thoracic wall, pleura, lungs, mediastinum, and heart anatomy.",
-    children: ["Thoracic Wall", "Lungs and Pleura", "Mediastinum", "Heart"],
-  },
-  {
-    name: "Abdomen",
-    summary: "Abdominal wall, peritoneum, gastrointestinal anatomy, and vasculature.",
-    children: ["Anterior Abdominal Wall", "Peritoneum", "Foregut", "Midgut", "Hindgut"],
-  },
-  {
-    name: "Pelvis and Perineum",
-    summary: "Pelvic cavity, pelvic viscera, perineum, and neurovascular anatomy.",
-    children: ["Pelvic Walls", "Pelvic Viscera", "Perineum"],
-  },
-  {
-    name: "Head and Neck",
-    summary: "Skull, scalp, face, pharynx, larynx, and cervical anatomy.",
-    children: ["Scalp and Face", "Deep Neck", "Pharynx", "Larynx"],
-  },
-  {
-    name: "Neuroanatomy",
-    summary: "Central nervous system structures, pathways, cranial nerves, and meninges.",
-    children: ["Brain", "Spinal Cord", "Cranial Nerves", "Meninges"],
+    courseName: "Mathematics",
+    courseCode: "MAT101",
+    courseDescription: "Core mathematical concepts for all students.",
+    topics: [
+      {
+        name: "Algebra",
+        summary: "Foundational algebraic structures and equations.",
+        children: ["Linear Equations", "Quadratic Equations", "Matrices"],
+      },
+    ],
   },
 ];
 
@@ -67,7 +73,7 @@ async function main() {
         email: "admin@anatomiq.local",
         passwordHash: adminPasswordHash,
         fullName: "Admin User",
-        department: "Human Anatomy",
+        department: "University of Uyo",
         isActive: true,
       },
     });
@@ -75,86 +81,74 @@ async function main() {
     console.log("Admin user already exists, skipping...");
   }
 
-  // Check if course exists
-  let course = await prisma.course.findUnique({
-    where: { slug: "human-anatomy" },
-  });
-
-  if (!course) {
-    console.log("Creating Human Anatomy course...");
-    course = await prisma.course.create({
-      data: {
-        id: randomUUID(),
-        code: "ANA101",
-        name: "Human Anatomy",
-        slug: "human-anatomy",
-        description:
-          "University of Uyo Human Anatomy knowledge base for topic-grounded learning and exam generation.",
-      },
-    });
-  } else {
-    console.log("Human Anatomy course already exists, skipping...");
-    // Update existing course with code if it doesn't have one
-    if (!course.code) {
-      await prisma.course.update({
-        where: { id: course.id },
-        data: { code: "ANA101" },
-      });
-    }
-  }
-
-  console.log("Seeding anatomy topics...");
-  for (const topic of ANATOMY_TOPICS) {
-    const topicSlug = slugify(topic.name, { lower: true, strict: true });
-
-    // Check if parent topic exists
-    let parent = await prisma.topic.findUnique({
-      where: { slug: topicSlug },
+  for (const courseData of DEFAULT_TOPICS) {
+    const courseSlug = slugify(courseData.courseName, { lower: true, strict: true });
+    
+    // Check if course exists
+    let course = await prisma.course.findUnique({
+      where: { slug: courseSlug },
     });
 
-    if (!parent) {
-      console.log(`Creating topic: ${topic.name}`);
-      parent = await prisma.topic.create({
+    if (!course) {
+      console.log(`Creating ${courseData.courseName} course...`);
+      course = await prisma.course.create({
         data: {
           id: randomUUID(),
-          name: topic.name,
-          slug: topicSlug,
-          summary: topic.summary,
-          level: 0,
-          isSystem: true,
-          courseId: course.id,
+          code: courseData.courseCode,
+          name: courseData.courseName,
+          slug: courseSlug,
+          description: courseData.courseDescription,
         },
-      });
-    } else {
-      // Update summary if topic exists
-      await prisma.topic.update({
-        where: { id: parent.id },
-        data: { summary: topic.summary },
       });
     }
 
-    for (const childName of topic.children) {
-      const childSlug = slugify(`${topic.name}-${childName}`, { lower: true, strict: true });
+    console.log(`Seeding topics for ${courseData.courseName}...`);
+    for (const topic of courseData.topics) {
+      const topicSlug = slugify(topic.name, { lower: true, strict: true });
 
-      // Check if child topic exists
-      const existingChild = await prisma.topic.findUnique({
-        where: { slug: childSlug },
+      // Check if parent topic exists
+      let parent = await prisma.topic.findUnique({
+        where: { slug: topicSlug },
       });
 
-      if (!existingChild) {
-        console.log(`Creating subtopic: ${childName}`);
-        await prisma.topic.create({
+      if (!parent) {
+        console.log(`Creating topic: ${topic.name}`);
+        parent = await prisma.topic.create({
           data: {
             id: randomUUID(),
-            name: childName,
-            slug: childSlug,
-            summary: `${childName} content within ${topic.name}.`,
-            level: 1,
+            name: topic.name,
+            slug: topicSlug,
+            summary: topic.summary,
+            level: 0,
             isSystem: true,
             courseId: course.id,
-            parentTopicId: parent.id,
           },
         });
+      }
+
+      for (const childName of topic.children) {
+        const childSlug = slugify(`${topic.name}-${childName}`, { lower: true, strict: true });
+
+        // Check if child topic exists
+        const existingChild = await prisma.topic.findUnique({
+          where: { slug: childSlug },
+        });
+
+        if (!existingChild) {
+          console.log(`Creating subtopic: ${childName}`);
+          await prisma.topic.create({
+            data: {
+              id: randomUUID(),
+              name: childName,
+              slug: childSlug,
+              summary: `${childName} content within ${topic.name}.`,
+              level: 1,
+              isSystem: true,
+              courseId: course.id,
+              parentTopicId: parent.id,
+            },
+          });
+        }
       }
     }
   }

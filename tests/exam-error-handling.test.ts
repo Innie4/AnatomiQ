@@ -1,7 +1,7 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 import { getTopicCoverage } from "../src/lib/topic-coverage";
-import { DEFAULT_ANATOMY_TOPICS } from "../src/lib/constants";
+import { DEFAULT_TOPICS } from "../src/lib/constants";
 
 describe("Exam Page Error Handling", () => {
   it("should return fallback topics when database is unavailable", async () => {
@@ -25,13 +25,13 @@ describe("Exam Page Error Handling", () => {
   });
 
   it("should filter topics by search term", async () => {
-    const topics = await getTopicCoverage("thorax");
+    const topics = await getTopicCoverage("science");
 
     assert.ok(Array.isArray(topics));
 
-    // Should return topics matching "thorax"
-    const hasThorax = topics.some((topic) => topic.name.toLowerCase().includes("thorax"));
-    assert.ok(hasThorax || topics.length === 0); // Either found or no match
+    // Should return topics matching "science"
+    const hasScience = topics.some((topic) => topic.name.toLowerCase().includes("science"));
+    assert.ok(hasScience || topics.length === 0); // Either found or no match
   });
 
   it("should return all default topics without search", async () => {

@@ -114,7 +114,7 @@ export function OverviewStats({ adminKey }: { adminKey: string }) {
           {
             label: "Total Materials",
             value: overview.summary.totalMaterials,
-            helper: "Uploaded anatomy assets",
+            helper: "Uploaded course materials",
             icon: Database,
             color: "text-blue-600",
           },

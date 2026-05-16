@@ -1,12 +1,12 @@
 # ANATOMIQ
 
-Smarter anatomy. Better recall.
+Smarter learning. Better recall.
 
-ANATOMIQ is a public Human Anatomy learning and exam-generation platform for the University of Uyo. It is now set up for a remote free-tier deployment path by default: Vercel for the app, Supabase Postgres for data, Supabase Storage for uploaded materials, and a grounded in-app question generator when no paid AI provider is configured.
+ANATOMIQ is a public AI-powered learning and exam-generation platform for all students at the University of Uyo. It supports any course by generating topic-grounded exams from uploaded source materials.
 
 ## Included
 
-- Public topic explorer for Human Anatomy only
+- Public topic explorer for all courses
 - Hidden faculty dashboard at `/upload`
 - Upload support for PDF, text notes, and image diagrams
 - Manual faculty-authored question bank upload tied to a selected material
@@ -93,7 +93,7 @@ OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
 3. Add the values from `.env.example` to Vercel
 4. Add the same database and storage values to your local `.env` if you want local admin uploads to hit the remote services too
 
-ANATOMIQ automatically prepares the remote database during `npm run build` when both `DATABASE_URL` and `DIRECT_URL` are present. That step runs Prisma migrations and then seeds the anatomy taxonomy before the Next.js build continues.
+ANATOMIQ automatically prepares the remote database during `npm run build` when both `DATABASE_URL` and `DIRECT_URL` are present. That step runs Prisma migrations and then seeds the course taxonomy before the Next.js build continues.
 
 ## Local Verification
 

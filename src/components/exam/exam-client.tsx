@@ -226,10 +226,10 @@ export function ExamClient({
           <div>
             <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">Exam mode</p>
             <h1 className="display-title mt-2 text-4xl text-slate-950 sm:text-5xl">
-              Build a grounded anatomy exam in seconds
+              Build a topic-grounded exam in seconds
             </h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              Questions are generated only from processed Human Anatomy materials and never tied to student accounts.
+              Questions are generated only from processed course materials and never tied to student accounts.
             </p>
           </div>
         </div>

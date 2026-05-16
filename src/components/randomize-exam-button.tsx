@@ -88,7 +88,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       }
 
       if (topicsWithMaterial.length === 0) {
-        throw new Error("No topics with processed material available. Please upload and process anatomy material first.");
+        throw new Error("No topics with processed material available. Please upload and process course material first.");
       }
 
       // Generate random exam parameters from topics with material only

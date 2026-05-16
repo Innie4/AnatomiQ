@@ -53,7 +53,7 @@ export function UploadLogin() {
               Material upload and processing dashboard
             </h1>
             <p className="mt-4 text-base leading-7 text-slate-600">
-              Manage anatomy source files, grounded knowledge chunks, and faculty-authored question banks from one workspace.
+              Manage course source files, grounded knowledge chunks, and faculty-authored question banks from one workspace.
             </p>
           </div>
 

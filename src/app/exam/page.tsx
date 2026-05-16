@@ -29,10 +29,10 @@ export default async function ExamPage({
       });
     } catch {
       // If database fails, use default course
-      courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy" }];
+      courses = [{ id: "default", code: "GEN101", name: "General Course", slug: "general-course" }];
     }
   } else {
-    courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy" }];
+    courses = [{ id: "default", code: "GEN101", name: "General Course", slug: "general-course" }];
   }
 
   return (

@@ -417,7 +417,7 @@ export async function ensureQuestionBank(params: {
   ]);
 
   if (!chunks.length && !existing.length) {
-    throw new Error("No processed material exists for this topic yet. Upload and process anatomy material first.");
+    throw new Error("No processed material exists for this topic yet. Upload and process course material first.");
   }
 
   const available = existing.length >= params.count ? existing : [...existing];

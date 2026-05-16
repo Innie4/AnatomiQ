@@ -1,7 +1,7 @@
 import { MaterialStatus } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { DEFAULT_ANATOMY_TOPICS } from "@/lib/constants";
+import { DEFAULT_TOPICS } from "@/lib/constants";
 import { hasDatabase } from "@/lib/env";
 
 export type TopicCoverageItem = {
@@ -22,7 +22,7 @@ export type TopicCoverageItem = {
 function buildFallbackTopicCoverage(search?: string) {
   const normalized = search?.toLowerCase();
 
-  return DEFAULT_ANATOMY_TOPICS.filter((topic) => {
+  return DEFAULT_TOPICS.filter((topic) => {
     if (!normalized) {
       return true;
     }
@@ -137,7 +137,7 @@ export async function getTopicCoverage(search?: string) {
     const activeTopics = mapped.filter((topic) => topic.materialCount > 0);
     return activeTopics.length ? activeTopics : mapped;
   } catch (error) {
-    console.error("Falling back to static anatomy topics because the database is unavailable.", error);
+    console.error("Falling back to static topics because the database is unavailable.", error);
     return buildFallbackTopicCoverage(search);
   } finally {
     // Ensure connection is cleaned up
