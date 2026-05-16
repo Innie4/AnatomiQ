@@ -5,14 +5,14 @@ import { useRouter } from "next/navigation";
 import { Lock, Save, Settings, Trash2 } from "lucide-react";
 
 type Preferences = {
-  theme: "light" | "dark" | "system";
+  theme: "light" | "dark";
   emailNotifications: boolean;
   referralNotifications: boolean;
   subscriptionNotifications: boolean;
 };
 
 const defaultPreferences: Preferences = {
-  theme: "system",
+  theme: "light",
   emailNotifications: true,
   referralNotifications: true,
   subscriptionNotifications: true,
@@ -31,10 +31,12 @@ export default function SettingsPage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     async function loadSettings() {
       const token = localStorage.getItem("anatomiq:auth-token");
       if (!token) {
-        router.push("/signin");
+        if (!cancelled) router.push("/signin");
         return;
       }
 
@@ -44,24 +46,29 @@ export default function SettingsPage() {
 
       if (response.ok) {
         const data = await response.json();
-        setPreferences(data.preferences || defaultPreferences);
-      } else {
-        setError("Failed to load settings.");
+        const themePref = data.themePreference || defaultPreferences.theme;
+        if (!cancelled) {
+          setPreferences({
+            theme: themePref === "dark" ? "dark" : "light",
+            emailNotifications: data.emailNotifications ?? true,
+            referralNotifications: data.referralNotifications ?? true,
+            subscriptionNotifications: data.subscriptionNotifications ?? true,
+          });
+        }
       }
 
-      setLoading(false);
+      if (!cancelled) setLoading(false);
     }
 
-    void loadSettings();
+    loadSettings();
+    return () => { cancelled = true; };
   }, [router]);
 
-  function applyTheme(theme: Preferences["theme"]) {
-    const resolvedTheme =
-      theme === "dark" ||
-      (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
-        ? "dark"
-        : "light";
-    document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+  function applyTheme(theme: "light" | "dark") {
+    document.documentElement.classList.remove("dark");
+    if (theme === "dark") {
+      document.documentElement.classList.add("dark");
+    }
     localStorage.setItem("anatomiq:theme", theme);
   }
 
@@ -163,20 +170,23 @@ export default function SettingsPage() {
           <h2 className="text-2xl font-bold text-slate-900">Preferences</h2>
           <div className="mt-6 space-y-5">
             <div>
-              <label className="mb-2 block text-sm font-semibold text-slate-700">Theme</label>
-              <div className="grid grid-cols-3 gap-2 rounded-xl bg-slate-100 p-1">
-                {(["system", "light", "dark"] as const).map((theme) => (
-                  <button
-                    key={theme}
-                    type="button"
-                    onClick={() => setPreferences((value) => ({ ...value, theme }))}
-                    className={`rounded-lg px-3 py-2 text-sm font-semibold capitalize ${
-                      preferences.theme === theme ? "bg-white text-blue-600 shadow-sm" : "text-slate-600"
+              <label className="mb-3 block text-sm font-semibold text-slate-700">Theme</label>
+              <div className="flex items-center gap-4">
+                <span className={`text-sm font-medium ${preferences.theme === "light" ? "text-blue-600" : "text-slate-500"}`}>Light</span>
+                <button
+                  type="button"
+                  onClick={() => setPreferences((value) => ({ ...value, theme: value.theme === "light" ? "dark" : "light" }))}
+                  className={`relative h-8 w-14 rounded-full transition-colors ${
+                    preferences.theme === "dark" ? "bg-slate-800" : "bg-slate-200"
+                  }`}
+                >
+                  <span
+                    className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform ${
+                      preferences.theme === "dark" ? "translate-x-7" : "translate-x-1"
                     }`}
-                  >
-                    {theme}
-                  </button>
-                ))}
+                  />
+                </button>
+                <span className={`text-sm font-medium ${preferences.theme === "dark" ? "text-blue-600" : "text-slate-500"}`}>Dark</span>
               </div>
             </div>
 

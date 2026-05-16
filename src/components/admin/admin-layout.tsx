@@ -1,11 +1,13 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import {
   BarChart3,
   BookOpen,
+  ChevronDown,
   Database,
   FileText,
   LayoutDashboard,
@@ -33,6 +35,8 @@ const uploadItems = [
 export function AdminLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
+
+  const [uploadExpanded, setUploadExpanded] = useState(false);
 
   const isActive = (href: string) => pathname === href;
   const isUploadActive = pathname?.startsWith("/admin/upload");
@@ -79,18 +83,35 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
           </div>
 
           <div>
-            <Link
-              href="/admin/upload"
-              className={`flex items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
-                isUploadActive
-                  ? "bg-slate-900 text-white shadow-md"
-                  : "text-slate-700 hover:bg-slate-100"
+            <div className="flex items-center">
+              <Link
+                href="/admin/upload"
+                onClick={(e) => {
+                  if (isUploadActive) {
+                    e.preventDefault();
+                    setUploadExpanded((prev) => !prev);
+                  }
+                }}
+                className={`flex flex-1 items-center gap-3 rounded-xl px-4 py-3 text-sm font-semibold transition-all ${
+                  isUploadActive
+                    ? "bg-slate-900 text-white shadow-md"
+                    : "text-slate-700 hover:bg-slate-100"
+                }`}
+              >
+                <Upload className="h-5 w-5" />
+                Upload
+                <ChevronDown
+                  className={`ml-auto h-4 w-4 transition-transform ${
+                    uploadExpanded || isUploadActive ? "rotate-180" : ""
+                  }`}
+                />
+              </Link>
+            </div>
+            <div
+              className={`mt-2 space-y-1 border-l border-slate-200 pl-3 overflow-hidden transition-all duration-200 ${
+                uploadExpanded || isUploadActive ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
               }`}
             >
-              <Upload className="h-5 w-5" />
-              Upload
-            </Link>
-            <div className="mt-2 space-y-1 border-l border-slate-200 pl-3">
               {uploadItems.map((item) => {
                 const Icon = item.icon;
                 const active = isActive(item.href);
