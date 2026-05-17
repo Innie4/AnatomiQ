@@ -70,6 +70,31 @@ export async function extractMaterialText(params: {
   mimeType: string;
 }) {
   if (params.mimeType === "application/pdf") {
+    // Polyfill missing browser APIs that pdfjs-dist (via pdf-parse) might expect in serverless environments
+    if (typeof global.DOMMatrix === "undefined") {
+      console.log("[extractors] Polyfilling DOMMatrix for pdf-parse");
+      (global as any).DOMMatrix = class DOMMatrix {
+        a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
+      };
+    }
+    if (typeof global.ImageData === "undefined") {
+      console.log("[extractors] Polyfilling ImageData for pdf-parse");
+      (global as any).ImageData = class ImageData {
+        width: number;
+        height: number;
+        data: Uint8ClampedArray;
+        constructor(width: number, height: number) {
+          this.width = width;
+          this.height = height;
+          this.data = new Uint8ClampedArray(width * height * 4);
+        }
+      };
+    }
+    if (typeof global.Path2D === "undefined") {
+      console.log("[extractors] Polyfilling Path2D for pdf-parse");
+      (global as any).Path2D = class Path2D {};
+    }
+
     // Lazy import to avoid loading pdf-parse in serverless environments where it's not needed
     console.log("[extractors] Dynamically importing pdf-parse for PDF extraction");
     const { PDFParse } = await import("pdf-parse");
