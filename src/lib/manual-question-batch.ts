@@ -379,8 +379,11 @@ function parseNumberedSections(params: {
 }
 
 function looksLikeNumberedUpload(input: string) {
-  const normalized = input.toLowerCase();
-  return normalized.includes("\nquestions") && normalized.includes("\nanswers") && normalized.includes("\nexplanations");
+  return (
+    /^\s*questions\s*:?\s*$/im.test(input) &&
+    /^\s*answers\s*:?\s*$/im.test(input) &&
+    /^\s*explanations\s*:?\s*$/im.test(input)
+  );
 }
 
 export function parseManualQuestionBatch(params: {
@@ -389,7 +392,7 @@ export function parseManualQuestionBatch(params: {
   input: string;
 }) {
   const normalized = normalizeWhitespace(params.input);
-  return looksLikeNumberedUpload(`\n${normalized}`)
+  return looksLikeNumberedUpload(normalized)
     ? parseNumberedSections({ ...params, input: normalized })
     : parseLegacyBlocks({ ...params, input: normalized });
 }

@@ -259,3 +259,51 @@ Explanation: The phrenic nerve is the motor supply.`,
     await cleanupCourse(material.course.id);
   }
 });
+
+test("manual upload API accepts indented uppercase numbered MCQ sections", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "MCQ",
+          defaultDifficulty: "INTERMEDIATE",
+          input: ` QUESTIONS
+
+1. Amino acid metabolism refers to which of the following?
+2. Which inherited metabolic diseases are caused by defects in amino acid metabolism?
+
+ OPTIONS
+
+1. A. Only the synthesis of amino acids | B. Biochemical processes of synthesis, breakdown, interconversion, and utilization of amino acids | C. Only the catabolism of amino acids | D. Transport of amino acids in the blood
+2. A. Diabetes mellitus and hypertension | B. Phenylketonuria (PKU) and Maple Syrup Urine Disease (MSUD) | C. Sickle cell anemia and thalassemia | D. Hemophilia and Turner syndrome
+
+ ANSWERS
+
+1. B
+2. B
+
+EXPLANATIONS
+
+1. The material defines amino acid metabolism as synthesis, breakdown, interconversion, and utilization of amino acids.
+2. The material explicitly states PKU and MSUD are inherited metabolic diseases caused by defects in amino acid metabolism.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { createdCount: number; totalSubmitted: number };
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.createdCount, 2);
+    assert.equal(payload.totalSubmitted, 2);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});

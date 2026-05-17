@@ -261,11 +261,14 @@ async function buildManualQuestionRecord(
   manualOrder: number,
   existingQuestions: Question[],
   excludeQuestionId?: string,
+  precomputedEmbedding?: number[] | null,
 ) {
   const normalizedOptions = normalizeManualOptions(payload.type, payload.options);
   const normalizedAnswer = ensureAnswerMatchesOptions(payload.answer, normalizedOptions);
   const hash = sha256(`${material.id}:${payload.type}:${payload.stem}`);
-  const [embedding] = await embedTexts([payload.stem]);
+  const [generatedEmbedding] =
+    precomputedEmbedding === undefined ? await embedTexts([payload.stem]) : [precomputedEmbedding];
+  const embedding = generatedEmbedding ?? null;
   const comparableExisting = existingQuestions
     .filter((question) => question.id !== excludeQuestionId)
     .map((question) => ({
@@ -760,6 +763,7 @@ export async function createManualQuestionBank(params: {
 
   const created: Question[] = [];
   let skippedCount = 0;
+  const parsedEmbeddings = await embedTexts(parsedQuestions.map((question) => question.stem));
   const linkedChunkIds = material.ContentChunk.map((chunk) => chunk.id);
   const fallbackSourceSnippet =
     material.extractedText?.slice(0, 220) ||
@@ -771,7 +775,8 @@ export async function createManualQuestionBank(params: {
     : 0;
   let nextManualOrder = maxOrder + 1;
 
-  for (const candidate of parsedQuestions) {
+  for (let index = 0; index < parsedQuestions.length; index += 1) {
+    const candidate = parsedQuestions[index];
     // Always assign the next available order, ignoring candidate.manualOrder
     const targetManualOrder = nextManualOrder;
     const payload = {
@@ -781,10 +786,14 @@ export async function createManualQuestionBank(params: {
     } satisfies ManualQuestionPayload;
 
     try {
-      const record = await buildManualQuestionRecord(material, payload, targetManualOrder, [
-        ...existing,
-        ...created,
-      ]);
+      const record = await buildManualQuestionRecord(
+        material,
+        payload,
+        targetManualOrder,
+        [...existing, ...created],
+        undefined,
+        parsedEmbeddings[index],
+      );
       const question = await db.question.create({
         data: {
           ...record,

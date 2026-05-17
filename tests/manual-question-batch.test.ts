@@ -79,6 +79,72 @@ Difficulties
   assert.equal(parsed[0].explanation, "The left ventricle forms the apex of the heart.");
 });
 
+test("manual question batch parser supports indented uppercase numbered sections", () => {
+  const parsed = parseManualQuestionBatch({
+    type: QuestionType.MCQ,
+    defaultDifficulty: Difficulty.INTERMEDIATE,
+    input: ` QUESTIONS
+
+1. Amino acid metabolism refers to which of the following?
+2. Which inherited metabolic diseases are caused by defects in amino acid metabolism?
+
+ OPTIONS
+
+1. A. Only the synthesis of amino acids | B. Biochemical processes of synthesis, breakdown, interconversion, and utilization of amino acids | C. Only the catabolism of amino acids | D. Transport of amino acids in the blood
+2. A. Diabetes mellitus and hypertension | B. Phenylketonuria (PKU) and Maple Syrup Urine Disease (MSUD) | C. Sickle cell anemia and thalassemia | D. Hemophilia and Turner syndrome
+
+ ANSWERS
+
+1. B
+2. B
+
+EXPLANATIONS
+
+1. The material defines amino acid metabolism as synthesis, breakdown, interconversion, and utilization of amino acids.
+2. The material explicitly states PKU and MSUD are inherited metabolic diseases caused by defects in amino acid metabolism.`,
+  });
+
+  assert.equal(parsed.length, 2);
+  assert.equal(parsed[0].answer, "Biochemical processes of synthesis, breakdown, interconversion, and utilization of amino acids");
+  assert.equal(parsed[1].answer, "Phenylketonuria (PKU) and Maple Syrup Urine Disease (MSUD)");
+});
+
+test("manual question batch parser supports large numbered MCQ banks", () => {
+  const total = 200;
+  const numberedLines = (prefix: string) =>
+    Array.from({ length: total }, (_, index) => `${index + 1}. ${prefix} ${index + 1}`).join("\n");
+  const optionLines = Array.from(
+    { length: total },
+    (_, index) =>
+      `${index + 1}. A. Distractor A ${index + 1} | B. Correct answer ${index + 1} | C. Distractor C ${index + 1} | D. Distractor D ${index + 1}`,
+  ).join("\n");
+  const answerLines = Array.from({ length: total }, (_, index) => `${index + 1}. B`).join("\n");
+
+  const parsed = parseManualQuestionBatch({
+    type: QuestionType.MCQ,
+    defaultDifficulty: Difficulty.INTERMEDIATE,
+    input: ` QUESTIONS
+
+${numberedLines("Question")}
+
+ OPTIONS
+
+${optionLines}
+
+ ANSWERS
+
+${answerLines}
+
+ EXPLANATIONS
+
+${numberedLines("Explanation")}`,
+  });
+
+  assert.equal(parsed.length, total);
+  assert.equal(parsed[0].answer, "Correct answer 1");
+  assert.equal(parsed[199].answer, "Correct answer 200");
+});
+
 test("manual question batch parser marks unsupported leading text as user input", () => {
   assert.throws(
     () =>
