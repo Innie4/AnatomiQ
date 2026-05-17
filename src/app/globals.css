@@ -19,6 +19,9 @@
   --danger-hover: #dc2626;
   --success: #10b981;
   --warning: #f59e0b;
+  --font-plus-jakarta: "Plus Jakarta Sans", Inter, ui-sans-serif, system-ui, sans-serif;
+  --font-newsreader: Newsreader, Georgia, Cambria, "Times New Roman", serif;
+  --font-ibm-plex-mono: "IBM Plex Mono", "Cascadia Mono", Consolas, monospace;
 }
 
 @theme inline {

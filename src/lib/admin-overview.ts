@@ -26,44 +26,47 @@ export async function getAdminOverview() {
   }
 
   try {
-    // Test database connection
-    await db.$connect();
-
-    const [
-      totalMaterials,
-      readyMaterials,
-      processingMaterials,
-      failedMaterials,
-      totalChunks,
-      totalQuestions,
-      totalConcepts,
-      recentMaterials,
-      topicCoverage,
-    ] = await Promise.all([
-      db.material.count(),
-      db.material.count({ where: { status: MaterialStatus.READY } }),
-      db.material.count({ where: { status: MaterialStatus.PROCESSING } }),
-      db.material.count({ where: { status: MaterialStatus.FAILED } }),
-      db.contentChunk.count(),
-      db.question.count(),
-      db.concept.count(),
-      db.material.findMany({
-        orderBy: { createdAt: "desc" },
-        take: 8,
-        include: {
-          topic: true,
-          subtopic: true,
-          course: true,
-          _count: {
-            select: {
-              ContentChunk: true,
-              Question: true,
-            },
+    const [summary] = (await db.$queryRaw`
+      SELECT
+        (SELECT COUNT(*)::int FROM "Material") AS "totalMaterials",
+        (SELECT COUNT(*)::int FROM "Material" WHERE "status" = 'READY') AS "readyMaterials",
+        (SELECT COUNT(*)::int FROM "Material" WHERE "status" = 'PROCESSING') AS "processingMaterials",
+        (SELECT COUNT(*)::int FROM "Material" WHERE "status" = 'FAILED') AS "failedMaterials",
+        (SELECT COUNT(*)::int FROM "ContentChunk") AS "totalChunks",
+        (SELECT COUNT(*)::int FROM "Question") AS "totalQuestions",
+        (SELECT COUNT(*)::int FROM "Concept") AS "totalConcepts"
+    `) as Array<{
+      totalMaterials: number;
+      readyMaterials: number;
+      processingMaterials: number;
+      failedMaterials: number;
+      totalChunks: number;
+      totalQuestions: number;
+      totalConcepts: number;
+    }>;
+    const totalMaterials = Number(summary?.totalMaterials ?? 0);
+    const readyMaterials = Number(summary?.readyMaterials ?? 0);
+    const processingMaterials = Number(summary?.processingMaterials ?? 0);
+    const failedMaterials = Number(summary?.failedMaterials ?? 0);
+    const totalChunks = Number(summary?.totalChunks ?? 0);
+    const totalQuestions = Number(summary?.totalQuestions ?? 0);
+    const totalConcepts = Number(summary?.totalConcepts ?? 0);
+    const recentMaterials = await db.material.findMany({
+      orderBy: { createdAt: "desc" },
+      take: 8,
+      include: {
+        topic: true,
+        subtopic: true,
+        course: true,
+        _count: {
+          select: {
+            ContentChunk: true,
+            Question: true,
           },
         },
-      }),
-      getTopicCoverage(),
-    ]);
+      },
+    });
+    const topicCoverage = await getTopicCoverage();
 
     const statusDistribution = [
       { label: "Ready", value: readyMaterials, status: MaterialStatus.READY },
@@ -115,9 +118,5 @@ export async function getAdminOverview() {
   } catch (error) {
     console.error("Falling back to an empty admin overview because the database is unavailable.", error);
     return emptyState;
-  } finally {
-    await db.$disconnect().catch(() => {
-      // Ignore disconnect errors
-    });
   }
 }

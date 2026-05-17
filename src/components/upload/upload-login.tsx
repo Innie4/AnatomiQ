@@ -22,8 +22,7 @@ export function UploadLogin() {
     setError(null);
 
     try {
-      // Verify the key by trying to fetch admin overview
-      const response = await fetch("/api/admin-overview", {
+      const response = await fetch("/api/auth/verify", {
         headers: { "x-admin-upload-key": adminKey },
       });
 

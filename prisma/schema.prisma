@@ -138,6 +138,8 @@ model Material {
   processingNotes                  String?
   metadata                         String?
   sourcePages                      Int?
+  processingStartedAt              DateTime?
+  processedAt                      DateTime?
   createdAt                        DateTime       @default(now())
   updatedAt                        DateTime       @updatedAt
   ContentChunk ContentChunk[]
@@ -145,6 +147,8 @@ model Material {
   subtopic     Topic?         @relation("Material_subtopicIdToTopic", fields: [subtopicId], references: [id])
   topic        Topic          @relation("Material_topicIdToTopic", fields: [topicId], references: [id])
   Question     Question[]
+
+  @@index([status, updatedAt])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

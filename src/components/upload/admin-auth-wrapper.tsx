@@ -29,7 +29,7 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
       setError("");
       setLoading(true);
       try {
-        const response = await fetch("/api/admin-overview", {
+        const response = await fetch("/api/auth/verify", {
           headers: { "x-admin-upload-key": trimmedKey },
         });
 

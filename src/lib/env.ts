@@ -6,6 +6,7 @@ export const env = {
   openAiApiKey: getEnv("OPENAI_API_KEY"),
   openAiQuestionModel: getEnv("OPENAI_QUESTION_MODEL") || "gpt-5-mini",
   openAiExtractionModel: getEnv("OPENAI_EXTRACTION_MODEL") || "gpt-5-mini",
+  openAiExtractionTimeoutMs: Number(getEnv("OPENAI_EXTRACTION_TIMEOUT_MS") || 15000),
   openAiEmbeddingModel: getEnv("OPENAI_EMBEDDING_MODEL") || "text-embedding-3-small",
   adminUploadKey: getEnv("ADMIN_UPLOAD_KEY"),
   storageMode: getEnv("STORAGE_MODE") || "supabase",

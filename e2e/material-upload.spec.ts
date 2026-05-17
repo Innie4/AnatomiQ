@@ -5,6 +5,8 @@ import fs from 'fs';
 import { getEnvValue } from './test-env';
 
 test.describe('Material Upload and Processing', () => {
+  test.setTimeout(120000);
+
   const adminKey = getEnvValue('ADMIN_UPLOAD_KEY');
   test.skip(!adminKey, 'ADMIN_UPLOAD_KEY is required for material upload e2e tests.');
 

@@ -24,6 +24,22 @@ test("database migration exposes manual question columns", async () => {
   );
 });
 
+test("database migration exposes material processing timestamps", async () => {
+  const columns = (await db.$queryRawUnsafe(`
+    select column_name
+    from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'Material'
+      and column_name in ('processingStartedAt', 'processedAt')
+    order by column_name
+  `)) as Array<{ column_name: string }>;
+
+  assert.deepEqual(
+    columns.map((column) => column.column_name),
+    ["processedAt", "processingStartedAt"].sort(),
+  );
+});
+
 test("manual question service links uploaded questions to the target material", async () => {
   const material = await createTestMaterial();
 

@@ -27,6 +27,23 @@ export async function createTestMaterial() {
 }
 
 export async function cleanupCourse(courseId: string) {
+  await db.conceptFact.deleteMany({
+    where: {
+      chunk: {
+        material: { courseId },
+      },
+    },
+  });
+  await db.contentChunk.deleteMany({
+    where: {
+      material: { courseId },
+    },
+  });
+  await db.concept.deleteMany({
+    where: {
+      topic: { courseId },
+    },
+  });
   await db.course.delete({
     where: { id: courseId },
   });

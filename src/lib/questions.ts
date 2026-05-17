@@ -2,6 +2,7 @@ import {
   QuestionAuthoringMode,
   CounterMetric,
   Difficulty,
+  MaterialStatus,
   QuestionType,
   type ContentChunk,
   type Question,
@@ -161,6 +162,7 @@ async function getSourceChunks(selection: TopicSelection) {
     where: {
       topicId: selection.topicId,
       ...(selection.subtopicId ? { subtopicId: selection.subtopicId } : {}),
+      material: { status: MaterialStatus.READY },
     },
     orderBy: [{ material: { createdAt: "desc" } }, { sequence: "asc" }],
   });
