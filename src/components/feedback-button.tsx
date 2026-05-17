@@ -43,7 +43,7 @@ export function FeedbackButton() {
     return (
       <button
         onClick={() => setIsOpen(true)}
-        className="fixed bottom-6 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#0969da] to-[#0ca678] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl active:scale-95"
+        className="fixed bottom-24 lg:bottom-10 right-6 z-50 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-[#0969da] to-[#0ca678] text-white shadow-lg transition-all hover:scale-110 hover:shadow-xl active:scale-95"
         aria-label="Open feedback form"
       >
         <MessageCircle className="h-6 w-6" />
@@ -52,7 +52,7 @@ export function FeedbackButton() {
   }
 
   return (
-    <div className="fixed bottom-6 right-6 z-50 w-80 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
+    <div className="fixed bottom-24 lg:bottom-10 right-6 z-50 w-80 rounded-2xl border border-slate-200 bg-white p-5 shadow-2xl">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="font-semibold text-slate-900">Send Feedback</h3>
         <button

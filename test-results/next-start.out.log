@@ -1,0 +1,42 @@
+
+> anatomiq@0.1.1 start
+> next start --port 3000
+
+▲ Next.js 16.2.4
+- Local:         http://localhost:3000
+- Network:       http://192.168.5.7:3000
+✓ Ready in 1846ms
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+[upload-material] File received: e2e-test-material.txt 405 text/plain
+[upload-material] Validating schema
+[upload-material] Parsed data: {
+  title: 'E2E Test Material',
+  courseCode: 'ANA101',
+  courseName: 'Human Anatomy',
+  topicName: 'General Anatomy',
+  subtopicName: 'Body Organization'
+}
+[upload-material] Converting file to buffer
+[upload-material] Uploading to S3: materials/human-anatomy/1778833561402-3451c98a-f462-41d6-85d7-c1108edcb368.txt
+[upload-material] S3 upload successful, creating material record
+[materials] Creating material: E2E Test Material
+[materials] Ensuring hierarchy: {
+  courseCode: 'ANA101',
+  courseName: 'Human Anatomy',
+  topicName: 'General Anatomy',
+  subtopicName: 'Body Organization'
+}
+[materials] Upserting course: human-anatomy
+[materials] Course ready: 0ff37a73-4e63-480c-82f0-06070d4287d0
+[materials] Upserting topic: general-anatomy
+[materials] Topic ready: 4c74cbdf-4f1f-4446-91cb-f8252635bc67
+[materials] Upserting subtopic: general-anatomy-body-organization
+[materials] Subtopic ready: 66e2e358-7aa4-4627-bf28-ac3884cc26d7
+[materials] Creating material record in database
+[materials] Material record created successfully: c3c4a6a3-3141-4e4d-8b87-80a67792e767
+[upload-material] Material created: c3c4a6a3-3141-4e4d-8b87-80a67792e767
+[upload-material] Logging audit
+[upload-material] Upload complete
+[extractors] Treating as plain text

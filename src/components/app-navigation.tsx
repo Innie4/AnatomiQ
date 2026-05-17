@@ -3,10 +3,9 @@
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
-import { Home, BookOpen, FileQuestion } from "lucide-react";
+import { Home, BookOpen, FileQuestion, User } from "lucide-react";
 
 import { APP_NAME } from "@/lib/constants";
-import { RandomizeExamButton } from "./randomize-exam-button";
 
 const navigationLinks = [
   {
@@ -100,9 +99,20 @@ export function AppNavigation() {
             })}
           </nav>
 
-          {/* Randomize Exam Button */}
+          {/* Profile Button (Coming Soon) */}
           <div className="border-t border-slate-200 p-4">
-            <RandomizeExamButton className="flex w-full items-center justify-center gap-2 rounded-xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-[1.02] hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none" />
+            <div className="flex w-full items-center gap-3 rounded-xl px-4 py-3 text-slate-400 grayscale cursor-not-allowed bg-slate-50/50">
+              <User className="h-5 w-5 text-slate-300" />
+              <div className="flex-1">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold">Profile</span>
+                  <span className="rounded-md bg-slate-200 px-1.5 py-0.5 text-[10px] font-bold uppercase tracking-wider text-slate-500">
+                    Coming Soon
+                  </span>
+                </div>
+                <div className="text-xs text-slate-400">Personalized analytics</div>
+              </div>
+            </div>
           </div>
         </div>
       </aside>
@@ -153,6 +163,13 @@ export function AppNavigation() {
               </Link>
             );
           })}
+          
+          {/* Mobile Profile (Coming Soon) */}
+          <div className="relative flex flex-1 flex-col items-center gap-1 px-4 py-2 text-slate-300 grayscale cursor-not-allowed">
+            <User className="h-6 w-6" />
+            <span className="text-[10px] font-bold uppercase tracking-tighter">Soon</span>
+            <span className="text-xs font-semibold">Profile</span>
+          </div>
         </div>
       </nav>
     </>

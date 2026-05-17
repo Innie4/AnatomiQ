@@ -234,8 +234,8 @@ export function ExamClient({
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
-          <label className="space-y-2">
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-12">
+          <label className="space-y-2 xl:col-span-3">
             <span className="text-sm font-semibold text-slate-700">Course</span>
             <select
               value={courseSlug}
@@ -250,7 +250,7 @@ export function ExamClient({
             </select>
           </label>
 
-          <label className="space-y-2">
+          <label className="space-y-2 xl:col-span-3">
             <span className="text-sm font-semibold text-slate-700">Topic</span>
             <select
               value={topicSlug}
@@ -265,7 +265,7 @@ export function ExamClient({
             </select>
           </label>
 
-          <label className="space-y-2">
+          <label className="space-y-2 xl:col-span-3">
             <span className="text-sm font-semibold text-slate-700">Subtopic</span>
             <select
               value={resolvedSubtopicSlug}
@@ -281,8 +281,8 @@ export function ExamClient({
             </select>
           </label>
 
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Question type</span>
+          <label className="space-y-2 xl:col-span-1">
+            <span className="text-sm font-semibold text-slate-700 truncate block">Type</span>
             <select
               value={type}
               onChange={(event) => setType(event.target.value as typeof type)}
@@ -303,8 +303,8 @@ export function ExamClient({
             </select>
           </label>
 
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Questions</span>
+          <label className="space-y-2 xl:col-span-1">
+            <span className="text-sm font-semibold text-slate-700 truncate block">Questions</span>
             <select
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}
@@ -318,8 +318,8 @@ export function ExamClient({
             </select>
           </label>
 
-          <label className="space-y-2">
-            <span className="text-sm font-semibold text-slate-700">Timer</span>
+          <label className="space-y-2 xl:col-span-1">
+            <span className="text-sm font-semibold text-slate-700 truncate block">Timer</span>
             <select
               value={durationMinutes}
               onChange={(event) => setDurationMinutes(Number(event.target.value))}
