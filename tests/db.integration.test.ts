@@ -40,6 +40,29 @@ test("database migration exposes material processing timestamps", async () => {
   );
 });
 
+test("manual question order is unique per material and question type", async () => {
+  const indexes = (await db.$queryRawUnsafe(`
+    select indexname, indexdef
+    from pg_indexes
+    where schemaname = 'public'
+      and tablename = 'Question'
+      and indexname in (
+        'Question_materialId_manualOrder_key',
+        'Question_materialId_type_manualOrder_key'
+      )
+    order by indexname
+  `)) as Array<{ indexname: string; indexdef: string }>;
+
+  assert.equal(indexes.some((index) => index.indexname === "Question_materialId_manualOrder_key"), false);
+  assert.ok(
+    indexes.some(
+      (index) =>
+        index.indexname === "Question_materialId_type_manualOrder_key" &&
+        index.indexdef.includes('"materialId", type, "manualOrder"'),
+    ),
+  );
+});
+
 test("manual question service links uploaded questions to the target material", async () => {
   const material = await createTestMaterial();
 
@@ -85,6 +108,54 @@ Explanation: The apex is formed by the left ventricle.`,
 
     assert.ok(match);
     assert.equal(match?.linkedQuestionCount, 1);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});
+
+test("manual question banks can reuse question numbers across different types", async () => {
+  const material = await createTestMaterial();
+
+  try {
+    const mcqResult = await createManualQuestionBank({
+      materialId: material.id,
+      type: QuestionType.MCQ,
+      defaultDifficulty: Difficulty.INTERMEDIATE,
+      input: `Question: Which chamber forms the apex of the heart?
+Options:
+- Right ventricle
+- Left ventricle
+- Right atrium
+- Left atrium
+Answer: Left ventricle
+Explanation: The apex is formed by the left ventricle.`,
+    });
+
+    const shortAnswerResult = await createManualQuestionBank({
+      materialId: material.id,
+      type: QuestionType.SHORT_ANSWER,
+      defaultDifficulty: Difficulty.FOUNDATIONAL,
+      input: `Question: State the principal motor nerve supply of the diaphragm.
+Answer: The phrenic nerve supplies the diaphragm.
+Explanation: The phrenic nerve provides the primary motor supply.`,
+    });
+
+    assert.equal(mcqResult.createdCount, 1);
+    assert.equal(shortAnswerResult.createdCount, 1);
+
+    const storedQuestions = await db.question.findMany({
+      where: { materialId: material.id },
+      orderBy: [{ type: "asc" }, { manualOrder: "asc" }],
+      select: { type: true, manualOrder: true },
+    });
+
+    assert.deepEqual(
+      storedQuestions.map((question) => ({ type: question.type, manualOrder: question.manualOrder })),
+      [
+        { type: QuestionType.MCQ, manualOrder: 1 },
+        { type: QuestionType.SHORT_ANSWER, manualOrder: 1 },
+      ],
+    );
   } finally {
     await cleanupCourse(material.course.id);
   }

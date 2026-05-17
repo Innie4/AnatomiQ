@@ -193,3 +193,37 @@ Explanations
     await cleanupCourse(material.course.id);
   }
 });
+
+test("manual upload API returns validation errors without a 500", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "MCQ",
+          defaultDifficulty: "INTERMEDIATE",
+          input: `Question: Which chamber forms the apex of the heart?
+Options:
+- Right ventricle
+- Left ventricle
+Answer: B
+Explanation: The apex is formed by the left ventricle.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { error?: string };
+
+    assert.equal(response.status, 422);
+    assert.match(payload.error ?? "", /must include exactly four options/i);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});

@@ -178,8 +178,8 @@ model Question {
   subtopic    Topic?    @relation("Question_subtopicIdToTopic", fields: [subtopicId], references: [id])
   topic       Topic     @relation("Question_topicIdToTopic", fields: [topicId], references: [id])
 
-  @@unique([materialId, manualOrder])
-  @@index([materialId, manualOrder])
+  @@unique([materialId, type, manualOrder])
+  @@index([materialId, type, manualOrder])
   @@index([materialId, type])
   @@index([subtopicId, type])
   @@index([topicId, type])
