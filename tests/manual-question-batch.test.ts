@@ -3,6 +3,7 @@ import test from "node:test";
 
 import { Difficulty, QuestionType } from "@prisma/client";
 
+import { UserInputError } from "../src/lib/errors";
 import { countManualQuestionBlocks, parseManualQuestionBatch } from "../src/lib/manual-question-batch";
 
 test("manual question batch parser handles mcq blocks and answer letters", () => {
@@ -76,4 +77,22 @@ Difficulties
   assert.equal(parsed[0].manualOrder, 1);
   assert.equal(parsed[0].answer, "Left ventricle");
   assert.equal(parsed[0].explanation, "The left ventricle forms the apex of the heart.");
+});
+
+test("manual question batch parser marks unsupported leading text as user input", () => {
+  assert.throws(
+    () =>
+      parseManualQuestionBatch({
+        type: QuestionType.SHORT_ANSWER,
+        defaultDifficulty: Difficulty.INTERMEDIATE,
+        input: `Here are my questions:
+Question: State the nerve supply of the diaphragm.
+Answer: The phrenic nerve.
+Explanation: The phrenic nerve is the motor supply.`,
+      }),
+    (error) =>
+      error instanceof UserInputError &&
+      error.statusCode === 422 &&
+      /contains text before a supported field label/i.test(error.message),
+  );
 });

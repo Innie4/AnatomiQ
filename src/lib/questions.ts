@@ -18,6 +18,7 @@ import {
 } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { env, hasDatabase, hasOpenAi } from "@/lib/env";
+import { ConflictError, UserInputError } from "@/lib/errors";
 import { parseJsonString, toJsonString } from "@/lib/json";
 import { generateLocalQuestionDrafts } from "@/lib/local-question-generator";
 import { parseManualQuestionBatch } from "@/lib/manual-question-batch";
@@ -207,7 +208,7 @@ async function ensureUniqueManualOrder(params: {
   });
 
   if (existing) {
-    throw new Error(`Question number ${params.manualOrder} is already in use for this ${params.type} question type.`);
+    throw new ConflictError(`Question number ${params.manualOrder} is already in use for this ${params.type} question type.`);
   }
 }
 
@@ -233,7 +234,7 @@ function normalizeManualOptions(type: QuestionType, options?: string[]) {
   const normalized = (options ?? []).map((option) => option.trim()).filter(Boolean).slice(0, 4);
 
   if (normalized.length !== 4) {
-    throw new Error("MCQ questions require exactly four options.");
+    throw new UserInputError("MCQ questions require exactly four options.");
   }
 
   return normalized;
@@ -248,7 +249,7 @@ function ensureAnswerMatchesOptions(answer: string, options?: string[]) {
   const resolved = answerIndex >= 0 ? options[answerIndex] : answer.trim();
 
   if (!options.some((option) => normalizeComparableAnswer(option) === normalizeComparableAnswer(resolved))) {
-    throw new Error("The answer must match one of the provided options.");
+    throw new UserInputError("The answer must match one of the provided options.");
   }
 
   return resolved;
@@ -283,7 +284,7 @@ async function buildManualQuestionRecord(
       comparableExisting,
     )
   ) {
-    throw new Error("A highly similar question already exists for this material.");
+    throw new UserInputError("A highly similar question already exists for this material.");
   }
 
   return {

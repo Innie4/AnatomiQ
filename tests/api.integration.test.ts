@@ -227,3 +227,35 @@ Explanation: The apex is formed by the left ventricle.`,
     await cleanupCourse(material.course.id);
   }
 });
+
+test("manual upload API returns unsupported leading text errors without a 500", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "SHORT_ANSWER",
+          defaultDifficulty: "INTERMEDIATE",
+          input: `Here are my questions:
+Question: State the nerve supply of the diaphragm.
+Answer: The phrenic nerve.
+Explanation: The phrenic nerve is the motor supply.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { error?: string };
+
+    assert.equal(response.status, 422);
+    assert.match(payload.error ?? "", /contains text before a supported field label/i);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});
