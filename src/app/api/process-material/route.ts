@@ -4,6 +4,9 @@ import { processMaterial } from "@/lib/materials";
 import { processMaterialSchema } from "@/lib/schemas";
 import { db } from "@/lib/db";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   console.log("[api/process-material] Starting request");
   try {

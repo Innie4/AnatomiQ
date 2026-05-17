@@ -8,6 +8,9 @@ import { createManualQuestionBank } from "@/lib/questions";
 import { uploadManualQuestionBatchSchema } from "@/lib/schemas";
 import { db } from "@/lib/db";
 
+export const runtime = "nodejs";
+export const maxDuration = 60;
+
 export async function POST(request: Request) {
   try {
     const auth = await authenticateRequest(db, request);

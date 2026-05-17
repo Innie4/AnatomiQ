@@ -8,10 +8,11 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
   const [adminKey, setAdminKey] = useState("");
   const [inputKey, setInputKey] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const savedKey = localStorage.getItem("anatomiq:admin-key");
+    const savedKey = sessionStorage.getItem("anatomiq:admin-key") ?? localStorage.getItem("anatomiq:admin-key");
     const wasCleared = sessionStorage.getItem("anatomiq:key-cleared");
 
     if (wasCleared) {
@@ -22,11 +23,27 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
     }
   }, []);
 
-  function handleSubmit() {
-    if (inputKey) {
+  async function handleSubmit() {
+    const trimmedKey = inputKey.trim();
+    if (trimmedKey) {
       setError("");
-      localStorage.setItem("anatomiq:admin-key", inputKey);
-      setAdminKey(inputKey);
+      setLoading(true);
+      try {
+        const response = await fetch("/api/admin-overview", {
+          headers: { "x-admin-upload-key": trimmedKey },
+        });
+
+        if (!response.ok) {
+          throw new Error("Invalid admin key. Please enter a valid key.");
+        }
+
+        sessionStorage.setItem("anatomiq:admin-key", trimmedKey);
+        setAdminKey(trimmedKey);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Authentication failed.");
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
@@ -63,19 +80,20 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                handleSubmit();
+                void handleSubmit();
               }
             }}
             placeholder="Enter admin key"
+            aria-label="Admin upload key"
             className="mt-6 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
             autoFocus
           />
           <button
-            onClick={handleSubmit}
-            disabled={!inputKey}
+            onClick={() => void handleSubmit()}
+            disabled={!inputKey.trim() || loading}
             className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#0969da] to-[#0ca678] px-4 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
           >
-            Continue
+            {loading ? "Checking..." : "Unlock dashboard"}
           </button>
         </div>
       </div>

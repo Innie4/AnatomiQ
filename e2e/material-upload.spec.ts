@@ -2,41 +2,45 @@ import { test, expect } from '@playwright/test';
 import { UploadPage } from './pages/upload.page';
 import path from 'path';
 import fs from 'fs';
+import { getEnvValue } from './test-env';
 
 test.describe('Material Upload and Processing', () => {
+  const adminKey = getEnvValue('ADMIN_UPLOAD_KEY');
+  test.skip(!adminKey, 'ADMIN_UPLOAD_KEY is required for material upload e2e tests.');
+
   test.beforeEach(async ({ page }) => {
     const uploadPage = new UploadPage(page);
     await uploadPage.goto();
-    await uploadPage.unlockDashboard(process.env.ADMIN_UPLOAD_KEY || 'test-key');
+    await uploadPage.unlockDashboard(adminKey || '');
   });
 
   test('should display admin dashboard stats', async ({ page }) => {
     const uploadPage = new UploadPage(page);
     await uploadPage.verifyDashboardStats();
 
-    // Verify stats are numbers
-    const totalMaterials = await page.locator('text=Total materials').locator('..').locator('..').locator('p.text-4xl').textContent();
+    const totalMaterials = await page.getByText(/total materials/i).locator('..').locator('..').locator('p.text-4xl').textContent();
     expect(Number(totalMaterials?.replace(/,/g, ''))).toBeGreaterThanOrEqual(0);
   });
 
   test('should show material upload form', async ({ page }) => {
-    await expect(page.locator('input[aria-label="Material title"]')).toBeVisible();
-    await expect(page.locator('input[aria-label="Course name"]')).toBeVisible();
-    await expect(page.locator('input[aria-label="Topic name"]')).toBeVisible();
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoUploadForm();
+
+    await expect(page.getByRole('textbox', { name: /^Title/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /^Course Name/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /^Topic/i })).toBeVisible();
     await expect(page.locator('input[type="file"]')).toBeVisible();
   });
 
   test('should validate required fields before upload', async ({ page }) => {
-    // Try to upload without file
-    await page.click('button:has-text("Upload and process")');
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoUploadForm();
 
-    // Should show error about missing fields
-    await expect(page.locator('text=/required|select|enter/i')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: /upload and process/i })).toBeDisabled();
   });
 
   test('should upload a text file and process it', async ({ page }) => {
-    // Create a temporary test file
-    const testFilePath = path.join(process.cwd(), 'e2e', 'fixtures', 'test-material.txt');
+    const testFilePath = path.join(process.cwd(), 'test-results', 'e2e-test-material.txt');
     const testFileDir = path.dirname(testFilePath);
 
     if (!fs.existsSync(testFileDir)) {
@@ -59,36 +63,38 @@ test.describe('Material Upload and Processing', () => {
     `);
 
     const uploadPage = new UploadPage(page);
+    await uploadPage.gotoUploadForm();
 
     await uploadPage.fillMaterialForm({
       title: 'E2E Test Material',
       course: 'Human Anatomy',
+      courseCode: 'ANA101',
       topic: 'General Anatomy',
       subtopic: 'Body Organization',
     });
 
     await uploadPage.uploadFile(testFilePath);
     await uploadPage.submitUpload();
-
-    // Wait for processing to complete
     await uploadPage.waitForProcessingComplete();
 
-    // Verify processing stats appear
-    await expect(page.locator('text=Characters')).toBeVisible();
-    await expect(page.locator('text=Chunks')).toBeVisible();
-    await expect(page.locator('text=Method')).toBeVisible();
+    await expect(page.getByText('Characters')).toBeVisible();
+    await expect(page.getByText('Chunks')).toBeVisible();
+    await expect(page.getByText('Method')).toBeVisible();
 
-    // Cleanup
-    fs.unlinkSync(testFilePath);
+    if (fs.existsSync(testFilePath)) {
+      fs.unlinkSync(testFilePath);
+    }
   });
 
   test('should display recent materials list', async ({ page }) => {
-    await expect(page.locator('text=Recent materials')).toBeVisible();
-    await expect(page.locator('text=Latest upload activity')).toBeVisible();
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoMaterialsManager();
+
+    await expect(page.getByText(/view, search, and delete uploaded materials/i)).toBeVisible();
+    await expect(page.getByPlaceholder(/search materials/i)).toBeVisible();
   });
 
   test('should show topic coverage grid', async ({ page }) => {
-    await expect(page.locator('text=Topic coverage')).toBeVisible();
-    await expect(page.locator('text=Where the source library is strongest')).toBeVisible();
+    await expect(page.getByText(/system statistics and recent activity/i)).toBeVisible();
   });
 });

@@ -16,7 +16,7 @@ export async function GET(request: Request) {
     const url = new URL(request.url);
     const query = materialQuestionQuerySchema.parse({
       materialId: url.searchParams.get("materialId"),
-      type: url.searchParams.get("type"),
+      type: url.searchParams.get("type") ?? undefined,
     });
     const questions = await listManualQuestions(query.materialId, query.type as QuestionType | undefined);
     return ok({ questions });

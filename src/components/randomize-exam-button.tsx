@@ -15,6 +15,27 @@ type TopicOption = {
   isSubtopic: boolean;
 };
 
+type ChildTopic = {
+  id: string;
+  slug: string;
+  name: string;
+};
+
+type TopicData = {
+  id: string;
+  slug: string;
+  name: string;
+  childTopics?: ChildTopic[];
+};
+
+type StartExamPayload = {
+  topicSlug: string;
+  subtopicSlug?: string;
+  type: (typeof types)[number];
+  count: number;
+  durationMinutes?: number;
+};
+
 export function RandomizeExamButton({ className }: { className?: string }) {
   const router = useRouter();
   const [loading, setLoading] = useState(false);
@@ -34,7 +55,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
 
       // Flatten all topics and subtopics into a single array
       if (topicsData.topics && Array.isArray(topicsData.topics)) {
-        topicsData.topics.forEach((topic: any) => {
+        (topicsData.topics as TopicData[]).forEach((topic) => {
           // Add main topic (topic slug IS the courseSlug)
           allTopics.push({
             id: topic.id,
@@ -46,7 +67,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
 
           // Add subtopics if they exist (childTopics, not children)
           if (topic.childTopics && Array.isArray(topic.childTopics)) {
-            topic.childTopics.forEach((subtopic: any) => {
+            topic.childTopics.forEach((subtopic) => {
               allTopics.push({
                 id: subtopic.id,
                 slug: subtopic.slug,
@@ -98,7 +119,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       const randomTimer = timerOptions[Math.floor(Math.random() * timerOptions.length)];
 
       // Build payload based on whether it's a subtopic or main topic
-      const payload: any = {
+      const payload: StartExamPayload = {
         topicSlug: randomTopic.courseSlug, // Always use the parent topic slug
         type: randomType,
         count: randomCount,

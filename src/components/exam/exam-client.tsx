@@ -235,9 +235,10 @@ export function ExamClient({
         </div>
 
         <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-12">
-          <label className="space-y-2 xl:col-span-3">
-            <span className="text-sm font-semibold text-slate-700">Course</span>
+          <div className="space-y-2 xl:col-span-3">
+            <label htmlFor="exam-course" className="block text-sm font-semibold text-slate-700">Course</label>
             <select
+              id="exam-course"
               value={courseSlug}
               onChange={(event) => setCourseSlug(event.target.value)}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
@@ -248,11 +249,12 @@ export function ExamClient({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="space-y-2 xl:col-span-3">
-            <span className="text-sm font-semibold text-slate-700">Topic</span>
+          <div className="space-y-2 xl:col-span-3">
+            <label htmlFor="exam-topic" className="block text-sm font-semibold text-slate-700">Topic</label>
             <select
+              id="exam-topic"
               value={topicSlug}
               onChange={(event) => setTopicSlug(event.target.value)}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
@@ -263,11 +265,12 @@ export function ExamClient({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="space-y-2 xl:col-span-3">
-            <span className="text-sm font-semibold text-slate-700">Subtopic</span>
+          <div className="space-y-2 xl:col-span-3">
+            <label htmlFor="exam-subtopic" className="block text-sm font-semibold text-slate-700">Subtopic</label>
             <select
+              id="exam-subtopic"
               value={resolvedSubtopicSlug}
               onChange={(event) => setSubtopicSlug(event.target.value)}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
@@ -279,11 +282,12 @@ export function ExamClient({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="space-y-2 xl:col-span-1">
-            <span className="text-sm font-semibold text-slate-700 truncate block">Type</span>
+          <div className="space-y-2 xl:col-span-1">
+            <label htmlFor="exam-type" className="block truncate text-sm font-semibold text-slate-700">Type</label>
             <select
+              id="exam-type"
               value={type}
               onChange={(event) => setType(event.target.value as typeof type)}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
@@ -301,11 +305,12 @@ export function ExamClient({
                 Mixed mode {isMixedModeAvailable ? "" : "(Requires 2+ types)"}
               </option>
             </select>
-          </label>
+          </div>
 
-          <label className="space-y-2 xl:col-span-1">
-            <span className="text-sm font-semibold text-slate-700 truncate block">Questions</span>
+          <div className="space-y-2 xl:col-span-1">
+            <label htmlFor="exam-question-count" className="block truncate text-sm font-semibold text-slate-700">Questions</label>
             <select
+              id="exam-question-count"
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
@@ -316,11 +321,12 @@ export function ExamClient({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
 
-          <label className="space-y-2 xl:col-span-1">
-            <span className="text-sm font-semibold text-slate-700 truncate block">Timer</span>
+          <div className="space-y-2 xl:col-span-1">
+            <label htmlFor="exam-timer" className="block truncate text-sm font-semibold text-slate-700">Timer</label>
             <select
+              id="exam-timer"
               value={durationMinutes}
               onChange={(event) => setDurationMinutes(Number(event.target.value))}
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
@@ -332,7 +338,7 @@ export function ExamClient({
                 </option>
               ))}
             </select>
-          </label>
+          </div>
         </div>
 
         <div className="mt-6 flex flex-col gap-3">

@@ -1,11 +1,41 @@
 "use client";
 
 import { useState } from "react";
-import { MessageCircle, X, Bug, Lightbulb, Send } from "lucide-react";
+import { MessageCircle, X, Bug, Lightbulb, Send, FileUp } from "lucide-react";
 
 const WHATSAPP_NUMBER = "+2348066023759";
 
-type FeedbackType = "problem" | "suggestion";
+type FeedbackType = "problem" | "suggestion" | "material";
+
+const FEEDBACK_OPTIONS: Array<{
+  type: FeedbackType;
+  label: string;
+  helper: string;
+  icon: typeof Bug;
+  activeClasses: string;
+}> = [
+  {
+    type: "problem",
+    label: "Problem/Bug",
+    helper: "Report something broken",
+    icon: Bug,
+    activeClasses: "border-red-200 bg-red-50 text-red-700",
+  },
+  {
+    type: "suggestion",
+    label: "Suggestion",
+    helper: "Share an idea",
+    icon: Lightbulb,
+    activeClasses: "border-green-200 bg-green-50 text-green-700",
+  },
+  {
+    type: "material",
+    label: "Send Materials",
+    helper: "WhatsApp files up to 20MB",
+    icon: FileUp,
+    activeClasses: "border-sky-200 bg-sky-50 text-sky-700",
+  },
+];
 
 export function FeedbackButton() {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,8 +46,17 @@ export function FeedbackButton() {
   const handleSubmit = () => {
     if (!feedbackType || !message.trim()) return;
 
-    const typeLabel = feedbackType === "problem" ? "Problem/Bug" : "Suggestion";
-    const fullMessage = `*${typeLabel}*\n\n${message.trim()}`;
+    const typeLabel =
+      feedbackType === "problem"
+        ? "Problem/Bug"
+        : feedbackType === "suggestion"
+          ? "Suggestion"
+          : "Material Submission";
+    const materialInstruction =
+      feedbackType === "material"
+        ? "\n\nPlease attach the material here on WhatsApp. The file must be 20MB or less."
+        : "";
+    const fullMessage = `*${typeLabel}*\n\n${message.trim()}${materialInstruction}`;
     const encodedMessage = encodeURIComponent(fullMessage);
     const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER.replace("+", "")}?text=${encodedMessage}`;
 
@@ -74,29 +113,27 @@ export function FeedbackButton() {
       ) : (
         <>
           <p className="mb-3 text-sm text-slate-500">What type of feedback is this?</p>
-          <div className="mb-4 flex gap-3">
-            <button
-              onClick={() => setFeedbackType("problem")}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                feedbackType === "problem"
-                  ? "border-red-200 bg-red-50 text-red-700"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <Bug className="h-4 w-4" />
-              Problem/Bug
-            </button>
-            <button
-              onClick={() => setFeedbackType("suggestion")}
-              className={`flex flex-1 items-center justify-center gap-2 rounded-xl border px-4 py-3 text-sm font-medium transition-all ${
-                feedbackType === "suggestion"
-                  ? "border-green-200 bg-green-50 text-green-700"
-                  : "border-slate-200 text-slate-600 hover:bg-slate-50"
-              }`}
-            >
-              <Lightbulb className="h-4 w-4" />
-              Suggestion
-            </button>
+          <div className="mb-4 grid gap-2">
+            {FEEDBACK_OPTIONS.map((option) => {
+              const Icon = option.icon;
+              const isActive = feedbackType === option.type;
+
+              return (
+                <button
+                  key={option.type}
+                  onClick={() => setFeedbackType(option.type)}
+                  className={`flex items-center gap-3 rounded-xl border px-4 py-3 text-left text-sm font-medium transition-all ${
+                    isActive ? option.activeClasses : "border-slate-200 text-slate-600 hover:bg-slate-50"
+                  }`}
+                >
+                  <Icon className="h-4 w-4 shrink-0" />
+                  <span>
+                    <span className="block">{option.label}</span>
+                    <span className="block text-xs font-normal opacity-75">{option.helper}</span>
+                  </span>
+                </button>
+              );
+            })}
           </div>
 
           {feedbackType && (
@@ -107,11 +144,18 @@ export function FeedbackButton() {
                 placeholder={
                   feedbackType === "problem"
                     ? "Describe the problem or bug you encountered..."
-                    : "Share your suggestion or idea..."
+                    : feedbackType === "suggestion"
+                      ? "Share your suggestion or idea..."
+                      : "Add the course, topic, and a short note. You can attach the material after WhatsApp opens..."
                 }
                 className="w-full resize-none rounded-xl border border-slate-200 p-3 text-sm text-slate-900 placeholder:text-slate-400 focus:border-[#0969da] focus:outline-none focus:ring-2 focus:ring-[rgba(9,105,218,0.1)]"
                 rows={4}
               />
+              {feedbackType === "material" ? (
+                <p className="rounded-xl border border-amber-200 bg-amber-50 px-3 py-2 text-xs leading-5 text-amber-800">
+                  Materials sent on WhatsApp must be 20MB or less.
+                </p>
+              ) : null}
               <button
                 onClick={handleSubmit}
                 disabled={!message.trim()}

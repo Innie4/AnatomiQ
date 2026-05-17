@@ -7,6 +7,12 @@ function toBase64(buffer: Buffer) {
   return buffer.toString("base64");
 }
 
+type PdfJsDomGlobals = typeof globalThis & {
+  DOMMatrix?: typeof DOMMatrix;
+  ImageData?: typeof ImageData;
+  Path2D?: typeof Path2D;
+};
+
 async function extractTextViaVision(params: {
   buffer: Buffer;
   fileName: string;
@@ -70,29 +76,38 @@ export async function extractMaterialText(params: {
   mimeType: string;
 }) {
   if (params.mimeType === "application/pdf") {
+    const pdfGlobals = globalThis as PdfJsDomGlobals;
+
     // Polyfill missing browser APIs that pdfjs-dist (via pdf-parse) might expect in serverless environments
-    if (typeof global.DOMMatrix === "undefined") {
+    if (typeof pdfGlobals.DOMMatrix === "undefined") {
       console.log("[extractors] Polyfilling DOMMatrix for pdf-parse");
-      (global as any).DOMMatrix = class DOMMatrix {
+      class PdfDomMatrix {
         a = 1; b = 0; c = 0; d = 1; e = 0; f = 0;
-      };
+      }
+
+      pdfGlobals.DOMMatrix = PdfDomMatrix as unknown as typeof DOMMatrix;
     }
-    if (typeof global.ImageData === "undefined") {
+    if (typeof pdfGlobals.ImageData === "undefined") {
       console.log("[extractors] Polyfilling ImageData for pdf-parse");
-      (global as any).ImageData = class ImageData {
+      class PdfImageData {
         width: number;
         height: number;
         data: Uint8ClampedArray;
+
         constructor(width: number, height: number) {
           this.width = width;
           this.height = height;
           this.data = new Uint8ClampedArray(width * height * 4);
         }
-      };
+      }
+
+      pdfGlobals.ImageData = PdfImageData as unknown as typeof ImageData;
     }
-    if (typeof global.Path2D === "undefined") {
+    if (typeof pdfGlobals.Path2D === "undefined") {
       console.log("[extractors] Polyfilling Path2D for pdf-parse");
-      (global as any).Path2D = class Path2D {};
+      class PdfPath2D {}
+
+      pdfGlobals.Path2D = PdfPath2D as unknown as typeof Path2D;
     }
 
     // Lazy import to avoid loading pdf-parse in serverless environments where it's not needed

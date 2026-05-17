@@ -138,10 +138,11 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label htmlFor="material-title" className="mb-2 block text-sm font-medium text-slate-700">
                 Title <span className="text-rose-500">*</span>
               </label>
               <input
+                id="material-title"
                 type="text"
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
@@ -151,10 +152,11 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label htmlFor="course-code" className="mb-2 block text-sm font-medium text-slate-700">
                 Course Code <span className="text-rose-500">*</span>
               </label>
               <input
+                id="course-code"
                 type="text"
                 value={courseCode}
                 onChange={(e) => setCourseCode(e.target.value)}
@@ -164,10 +166,11 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label htmlFor="course-name" className="mb-2 block text-sm font-medium text-slate-700">
                 Course Name <span className="text-rose-500">*</span>
               </label>
               <input
+                id="course-name"
                 type="text"
                 value={courseName}
                 onChange={(e) => setCourseName(e.target.value)}
@@ -177,10 +180,11 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
             </div>
 
             <div>
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label htmlFor="topic-name" className="mb-2 block text-sm font-medium text-slate-700">
                 Topic <span className="text-rose-500">*</span>
               </label>
               <input
+                id="topic-name"
                 type="text"
                 value={topicName}
                 onChange={(e) => setTopicName(e.target.value)}
@@ -190,10 +194,11 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
             </div>
 
             <div className="md:col-span-2">
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label htmlFor="subtopic-name" className="mb-2 block text-sm font-medium text-slate-700">
                 Subtopic (Optional)
               </label>
               <input
+                id="subtopic-name"
                 type="text"
                 value={subtopicName}
                 onChange={(e) => setSubtopicName(e.target.value)}
@@ -203,10 +208,11 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
             </div>
 
             <div className="md:col-span-2">
-              <label className="mb-2 block text-sm font-medium text-slate-700">
+              <label htmlFor="material-file" className="mb-2 block text-sm font-medium text-slate-700">
                 File <span className="text-rose-500">*</span>
               </label>
               <input
+                id="material-file"
                 type="file"
                 accept=".pdf,.png,.jpg,.jpeg,.webp,.txt"
                 onChange={(e) => setFile(e.target.files?.[0] ?? null)}

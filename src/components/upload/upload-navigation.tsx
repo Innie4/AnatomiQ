@@ -85,6 +85,7 @@ export function UploadNavigation() {
             onClick={() => {
               if (confirm("Are you sure you want to log out?")) {
                 localStorage.removeItem("anatomiq:admin-key");
+                sessionStorage.removeItem("anatomiq:admin-key");
                 window.location.reload();
               }
             }}

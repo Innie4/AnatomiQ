@@ -16,11 +16,12 @@ describe("PDF Extraction Polyfills", () => {
         fileName: "test.pdf",
         mimeType: "application/pdf"
       });
-    } catch (error: any) {
-      console.log("Caught expected error:", error.message);
-      assert.ok(!error.message.includes("DOMMatrix"), "Should not fail due to missing DOMMatrix");
-      assert.ok(!error.message.includes("ImageData"), "Should not fail due to missing ImageData");
-      assert.ok(!error.message.includes("Path2D"), "Should not fail due to missing Path2D");
+    } catch (error) {
+      const message = error instanceof Error ? error.message : String(error);
+      console.log("Caught expected error:", message);
+      assert.ok(!message.includes("DOMMatrix"), "Should not fail due to missing DOMMatrix");
+      assert.ok(!message.includes("ImageData"), "Should not fail due to missing ImageData");
+      assert.ok(!message.includes("Path2D"), "Should not fail due to missing Path2D");
     }
   });
 });

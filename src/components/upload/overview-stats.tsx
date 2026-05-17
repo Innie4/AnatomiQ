@@ -44,6 +44,7 @@ export function OverviewStats({ adminKey }: { adminKey: string }) {
         if (response.status === 401) {
           // Invalid admin key - clear it and force re-authentication
           localStorage.removeItem("anatomiq:admin-key");
+          sessionStorage.removeItem("anatomiq:admin-key");
           sessionStorage.setItem("anatomiq:key-cleared", "true");
           window.location.reload();
           return;

@@ -120,10 +120,10 @@ export function UploadDashboard() {
     loadOverviewWithKey(storedKey);
   }, [router]);
 
-  async function loadMaterials(search?: string) {
+  async function loadMaterials(search?: string, key = adminKey) {
     const query = search?.trim() ? `?q=${encodeURIComponent(search.trim())}` : "";
     const response = await fetch(`/api/admin-materials${query}`, {
-      headers: { "x-admin-upload-key": adminKey },
+      headers: { "x-admin-upload-key": key },
     });
     const payload = (await response.json()) as { materials?: AdminMaterialOption[]; error?: string };
     if (!response.ok) {
@@ -144,7 +144,7 @@ export function UploadDashboard() {
         throw new Error(payload.error || "Could not load the admin dashboard.");
       }
       setOverview(payload);
-      await loadMaterials();
+      await loadMaterials(undefined, key);
     } catch (error) {
       setOverview(null);
       setMaterials([]);
