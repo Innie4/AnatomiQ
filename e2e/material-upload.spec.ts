@@ -12,12 +12,12 @@ test.describe('Material Upload and Processing', () => {
 
   test.beforeEach(async ({ page }) => {
     const uploadPage = new UploadPage(page);
-    await uploadPage.goto();
-    await uploadPage.unlockDashboard(adminKey || '');
+    await uploadPage.authenticate(adminKey || '');
   });
 
   test('should display admin dashboard stats', async ({ page }) => {
     const uploadPage = new UploadPage(page);
+    await uploadPage.gotoDashboard();
     await uploadPage.verifyDashboardStats();
 
     const totalMaterials = await page.getByText(/total materials/i).locator('..').locator('..').locator('p.text-4xl').textContent();
@@ -80,11 +80,19 @@ test.describe('Material Upload and Processing', () => {
       const uploadResponsePromise = page.waitForResponse((response) =>
         response.url().includes('/api/upload-material') && response.request().method() === 'POST',
       );
+      const processResponsePromise = page.waitForResponse((response) =>
+        response.url().includes('/api/process-material') && response.request().method() === 'POST',
+      );
 
       await uploadPage.submitUpload();
       const uploadResponse = await uploadResponsePromise;
-      const uploadPayload = await uploadResponse.json().catch(() => null) as { material?: { id?: string } } | null;
+      const uploadPayload = await uploadResponse.json().catch(() => null) as { error?: string; material?: { id?: string } } | null;
       uploadedMaterialId = uploadPayload?.material?.id ?? null;
+      expect(uploadResponse.ok(), uploadPayload?.error || 'Material upload request failed').toBeTruthy();
+
+      const processResponse = await processResponsePromise;
+      const processPayload = await processResponse.json().catch(() => null) as { error?: string } | null;
+      expect(processResponse.ok(), processPayload?.error || 'Material processing request failed').toBeTruthy();
 
       await uploadPage.waitForProcessingComplete();
 
@@ -118,6 +126,9 @@ test.describe('Material Upload and Processing', () => {
   });
 
   test('should show topic coverage grid', async ({ page }) => {
-    await expect(page.getByText(/system statistics and recent activity/i)).toBeVisible();
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoDashboard();
+
+    await expect(page.getByText(/system statistics and recent activity/i)).toBeVisible({ timeout: 30000 });
   });
 });

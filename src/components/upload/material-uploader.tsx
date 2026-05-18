@@ -62,10 +62,10 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
         body: formData,
       });
 
-      const uploadPayload = (await uploadResponse.json()) as UploadResult;
+      const uploadPayload = (await uploadResponse.json()) as UploadResult & { error?: string };
 
       if (!uploadResponse.ok) {
-        throw new Error("Upload failed");
+        throw new Error(uploadPayload.error || "Upload failed");
       }
 
       // Process material
@@ -78,10 +78,10 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
         body: JSON.stringify({ materialId: uploadPayload.material.id }),
       });
 
-      const processPayload = (await processResponse.json()) as ProcessResult;
+      const processPayload = (await processResponse.json()) as ProcessResult & { error?: string };
 
       if (!processResponse.ok) {
-        throw new Error("Processing failed");
+        throw new Error(processPayload.error || "Processing failed");
       }
 
       setMessage({

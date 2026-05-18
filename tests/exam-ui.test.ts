@@ -21,3 +21,16 @@ test("exam setup controls use wider responsive grid spans", () => {
   assert.match(source, /Question number/);
   assert.ok((source.match(/xl:col-span-2/g) ?? []).length >= 6);
 });
+
+test("exam timeout auto-submit is triggered outside timer state updaters", () => {
+  const source = readFileSync("src/components/exam/exam-session-client.tsx", "utf8");
+  const graceUpdaterStart = source.indexOf("setGraceTimeLeft((current) => {");
+  const graceUpdaterEnd = source.indexOf("}, 1000);", graceUpdaterStart);
+  const graceUpdater = source.slice(graceUpdaterStart, graceUpdaterEnd);
+
+  assert.ok(graceUpdaterStart >= 0, "Grace countdown updater should exist");
+  assert.doesNotMatch(graceUpdater, /autoSubmit|handleSubmitExam|router\.push|setSubmitting|setError/);
+  assert.match(source, /submissionStartedRef/);
+  assert.match(source, /graceTimeLeft !== 0/);
+  assert.match(source, /void autoSubmit\(\)/);
+});

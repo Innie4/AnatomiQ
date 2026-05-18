@@ -9,6 +9,11 @@ const { loadEnvConfig } = require("@next/env") as { loadEnvConfig: (dir: string)
 
 loadEnvConfig(process.cwd());
 
+const integrationHeartbeat = setInterval(() => {
+  console.log("[tests] remote database integration still running...");
+}, 10_000);
+integrationHeartbeat.unref?.();
+
 export async function createTestMaterial() {
   const suffix = randomUUID().slice(0, 8);
   const material = await createUploadedMaterial({
@@ -44,7 +49,7 @@ export async function cleanupCourse(courseId: string) {
       topic: { courseId },
     },
   });
-  await db.course.delete({
+  await db.course.deleteMany({
     where: { id: courseId },
   });
 }
