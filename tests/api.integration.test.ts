@@ -307,3 +307,47 @@ EXPLANATIONS
     await cleanupCourse(material.course.id);
   }
 });
+
+test("manual upload API accepts answer letters for numeric MCQ options", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "MCQ",
+          defaultDifficulty: "INTERMEDIATE",
+          input: `QUESTIONS
+
+38. How many ATP molecules are required for carbamoyl phosphate formation?
+
+OPTIONS
+
+38. A. 1 | B. 2 | C. 3 | D. 4
+
+ANSWERS
+
+38. B
+
+EXPLANATIONS
+
+38. The material states formation of carbamoyl phosphate requires 2 ATP.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { createdCount: number; totalSubmitted: number };
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.createdCount, 1);
+    assert.equal(payload.totalSubmitted, 1);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});

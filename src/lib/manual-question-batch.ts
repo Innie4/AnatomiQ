@@ -39,6 +39,14 @@ function normalizeOptionLine(line: string) {
   return line.replace(/^[-*]\s*/, "").replace(/^[A-D][.)]\s*/i, "").trim();
 }
 
+function normalizeComparableAnswer(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function answerMatchesOption(option: string, answer: string) {
+  return normalizeComparableAnswer(option) === normalizeComparableAnswer(answer) || tokenSimilarity(option, answer) >= 1;
+}
+
 function splitBlocks(input: string) {
   return input
     .replace(/\r\n/g, "\n")
@@ -135,7 +143,7 @@ function parseLegacyBlocks(params: {
       const answerIndex = ["A", "B", "C", "D"].indexOf(rawAnswer.trim().toUpperCase());
       const answer = answerIndex >= 0 ? options[answerIndex] : rawAnswer;
 
-      if (!options.some((option) => option.trim().toLowerCase() === answer.trim().toLowerCase())) {
+      if (!options.some((option) => answerMatchesOption(option, answer))) {
         throw new UserInputError(`Question block ${index + 1} has an answer that does not match the provided options.`);
       }
 
@@ -362,7 +370,7 @@ function parseNumberedSections(params: {
       const answerIndex = ["A", "B", "C", "D"].indexOf(rawAnswer.trim().toUpperCase());
       const answer = answerIndex >= 0 ? parsedOptions[answerIndex] : rawAnswer;
 
-      if (!parsedOptions.some((option) => tokenSimilarity(option, answer) >= 1)) {
+      if (!parsedOptions.some((option) => answerMatchesOption(option, answer))) {
         throw new UserInputError(`Answer ${manualOrder} does not match the provided options.`);
       }
 

@@ -109,6 +109,33 @@ EXPLANATIONS
   assert.equal(parsed[1].answer, "Phenylketonuria (PKU) and Maple Syrup Urine Disease (MSUD)");
 });
 
+test("manual question batch parser accepts answer letters for numeric options", () => {
+  const parsed = parseManualQuestionBatch({
+    type: QuestionType.MCQ,
+    defaultDifficulty: Difficulty.INTERMEDIATE,
+    input: `QUESTIONS
+
+38. How many ATP molecules are required for carbamoyl phosphate formation?
+
+OPTIONS
+
+38. A. 1 | B. 2 | C. 3 | D. 4
+
+ANSWERS
+
+38. B
+
+EXPLANATIONS
+
+38. The material states formation of carbamoyl phosphate requires 2 ATP.`,
+  });
+
+  assert.equal(parsed.length, 1);
+  assert.equal(parsed[0].manualOrder, 38);
+  assert.equal(parsed[0].answer, "2");
+  assert.deepEqual(parsed[0].options, ["1", "2", "3", "4"]);
+});
+
 test("manual question batch parser supports large numbered MCQ banks", () => {
   const total = 200;
   const numberedLines = (prefix: string) =>
