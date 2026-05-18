@@ -19,6 +19,11 @@ export default async function ExamPage({
   if (hasDatabase) {
     try {
       courses = await db.course.findMany({
+        where: {
+          Material: {
+            some: {},
+          },
+        },
         select: {
           id: true,
           code: true,
@@ -28,11 +33,10 @@ export default async function ExamPage({
         orderBy: { code: "asc" },
       });
     } catch {
-      // If database fails, use default course
-      courses = [{ id: "default", code: "GEN101", name: "General Course", slug: "general-course" }];
+      courses = [];
     }
   } else {
-    courses = [{ id: "default", code: "GEN101", name: "General Course", slug: "general-course" }];
+    courses = [];
   }
 
   return (

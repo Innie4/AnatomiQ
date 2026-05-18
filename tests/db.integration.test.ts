@@ -95,6 +95,43 @@ test("manual question order is unique per material and question type", async () 
   );
 });
 
+test("database cleanup removes seed and test catalog entries", async () => {
+  const leftoverCourses = (await db.course.findMany({
+    where: {
+      OR: [
+        { code: { in: ["GEN101", "MAT101"] } },
+        { code: { startsWith: "TEST" } },
+        { code: { startsWith: "PROBE" } },
+        { slug: { contains: "integration" } },
+        { slug: { contains: "probe" } },
+        {
+          Material: {
+            none: {},
+          },
+        },
+      ],
+    },
+    select: { code: true, slug: true },
+  })) as Array<{ code: string; slug: string }>;
+
+  const leftoverMaterials = await db.material.findMany({
+    where: {
+      OR: [
+        { title: { startsWith: "E2E Test Material" } },
+        { title: { startsWith: "Integration Material" } },
+        { title: { startsWith: "Codex " } },
+        { fileName: { startsWith: "e2e-test-material" } },
+        { fileName: { startsWith: "integration-" } },
+        { fileName: { startsWith: "prod-process-repro" } },
+      ],
+    },
+    select: { title: true, fileName: true },
+  });
+
+  assert.deepEqual(leftoverCourses, []);
+  assert.deepEqual(leftoverMaterials, []);
+});
+
 test("manual question service links uploaded questions to the target material", async () => {
   const material = await createTestMaterial();
 

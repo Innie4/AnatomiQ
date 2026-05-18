@@ -11,7 +11,7 @@ export class UploadPage {
     await this.page.getByLabel('Admin upload key').fill(adminKey);
     await this.page.getByRole('button', { name: /unlock dashboard/i }).click();
     await expect(this.page).toHaveURL(/.*\/upload\/dashboard/, { timeout: 30000 });
-    await expect(this.page.getByText(/total materials/i)).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByRole('heading', { name: /dashboard overview/i })).toBeVisible({ timeout: 30000 });
   }
 
   async gotoUploadForm() {

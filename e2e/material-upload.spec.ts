@@ -44,6 +44,7 @@ test.describe('Material Upload and Processing', () => {
   test('should upload a text file and process it', async ({ page }) => {
     const testFilePath = path.join(process.cwd(), 'test-results', 'e2e-test-material.txt');
     const testFileDir = path.dirname(testFilePath);
+    let uploadedMaterialId: string | null = null;
 
     if (!fs.existsSync(testFileDir)) {
       fs.mkdirSync(testFileDir, { recursive: true });
@@ -69,22 +70,42 @@ test.describe('Material Upload and Processing', () => {
 
     await uploadPage.fillMaterialForm({
       title: 'E2E Test Material',
-      course: 'Human Anatomy',
-      courseCode: 'ANA101',
-      topic: 'General Anatomy',
-      subtopic: 'Body Organization',
+      course: 'GENERAL BIOCHEMISTRY II',
+      courseCode: 'MBC 221',
+      topic: 'AMINO ACID METABOLISM',
     });
 
     await uploadPage.uploadFile(testFilePath);
-    await uploadPage.submitUpload();
-    await uploadPage.waitForProcessingComplete();
+    try {
+      const uploadResponsePromise = page.waitForResponse((response) =>
+        response.url().includes('/api/upload-material') && response.request().method() === 'POST',
+      );
 
-    await expect(page.getByText('Characters')).toBeVisible();
-    await expect(page.getByText('Chunks')).toBeVisible();
-    await expect(page.getByText('Method')).toBeVisible();
+      await uploadPage.submitUpload();
+      const uploadResponse = await uploadResponsePromise;
+      const uploadPayload = await uploadResponse.json().catch(() => null) as { material?: { id?: string } } | null;
+      uploadedMaterialId = uploadPayload?.material?.id ?? null;
 
-    if (fs.existsSync(testFilePath)) {
-      fs.unlinkSync(testFilePath);
+      await uploadPage.waitForProcessingComplete();
+
+      await expect(page.getByText('Characters')).toBeVisible();
+      await expect(page.getByText('Chunks')).toBeVisible();
+      await expect(page.getByText('Method')).toBeVisible();
+    } finally {
+      if (uploadedMaterialId) {
+        const deleteResponse = await page.request.delete('/api/delete-material', {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-upload-key': adminKey || '',
+          },
+          data: { materialId: uploadedMaterialId },
+        });
+        expect(deleteResponse.ok()).toBeTruthy();
+      }
+
+      if (fs.existsSync(testFilePath)) {
+        fs.unlinkSync(testFilePath);
+      }
     }
   });
 

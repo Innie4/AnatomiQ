@@ -50,6 +50,12 @@ export function TopicExplorer({
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
+        {!topics.length ? (
+          <div className="glass-panel rounded-[1.75rem] border border-white/80 p-6 text-sm leading-6 text-slate-600 lg:col-span-2">
+            No uploaded topics are available yet. Upload and process course material from the dashboard to populate the topic explorer.
+          </div>
+        ) : null}
+
         {topics.map((topic, index) => (
           <FadeIn key={topic.id} delay={index * 0.05} className="glass-panel rounded-[1.75rem] border border-white/80 p-6">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">

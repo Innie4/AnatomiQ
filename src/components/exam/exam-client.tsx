@@ -58,7 +58,8 @@ export function ExamClient({
     counts: { MCQ: 0, SHORT_ANSWER: 0, THEORY: 0 },
   });
 
-  const selectedTopic = topics.find((topic) => topic.slug === topicSlug) ?? topics[0];
+  const hasExamCatalog = courses.length > 0 && topics.length > 0;
+  const selectedTopic = topics.find((topic) => topic.slug === topicSlug) ?? topics[0] ?? null;
   const availableSubtopics = selectedTopic?.childTopics ?? [];
   const resolvedSubtopicSlug = availableSubtopics.some((subtopic) => subtopic.slug === subtopicSlug)
     ? subtopicSlug
@@ -67,6 +68,14 @@ export function ExamClient({
   // Fetch available question types when topic/subtopic changes
   useEffect(() => {
     async function fetchAvailability() {
+      if (!topicSlug) {
+        setAvailability({
+          availableTypes: [],
+          counts: { MCQ: 0, SHORT_ANSWER: 0, THEORY: 0 },
+        });
+        return;
+      }
+
       try {
         const params = new URLSearchParams({ topicSlug });
         if (resolvedSubtopicSlug) {
@@ -96,6 +105,11 @@ export function ExamClient({
   }, [topicSlug, resolvedSubtopicSlug]);
 
   async function startExam() {
+    if (!hasExamCatalog || !topicSlug) {
+      setError("Upload and process course material before generating an exam.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -147,6 +161,11 @@ export function ExamClient({
   }
 
   async function startRandomExam() {
+    if (!hasExamCatalog) {
+      setError("Upload and process course material before randomizing an exam.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -217,7 +236,7 @@ export function ExamClient({
   const isMixedModeAvailable = availability.availableTypes.length > 1;
 
   // Check if all required fields are selected
-  const isFormValid = courseSlug && topicSlug && type && count > 0;
+  const isFormValid = hasExamCatalog && courseSlug && topicSlug && type && count > 0;
 
   return (
     <div suppressHydrationWarning className="space-y-8">
@@ -234,14 +253,21 @@ export function ExamClient({
           </div>
         </div>
 
-        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-12">
-          <div className="space-y-2 xl:col-span-3">
+        {!hasExamCatalog ? (
+          <div className="mt-8 rounded-2xl border border-amber-100 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+            No uploaded course material is available for exams yet. Upload and process material from the dashboard to populate courses and topics.
+          </div>
+        ) : null}
+
+        <div className="mt-8 grid gap-4 md:grid-cols-2 xl:grid-cols-6">
+          <div className="space-y-2 xl:col-span-2">
             <label htmlFor="exam-course" className="block text-sm font-semibold text-slate-700">Course</label>
             <select
               id="exam-course"
               value={courseSlug}
               onChange={(event) => setCourseSlug(event.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+              disabled={!hasExamCatalog}
+              className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               {courses.map((course) => (
                 <option key={course.id} value={course.slug}>
@@ -251,13 +277,14 @@ export function ExamClient({
             </select>
           </div>
 
-          <div className="space-y-2 xl:col-span-3">
+          <div className="space-y-2 xl:col-span-2">
             <label htmlFor="exam-topic" className="block text-sm font-semibold text-slate-700">Topic</label>
             <select
               id="exam-topic"
               value={topicSlug}
               onChange={(event) => setTopicSlug(event.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+              disabled={!hasExamCatalog}
+              className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               {topics.map((topic) => (
                 <option key={topic.id} value={topic.slug}>
@@ -267,13 +294,14 @@ export function ExamClient({
             </select>
           </div>
 
-          <div className="space-y-2 xl:col-span-3">
+          <div className="space-y-2 xl:col-span-2">
             <label htmlFor="exam-subtopic" className="block text-sm font-semibold text-slate-700">Subtopic</label>
             <select
               id="exam-subtopic"
               value={resolvedSubtopicSlug}
               onChange={(event) => setSubtopicSlug(event.target.value)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+              disabled={!hasExamCatalog}
+              className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="">All subtopics</option>
               {availableSubtopics.map((subtopic) => (
@@ -284,13 +312,14 @@ export function ExamClient({
             </select>
           </div>
 
-          <div className="space-y-2 xl:col-span-1">
-            <label htmlFor="exam-type" className="block truncate text-sm font-semibold text-slate-700">Type</label>
+          <div className="space-y-2 xl:col-span-2">
+            <label htmlFor="exam-type" className="block text-sm font-semibold text-slate-700">Question type</label>
             <select
               id="exam-type"
               value={type}
               onChange={(event) => setType(event.target.value as typeof type)}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
+              disabled={!hasExamCatalog}
+              className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               <option value="MCQ" disabled={!availability.availableTypes.includes("MCQ")}>
                 MCQ {availability.counts.MCQ > 0 ? `(${availability.counts.MCQ})` : "(0)"}
@@ -307,13 +336,14 @@ export function ExamClient({
             </select>
           </div>
 
-          <div className="space-y-2 xl:col-span-1">
-            <label htmlFor="exam-question-count" className="block truncate text-sm font-semibold text-slate-700">Questions</label>
+          <div className="space-y-2 xl:col-span-2">
+            <label htmlFor="exam-question-count" className="block text-sm font-semibold text-slate-700">Question number</label>
             <select
               id="exam-question-count"
               value={count}
               onChange={(event) => setCount(Number(event.target.value))}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+              disabled={!hasExamCatalog}
+              className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
             >
               {QUESTION_COUNT_OPTIONS.map((option) => (
                 <option key={option} value={option}>
@@ -323,13 +353,14 @@ export function ExamClient({
             </select>
           </div>
 
-          <div className="space-y-2 xl:col-span-1">
-            <label htmlFor="exam-timer" className="block truncate text-sm font-semibold text-slate-700">Timer</label>
+          <div className="space-y-2 xl:col-span-2">
+            <label htmlFor="exam-timer" className="block text-sm font-semibold text-slate-700">Timer</label>
             <select
               id="exam-timer"
               value={durationMinutes}
               onChange={(event) => setDurationMinutes(Number(event.target.value))}
-              className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
+              disabled={!hasExamCatalog}
+              className="w-full min-w-0 rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none disabled:cursor-not-allowed disabled:opacity-60"
               aria-label="Exam timer"
             >
               {TIMER_OPTIONS.map((option) => (
@@ -354,7 +385,7 @@ export function ExamClient({
 
             <button
               onClick={() => void startRandomExam()}
-              disabled={loading}
+              disabled={loading || !hasExamCatalog}
               className="inline-flex items-center justify-center gap-2 rounded-2xl bg-white border-2 border-[#0969da] px-6 py-4 text-sm font-semibold text-[#0969da] shadow-md hover:bg-[#f0f6ff] hover:shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
             >
               {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Shuffle className="h-5 w-5" />}
@@ -366,7 +397,7 @@ export function ExamClient({
             </Link>
           </div>
 
-          {!isFormValid && !loading && (
+          {!isFormValid && hasExamCatalog && !loading && (
             <p className="text-sm text-slate-500">
               Please select all fields to generate an exam
             </p>

@@ -1,7 +1,6 @@
 import { MaterialStatus } from "@prisma/client";
 
 import { db } from "@/lib/db";
-import { DEFAULT_TOPICS } from "@/lib/constants";
 import { hasDatabase } from "@/lib/env";
 
 export type TopicCoverageItem = {
@@ -20,38 +19,8 @@ export type TopicCoverageItem = {
 };
 
 function buildFallbackTopicCoverage(search?: string) {
-  const normalized = search?.toLowerCase();
-
-  return DEFAULT_TOPICS.filter((topic) => {
-    if (!normalized) {
-      return true;
-    }
-
-    return (
-      topic.name.toLowerCase().includes(normalized) ||
-      topic.children.some((child) => child.toLowerCase().includes(normalized))
-    );
-  }).map(
-    (topic) =>
-      ({
-        id: topic.slug,
-        name: topic.name,
-        slug: topic.slug,
-        summary: topic.summary,
-        materialCount: 0,
-        questionCount: 0,
-        subtopicCount: topic.children.length,
-        readyMaterialCount: 0,
-        processingMaterialCount: 0,
-        failedMaterialCount: 0,
-        latestMaterialAt: null,
-        childTopics: topic.children.map((child) => ({
-          id: `${topic.slug}-${child.toLowerCase().replace(/\s+/g, "-")}`,
-          name: child,
-          slug: `${topic.slug}-${child.toLowerCase().replace(/\s+/g, "-")}`,
-        })),
-      }) satisfies TopicCoverageItem,
-  );
+  void search;
+  return [];
 }
 
 export async function getTopicCoverage(search?: string) {
@@ -131,10 +100,9 @@ export async function getTopicCoverage(search?: string) {
       } satisfies TopicCoverageItem;
     });
 
-    const activeTopics = mapped.filter((topic) => topic.materialCount > 0);
-    return activeTopics.length ? activeTopics : mapped;
+    return mapped.filter((topic) => topic.materialCount > 0);
   } catch (error) {
-    console.error("Falling back to static topics because the database is unavailable.", error);
+    console.error("Returning empty topic coverage because the database is unavailable.", error);
     return buildFallbackTopicCoverage(search);
   }
 }

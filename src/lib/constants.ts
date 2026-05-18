@@ -36,30 +36,3 @@ export const TIMER_OPTIONS = [
   { label: "160 minutes", value: 160 },
   { label: "180 minutes (3 hours)", value: 180 },
 ] as const;
-
-export const DEFAULT_TOPICS = [
-  {
-    name: "General Science",
-    slug: "general-science",
-    summary: "Foundational principles across biology, chemistry, and physics.",
-    children: ["Scientific Method", "Cell Biology", "Atomic Structure"],
-  },
-  {
-    name: "Human Anatomy",
-    slug: "human-anatomy",
-    summary: "Regional anatomy of the human body including limbs, thorax, and neuroanatomy.",
-    children: ["Upper Limb", "Thorax", "Neuroanatomy"],
-  },
-  {
-    name: "Mathematics",
-    slug: "mathematics",
-    summary: "Core mathematical concepts from algebra to calculus.",
-    children: ["Algebra", "Calculus", "Statistics"],
-  },
-  {
-    name: "Computer Science",
-    slug: "computer-science",
-    summary: "Fundamentals of programming, algorithms, and data structures.",
-    children: ["Programming Basics", "Algorithms", "Databases"],
-  },
-];
