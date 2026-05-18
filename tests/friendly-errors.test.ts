@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
+import { readApiPayload } from "../src/lib/client-api";
 import { toFriendlyError } from "../src/lib/friendly-errors";
 
 describe("toFriendlyError", () => {
@@ -77,6 +78,21 @@ describe("toFriendlyError", () => {
     assert.strictEqual(
       result,
       "Something unexpected happened. Please try again or contact support if the problem persists."
+    );
+  });
+
+  it("should convert non-JSON gateway responses to readable API errors", async () => {
+    const payload = await readApiPayload<{ error?: string }>(
+      new Response("An error occurred with your deployment", {
+        status: 504,
+        headers: { "content-type": "text/plain" },
+      }),
+      "Bulk upload failed.",
+    );
+
+    assert.strictEqual(
+      payload.error,
+      "The request timed out before the server finished. Please retry after a moment.",
     );
   });
 });

@@ -15,6 +15,7 @@ import {
   Upload,
 } from "lucide-react";
 
+import { readApiPayload } from "@/lib/client-api";
 import { countManualQuestionBlocks } from "@/lib/manual-question-batch";
 
 type MaterialOption = {
@@ -172,7 +173,10 @@ export function MaterialQuestionManager({
           "x-admin-upload-key": adminKey,
         },
       });
-      const payload = (await response.json()) as { questions?: ManualQuestionRecord[]; error?: string };
+      const payload = await readApiPayload<{ questions?: ManualQuestionRecord[]; error?: string }>(
+        response,
+        "Could not load linked manual questions.",
+      );
 
       if (!response.ok) {
         throw new Error(payload.error || "Could not load linked manual questions.");
@@ -251,14 +255,14 @@ export function MaterialQuestionManager({
         });
       }
 
-      const payload = (await response.json()) as {
+      const payload = await readApiPayload<{
         createdCount: number;
         updatedCount: number;
         skippedCount: number;
         totalSubmitted: number;
         extractionMethod?: string | null;
         error?: string;
-      };
+      }>(response, "Bulk upload failed.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Bulk upload failed.");
@@ -304,7 +308,7 @@ export function MaterialQuestionManager({
           ...toPayload(draftQuestion),
         }),
       });
-      const payload = (await response.json()) as { error?: string };
+      const payload = await readApiPayload<{ error?: string }>(response, "Could not create the question.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Could not create the question.");
@@ -339,7 +343,7 @@ export function MaterialQuestionManager({
         },
         body: JSON.stringify(toPayload(question)),
       });
-      const payload = (await response.json()) as { error?: string };
+      const payload = await readApiPayload<{ error?: string }>(response, "Could not save the question.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Could not save the question.");
@@ -368,7 +372,7 @@ export function MaterialQuestionManager({
           "x-admin-upload-key": adminKey,
         },
       });
-      const payload = (await response.json()) as { error?: string };
+      const payload = await readApiPayload<{ error?: string }>(response, "Could not remove the question.");
 
       if (!response.ok) {
         throw new Error(payload.error || "Could not remove the question.");

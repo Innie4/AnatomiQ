@@ -5,6 +5,7 @@ import {
   MaterialStatus,
   QuestionType,
   type ContentChunk,
+  type Prisma,
   type Question,
 } from "@prisma/client";
 
@@ -311,6 +312,38 @@ async function buildManualQuestionRecord(
     textFingerprint: payload.stem.toLowerCase(),
     embedding: embedding ? toJsonString(embedding) : undefined,
   };
+}
+
+function buildManualQuestionCreateInput(params: {
+  material: ManualQuestionMaterial;
+  payload: ManualQuestionPayload;
+  manualOrder: number;
+  sourceChunkIds: string;
+  sourceSnippet: string;
+}) {
+  const normalizedOptions = normalizeManualOptions(params.payload.type, params.payload.options);
+  const normalizedAnswer = ensureAnswerMatchesOptions(params.payload.answer, normalizedOptions);
+  const stem = params.payload.stem.trim();
+  const hash = sha256(`${params.material.id}:${params.payload.type}:${stem}`);
+
+  return {
+    courseId: params.material.courseId,
+    topicId: params.material.topicId,
+    subtopicId: params.material.subtopicId,
+    materialId: params.material.id,
+    manualOrder: params.manualOrder,
+    type: params.payload.type,
+    stem,
+    options: normalizedOptions ? toJsonString(normalizedOptions) : undefined,
+    answer: normalizedAnswer,
+    explanation: params.payload.explanation.trim(),
+    difficulty: params.payload.difficulty,
+    authoringMode: QuestionAuthoringMode.MANUAL,
+    sourceChunkIds: params.sourceChunkIds,
+    sourceSnippet: params.sourceSnippet,
+    questionHash: hash,
+    textFingerprint: stem.toLowerCase(),
+  } satisfies Prisma.QuestionCreateManyInput;
 }
 
 async function generateQuestionsFromChunks(params: {
@@ -761,13 +794,19 @@ export async function createManualQuestionBank(params: {
     orderBy: [{ manualOrder: "asc" }, { createdAt: "asc" }],
   });
 
-  const created: Question[] = [];
+  const records: Prisma.QuestionCreateManyInput[] = [];
+  const acceptedComparable: Array<{ stem: string; hash: string; embedding?: number[] | null }> = [];
   let skippedCount = 0;
-  const parsedEmbeddings = await embedTexts(parsedQuestions.map((question) => question.stem));
   const linkedChunkIds = material.ContentChunk.map((chunk) => chunk.id);
+  const sourceChunkIds = toJsonString(linkedChunkIds);
   const fallbackSourceSnippet =
     material.extractedText?.slice(0, 220) ||
     `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`;
+  const existingComparable = existing.map((question) => ({
+    stem: question.stem,
+    hash: question.questionHash,
+    embedding: parseJsonString<number[] | null>(question.embedding, null),
+  }));
 
   // Get the next available manual order for this question type
   const maxOrder = existing.length > 0
@@ -785,34 +824,37 @@ export async function createManualQuestionBank(params: {
       explanation: candidate.explanation,
     } satisfies ManualQuestionPayload;
 
-    try {
-      const record = await buildManualQuestionRecord(
+    const stem = payload.stem.trim();
+    const hash = sha256(`${material.id}:${payload.type}:${stem}`);
+
+    if (
+      isDuplicateQuestion(
+        { stem, hash, embedding: null },
+        [...existingComparable, ...acceptedComparable],
+      )
+    ) {
+      skippedCount += 1;
+      continue;
+    }
+
+    records.push(
+      buildManualQuestionCreateInput({
         material,
         payload,
-        targetManualOrder,
-        [...existing, ...created],
-        undefined,
-        parsedEmbeddings[index],
-      );
-      const question = await db.question.create({
-        data: {
-          ...record,
-          sourceChunkIds: toJsonString(linkedChunkIds),
-          sourceSnippet: fallbackSourceSnippet,
-        },
-      });
-
-      created.push(question);
-      nextManualOrder += 1;
-    } catch (error) {
-      if (error instanceof Error && /highly similar question/i.test(error.message)) {
-        skippedCount += 1;
-        continue;
-      }
-
-      throw error;
-    }
+        manualOrder: targetManualOrder,
+        sourceChunkIds,
+        sourceSnippet: fallbackSourceSnippet,
+      }),
+    );
+    acceptedComparable.push({ stem, hash, embedding: null });
+    nextManualOrder += 1;
   }
+
+  const created = records.length
+    ? await db.question.createManyAndReturn({
+        data: records,
+      })
+    : [];
 
   return {
     material: {

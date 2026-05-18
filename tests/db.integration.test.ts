@@ -8,6 +8,38 @@ import { createManualQuestionBank, getAdminMaterialOptions } from "@/lib/questio
 
 import { cleanupCourse, createTestMaterial } from "./test-helpers";
 
+function buildLargeNumberedMcqBank(total: number) {
+  const numberedLines = (prefix: string) =>
+    Array.from({ length: total }, (_, index) => {
+      const number = index + 1;
+      return `${number}. ${prefix} marker${number} code${number}`;
+    }).join("\n");
+  const optionLines = Array.from(
+    { length: total },
+    (_, index) => {
+      const number = index + 1;
+      return `${number}. A. Distractor alpha marker${number} | B. Correct beta marker${number} | C. Distractor gamma marker${number} | D. Distractor delta marker${number}`;
+    },
+  ).join("\n");
+  const answerLines = Array.from({ length: total }, (_, index) => `${index + 1}. B`).join("\n");
+
+  return `QUESTIONS
+
+${numberedLines("Large import question")}
+
+OPTIONS
+
+${optionLines}
+
+ANSWERS
+
+${answerLines}
+
+EXPLANATIONS
+
+${numberedLines("Large import explanation")}`;
+}
+
 test("database migration exposes manual question columns", async () => {
   const columns = (await db.$queryRawUnsafe(`
     select column_name
@@ -156,6 +188,36 @@ Explanation: The phrenic nerve provides the primary motor supply.`,
         { type: QuestionType.SHORT_ANSWER, manualOrder: 1 },
       ],
     );
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});
+
+test("manual question service persists large numbered banks in one batch", async () => {
+  const material = await createTestMaterial();
+  const total = 200;
+
+  try {
+    const result = await createManualQuestionBank({
+      materialId: material.id,
+      type: QuestionType.MCQ,
+      defaultDifficulty: Difficulty.INTERMEDIATE,
+      input: buildLargeNumberedMcqBank(total),
+    });
+
+    assert.equal(result.createdCount, total);
+    assert.equal(result.skippedCount, 0);
+    assert.equal(result.totalSubmitted, total);
+
+    const storedCount = await db.question.count({
+      where: {
+        materialId: material.id,
+        authoringMode: QuestionAuthoringMode.MANUAL,
+        type: QuestionType.MCQ,
+      },
+    });
+
+    assert.equal(storedCount, total);
   } finally {
     await cleanupCourse(material.course.id);
   }
