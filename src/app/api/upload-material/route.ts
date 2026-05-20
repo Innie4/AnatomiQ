@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 
 import { handleRouteError, fail, ok } from "@/lib/api";
-import { MAX_UPLOAD_SIZE_BYTES, SUPPORTED_UPLOAD_MIME_TYPES } from "@/lib/constants";
+import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB, SUPPORTED_UPLOAD_MIME_TYPES } from "@/lib/constants";
 import { createUploadedMaterial } from "@/lib/materials";
 import { uploadMaterialSchema } from "@/lib/schemas";
 import { uploadBufferToS3 } from "@/lib/storage";
@@ -35,7 +35,7 @@ export async function POST(request: Request) {
 
     if (file.size > MAX_UPLOAD_SIZE_BYTES) {
       console.log("[upload-material] File too large:", file.size);
-      return fail("The uploaded file exceeds the 25MB limit.");
+      return fail(`The uploaded file exceeds the ${MAX_UPLOAD_SIZE_MB}MB limit.`);
     }
 
     if (!SUPPORTED_UPLOAD_MIME_TYPES.includes(file.type as (typeof SUPPORTED_UPLOAD_MIME_TYPES)[number])) {

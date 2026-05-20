@@ -13,6 +13,7 @@
     "test:e2e:ui": "playwright test --ui",
     "test:e2e:headed": "playwright test --headed",
     "verify:env": "node scripts/verify-env.mjs",
+    "verify:45mb-upload": "node scripts/verify-45mb-upload.mjs",
     "db:push": "prisma db push",
     "db:migrate": "prisma migrate deploy",
     "db:migrate:dev": "prisma migrate dev",

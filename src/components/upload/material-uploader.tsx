@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { UploadCloud, LoaderCircle, AlertCircle, CheckCircle2 } from "lucide-react";
+import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB } from "@/lib/constants";
 import { toFriendlyError } from "@/lib/friendly-errors";
 
 type UploadResult = {
@@ -34,9 +35,24 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
   const [message, setMessage] = useState<{ tone: "success" | "error"; text: string } | null>(null);
   const [details, setDetails] = useState<ProcessResult["result"] | null>(null);
 
+  function handleFileChange(nextFile: File | null) {
+    if (nextFile && nextFile.size > MAX_UPLOAD_SIZE_BYTES) {
+      setFile(null);
+      setMessage({ tone: "error", text: `Please choose a file ${MAX_UPLOAD_SIZE_MB}MB or smaller.` });
+      return;
+    }
+
+    setFile(nextFile);
+  }
+
   async function handleUpload() {
     if (!file || !title || !courseCode || !courseName || !topicName) {
       setMessage({ tone: "error", text: "Please fill in all required fields and select a file." });
+      return;
+    }
+
+    if (file.size > MAX_UPLOAD_SIZE_BYTES) {
+      setMessage({ tone: "error", text: `Please choose a file ${MAX_UPLOAD_SIZE_MB}MB or smaller.` });
       return;
     }
 
@@ -215,11 +231,11 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 id="material-file"
                 type="file"
                 accept=".pdf,.png,.jpg,.jpeg,.webp,.txt"
-                onChange={(e) => setFile(e.target.files?.[0] ?? null)}
+                onChange={(e) => handleFileChange(e.target.files?.[0] ?? null)}
                 className="w-full rounded-xl border-2 border-dashed border-slate-300 bg-white px-4 py-6 outline-none transition-colors hover:border-[#0969da] focus:border-[#0969da]"
               />
               <p className="mt-2 text-sm text-slate-500">
-                Accepted formats: PDF, PNG, JPG, JPEG, WEBP, TXT
+                Accepted formats: PDF, PNG, JPG, JPEG, WEBP, TXT. Maximum size: {MAX_UPLOAD_SIZE_MB}MB
               </p>
             </div>
           </div>

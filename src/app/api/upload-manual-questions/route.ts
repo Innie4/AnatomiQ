@@ -3,7 +3,7 @@ import { Difficulty, QuestionType } from "@prisma/client";
 import { handleRouteError, ok, fail } from "@/lib/api";
 import { authenticateRequest } from "@/lib/auth";
 import { extractMaterialText } from "@/lib/ai/extractors";
-import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/constants";
+import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB } from "@/lib/constants";
 import { createManualQuestionBank } from "@/lib/questions";
 import { uploadManualQuestionBatchSchema } from "@/lib/schemas";
 import { db } from "@/lib/db";
@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         }
 
         if (file.size > MAX_UPLOAD_SIZE_BYTES) {
-          throw new UserInputError("The uploaded question file exceeds the 25MB limit.");
+          throw new UserInputError(`The uploaded question file exceeds the ${MAX_UPLOAD_SIZE_MB}MB limit.`);
         }
 
         const extraction = await extractMaterialText({

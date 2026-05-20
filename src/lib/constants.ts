@@ -1,7 +1,8 @@
 export const APP_NAME = "ANATOMIQ";
 export const APP_TAGLINE = "Smarter learning. Better recall.";
 
-export const MAX_UPLOAD_SIZE_BYTES = 25 * 1024 * 1024;
+export const MAX_UPLOAD_SIZE_MB = 50;
+export const MAX_UPLOAD_SIZE_BYTES = MAX_UPLOAD_SIZE_MB * 1024 * 1024;
 export const MATERIAL_TEXT_PREVIEW_LIMIT = 1200;
 export const QUESTION_BATCH_LIMIT = 12;
 export const QUESTION_EMBEDDING_THRESHOLD = 0.94;
