@@ -8,6 +8,16 @@ export const uploadMaterialSchema = z.object({
   subtopicName: z.string().optional().nullable(),
 });
 
+export const uploadMaterialSignedUrlSchema = uploadMaterialSchema.extend({
+  fileName: z.string().min(1),
+  mimeType: z.string().min(1),
+  fileSize: z.number().int().positive(),
+});
+
+export const uploadMaterialDirectSchema = uploadMaterialSignedUrlSchema.extend({
+  storageKey: z.string().min(1),
+});
+
 export const processMaterialSchema = z.object({
   materialId: z.string().uuid(),
 });

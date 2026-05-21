@@ -24,6 +24,27 @@ type ProcessResult = {
   };
 };
 
+type SignedUploadResult = {
+  storageKey: string;
+  signedUrl: string;
+};
+
+async function uploadFileToSignedUrl(signedUrl: string, file: File) {
+  const response = await fetch(signedUrl, {
+    method: "PUT",
+    headers: {
+      "cache-control": "max-age=3600",
+      "content-type": file.type || "application/octet-stream",
+    },
+    body: file,
+  });
+
+  if (!response.ok) {
+    const errorText = await response.text().catch(() => "");
+    throw new Error(errorText || "File upload to storage failed.");
+  }
+}
+
 export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; onSuccess?: () => void }) {
   const [file, setFile] = useState<File | null>(null);
   const [title, setTitle] = useState("");
@@ -61,21 +82,44 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
     setDetails(null);
 
     try {
-      // Upload material
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("title", title);
-      formData.append("courseCode", courseCode);
-      formData.append("courseName", courseName);
-      formData.append("topicName", topicName);
-      if (subtopicName) {
-        formData.append("subtopicName", subtopicName);
+      const basePayload = {
+        title,
+        courseCode,
+        courseName,
+        topicName,
+        subtopicName: subtopicName || null,
+        fileName: file.name,
+        mimeType: file.type,
+        fileSize: file.size,
+      };
+
+      const signedUploadResponse = await fetch("/api/upload-material/signed-url", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify(basePayload),
+      });
+
+      const signedUploadPayload = (await signedUploadResponse.json()) as SignedUploadResult & { error?: string };
+
+      if (!signedUploadResponse.ok) {
+        throw new Error(signedUploadPayload.error || "Could not prepare upload.");
       }
+
+      await uploadFileToSignedUrl(signedUploadPayload.signedUrl, file);
 
       const uploadResponse = await fetch("/api/upload-material", {
         method: "POST",
-        headers: { "x-admin-upload-key": adminKey },
-        body: formData,
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          ...basePayload,
+          storageKey: signedUploadPayload.storageKey,
+        }),
       });
 
       const uploadPayload = (await uploadResponse.json()) as UploadResult & { error?: string };

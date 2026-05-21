@@ -106,6 +106,69 @@ function buildSupabasePublicUrl(key: string) {
   return data.publicUrl;
 }
 
+export function getStoragePublicUrl(key: string) {
+  const normalizedKey = normalizeStorageKey(key);
+
+  if (usesSupabaseStorage) {
+    return buildSupabasePublicUrl(normalizedKey);
+  }
+
+  if (usesS3Storage) {
+    return buildS3PublicUrl(normalizedKey);
+  }
+
+  return buildLocalUrl(normalizedKey);
+}
+
+export async function createSignedStorageUploadUrl(key: string) {
+  if (!usesSupabaseStorage) {
+    throw new Error("Direct browser uploads require Supabase Storage.");
+  }
+
+  const normalizedKey = normalizeStorageKey(key);
+  const client = getSupabaseClient();
+  const bucket = requireEnv(env.supabaseStorageBucket, "SUPABASE_STORAGE_BUCKET");
+  const { data, error } = await client.storage.from(bucket).createSignedUploadUrl(normalizedKey);
+
+  if (error || !data) {
+    throw new Error(`Supabase signed upload URL failed: ${error?.message ?? "No data returned"}`);
+  }
+
+  return {
+    key: normalizedKey,
+    path: data.path,
+    signedUrl: data.signedUrl,
+    token: data.token,
+  };
+}
+
+export async function storageObjectExists(key: string) {
+  const normalizedKey = normalizeStorageKey(key);
+
+  if (usesSupabaseStorage) {
+    const client = getSupabaseClient();
+    const bucket = requireEnv(env.supabaseStorageBucket, "SUPABASE_STORAGE_BUCKET");
+    const { data, error } = await client.storage.from(bucket).exists(normalizedKey);
+
+    if (error) {
+      throw new Error(`Supabase object check failed: ${error.message}`);
+    }
+
+    return data;
+  }
+
+  if (usesLocalStorage) {
+    try {
+      await fs.access(resolveLocalStoragePath(normalizedKey));
+      return true;
+    } catch {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export async function uploadBufferToStorage(params: {
   key: string;
   buffer: Buffer;
@@ -127,7 +190,7 @@ export async function uploadBufferToStorage(params: {
 
     return {
       key: normalizedKey,
-      url: buildSupabasePublicUrl(normalizedKey),
+      url: getStoragePublicUrl(normalizedKey),
     };
   }
 
@@ -150,7 +213,7 @@ export async function uploadBufferToStorage(params: {
 
     return {
       key: normalizedKey,
-      url: buildS3PublicUrl(normalizedKey),
+      url: getStoragePublicUrl(normalizedKey),
     };
   }
 
@@ -164,7 +227,7 @@ export async function uploadBufferToStorage(params: {
 
   return {
     key: normalizedKey,
-    url: buildLocalUrl(normalizedKey),
+    url: getStoragePublicUrl(normalizedKey),
   };
 }
 

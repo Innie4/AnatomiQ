@@ -3,8 +3,8 @@ import { randomUUID } from "node:crypto";
 import { handleRouteError, fail, ok } from "@/lib/api";
 import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB, SUPPORTED_UPLOAD_MIME_TYPES } from "@/lib/constants";
 import { createUploadedMaterial } from "@/lib/materials";
-import { uploadMaterialSchema } from "@/lib/schemas";
-import { uploadBufferToS3 } from "@/lib/storage";
+import { uploadMaterialDirectSchema, uploadMaterialSchema } from "@/lib/schemas";
+import { getStoragePublicUrl, normalizeStorageKey, storageObjectExists, uploadBufferToS3 } from "@/lib/storage";
 import { toSlug } from "@/lib/utils";
 import { authenticateRequest, logAudit } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -21,6 +21,63 @@ export async function POST(request: Request) {
     }
 
     console.log("[upload-material] Authenticated user:", auth.userId);
+
+    const contentType = request.headers.get("content-type") ?? "";
+
+    if (contentType.includes("application/json")) {
+      const payload = uploadMaterialDirectSchema.parse(await request.json());
+
+      if (payload.fileSize > MAX_UPLOAD_SIZE_BYTES) {
+        return fail(`The uploaded file exceeds the ${MAX_UPLOAD_SIZE_MB}MB limit.`);
+      }
+
+      if (!SUPPORTED_UPLOAD_MIME_TYPES.includes(payload.mimeType as (typeof SUPPORTED_UPLOAD_MIME_TYPES)[number])) {
+        return fail("Unsupported file type.");
+      }
+
+      const storageKey = normalizeStorageKey(payload.storageKey);
+      const expectedPrefix = `materials/${toSlug(payload.courseName)}/`;
+
+      if (!storageKey.startsWith(expectedPrefix)) {
+        return fail("Invalid material storage key.");
+      }
+
+      if (!(await storageObjectExists(storageKey))) {
+        return fail("Uploaded file was not found in storage.", 422);
+      }
+
+      const material = await createUploadedMaterial({
+        title: payload.title,
+        fileName: payload.fileName,
+        mimeType: payload.mimeType,
+        storageKey,
+        storageUrl: getStoragePublicUrl(storageKey),
+        courseCode: payload.courseCode,
+        courseName: payload.courseName,
+        topicName: payload.topicName,
+        subtopicName: payload.subtopicName,
+      });
+
+      await logAudit(
+        db,
+        auth.userId,
+        "upload_material",
+        "material",
+        material.id,
+        `Uploaded ${material.title} to ${payload.topicName}${payload.subtopicName ? ` / ${payload.subtopicName}` : ""}`
+      );
+
+      return ok({
+        material: {
+          id: material.id,
+          title: material.title,
+          status: material.status,
+          storageUrl: material.storageUrl,
+          topic: payload.topicName,
+          subtopic: payload.subtopicName,
+        },
+      });
+    }
 
     console.log("[upload-material] Parsing form data");
     const formData = await request.formData();
