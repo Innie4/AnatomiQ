@@ -1,8 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { UploadCloud, LoaderCircle, AlertCircle, CheckCircle2 } from "lucide-react";
-import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB } from "@/lib/constants";
+import { UploadCloud, LoaderCircle, AlertCircle, CheckCircle2, Building2 } from "lucide-react";
+import { DEPARTMENT_OPTIONS, MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB } from "@/lib/constants";
 import { toFriendlyError } from "@/lib/friendly-errors";
 
 type UploadResult = {
@@ -29,6 +29,15 @@ type SignedUploadResult = {
   signedUrl: string;
 };
 
+const OTHER_DEPARTMENT_VALUE = "__other_department__";
+
+function deriveMaterialTitle(file: File, courseName: string, topicName: string) {
+  const fileTitle = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ").replace(/\s+/g, " ").trim();
+  const scopedTitle = [courseName, topicName].map((part) => part.trim()).filter(Boolean).join(" - ");
+
+  return scopedTitle || fileTitle || file.name;
+}
+
 async function uploadFileToSignedUrl(signedUrl: string, file: File) {
   const response = await fetch(signedUrl, {
     method: "PUT",
@@ -47,10 +56,10 @@ async function uploadFileToSignedUrl(signedUrl: string, file: File) {
 
 export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; onSuccess?: () => void }) {
   const [file, setFile] = useState<File | null>(null);
-  const [title, setTitle] = useState("");
   const [courseCode, setCourseCode] = useState("GEN101");
   const [courseName, setCourseName] = useState("");
-  const [department, setDepartment] = useState("Human Anatomy");
+  const [departmentChoice, setDepartmentChoice] = useState("");
+  const [customDepartment, setCustomDepartment] = useState("");
   const [topicName, setTopicName] = useState("");
   const [subtopicName, setSubtopicName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -68,8 +77,10 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
   }
 
   async function handleUpload() {
-    if (!file || !title || !courseCode || !courseName || !department || !topicName) {
-      setMessage({ tone: "error", text: "Please fill in all required fields and select a file." });
+    const department = departmentChoice === OTHER_DEPARTMENT_VALUE ? customDepartment.trim() : departmentChoice;
+
+    if (!file || !courseCode.trim() || !courseName.trim() || !department || !topicName.trim()) {
+      setMessage({ tone: "error", text: "Please select a department, fill in the course and topic fields, and choose a file." });
       return;
     }
 
@@ -83,13 +94,14 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
     setDetails(null);
 
     try {
+      const title = deriveMaterialTitle(file, courseName, topicName);
       const basePayload = {
         title,
-        courseCode,
-        courseName,
+        courseCode: courseCode.trim(),
+        courseName: courseName.trim(),
         department,
-        topicName,
-        subtopicName: subtopicName || null,
+        topicName: topicName.trim(),
+        subtopicName: subtopicName.trim() || null,
         fileName: file.name,
         mimeType: file.type,
         fileSize: file.size,
@@ -154,7 +166,8 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
 
       // Reset form
       setFile(null);
-      setTitle("");
+      setDepartmentChoice("");
+      setCustomDepartment("");
       setTopicName("");
       setSubtopicName("");
 
@@ -166,6 +179,10 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
       setLoading(false);
     }
   }
+
+  const selectedDepartment = departmentChoice === OTHER_DEPARTMENT_VALUE ? customDepartment.trim() : departmentChoice;
+  const uploadDisabled =
+    loading || !file || !courseCode.trim() || !courseName.trim() || !selectedDepartment || !topicName.trim();
 
   return (
     <div className="space-y-6">
@@ -200,17 +217,37 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
         <div className="space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
             <div>
-              <label htmlFor="material-title" className="mb-2 block text-sm font-medium text-slate-700">
-                Title <span className="text-rose-500">*</span>
+              <label htmlFor="department-name" className="mb-2 block text-sm font-medium text-slate-700">
+                Department <span className="text-rose-500">*</span>
               </label>
-              <input
-                id="material-title"
-                type="text"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
-                placeholder="e.g., Biology Fundamentals"
-              />
+              <div className="relative">
+                <Building2 className="pointer-events-none absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+                <select
+                  id="department-name"
+                  value={departmentChoice}
+                  onChange={(e) => setDepartmentChoice(e.target.value)}
+                  className="w-full appearance-none rounded-xl border border-slate-200 bg-white py-3 pl-12 pr-4 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
+                  required
+                >
+                  <option value="">Select a department</option>
+                  {DEPARTMENT_OPTIONS.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                  <option value={OTHER_DEPARTMENT_VALUE}>Other department</option>
+                </select>
+              </div>
+              {departmentChoice === OTHER_DEPARTMENT_VALUE && (
+                <input
+                  type="text"
+                  value={customDepartment}
+                  onChange={(e) => setCustomDepartment(e.target.value)}
+                  className="mt-3 w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
+                  placeholder="Enter department name"
+                  aria-label="Custom department"
+                />
+              )}
             </div>
 
             <div>
@@ -238,20 +275,6 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
                 onChange={(e) => setCourseName(e.target.value)}
                 className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
                 placeholder="e.g., General Studies"
-              />
-            </div>
-
-            <div>
-              <label htmlFor="department-name" className="mb-2 block text-sm font-medium text-slate-700">
-                Department <span className="text-rose-500">*</span>
-              </label>
-              <input
-                id="department-name"
-                type="text"
-                value={department}
-                onChange={(e) => setDepartment(e.target.value)}
-                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
-                placeholder="e.g., Human Anatomy"
               />
             </div>
 
@@ -303,7 +326,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
           <div className="flex items-center gap-4 pt-4">
             <button
               onClick={() => void handleUpload()}
-              disabled={loading || !file || !title || !courseCode || !courseName || !department || !topicName}
+              disabled={uploadDisabled}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0969da] to-[#0ca678] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
             >
               {loading ? (

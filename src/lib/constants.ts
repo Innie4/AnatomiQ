@@ -16,6 +16,19 @@ export const SUPPORTED_UPLOAD_MIME_TYPES = [
   "text/plain",
 ] as const;
 
+export const DEPARTMENT_OPTIONS = [
+  "Human Anatomy",
+  "Medicine and Surgery",
+  "Nursing Science",
+  "Physiology",
+  "Biochemistry",
+  "Medical Laboratory Science",
+  "Pharmacy",
+  "Radiography",
+  "Dentistry",
+  "Public Health",
+] as const;
+
 export const EXAM_TYPE_OPTIONS = [
   { label: "MCQ", value: "MCQ" },
   { label: "Short answer", value: "SHORT_ANSWER" },

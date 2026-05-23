@@ -24,6 +24,7 @@ export async function createTestMaterial() {
     storageUrl: `https://example.com/tests/${suffix}.txt`,
     courseCode: `TEST${suffix.substring(0, 3).toUpperCase()}`,
     courseName: `Human Anatomy Integration ${suffix}`,
+    department: "Human Anatomy",
     topicName: `Topic ${suffix}`,
     subtopicName: `Subtopic ${suffix}`,
   });

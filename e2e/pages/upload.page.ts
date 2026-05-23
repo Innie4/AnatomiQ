@@ -37,13 +37,13 @@ export class UploadPage {
   }
 
   async fillMaterialForm(data: {
-    title: string;
+    department?: string;
     course: string;
     courseCode?: string;
     topic: string;
     subtopic?: string;
   }) {
-    await this.page.getByRole('textbox', { name: /^Title/i }).fill(data.title);
+    await this.page.getByLabel(/^Department/i).selectOption(data.department || 'Human Anatomy');
     await this.page.getByRole('textbox', { name: /^Course Code/i }).fill(data.courseCode || 'ANA101');
     await this.page.getByRole('textbox', { name: /^Course Name/i }).fill(data.course);
     await this.page.getByRole('textbox', { name: /^Topic/i }).fill(data.topic);

@@ -47,28 +47,38 @@ export class MaterialProcessingError extends Error {
 export async function ensureCourseAndTopicHierarchy(params: {
   courseCode: string;
   courseName: string;
-  department?: string;
+  department: string;
   topicName: string;
   subtopicName?: string | null;
 }) {
   console.log("[materials] Ensuring hierarchy:", params);
-  const courseSlug = toSlug(params.courseName);
-  const topicSlug = toSlug(`${courseSlug}-${params.topicName}`);
+  const department = params.department.trim();
+  const courseCode = params.courseCode.trim();
+  const courseName = params.courseName.trim();
+  const topicName = params.topicName.trim();
+  const subtopicName = params.subtopicName?.trim() || null;
+  const courseSlug = toSlug(`${department}-${courseCode}-${courseName}`);
+  const topicSlug = toSlug(`${courseSlug}-${topicName}`);
 
   console.log("[materials] Upserting course:", courseSlug);
   const course = await db.course.upsert({
-    where: { slug: courseSlug },
+    where: {
+      department_code: {
+        department,
+        code: courseCode,
+      },
+    },
     update: {
-      code: params.courseCode,
-      name: params.courseName,
-      department: params.department ?? "Human Anatomy",
+      name: courseName,
+      slug: courseSlug,
+      department,
     },
     create: {
-      code: params.courseCode,
-      name: params.courseName,
+      code: courseCode,
+      name: courseName,
       slug: courseSlug,
-      department: params.department ?? "Human Anatomy",
-      description: `${params.courseName} learning material in ANATOMIQ.`,
+      department,
+      description: `${courseName} learning material in ANATOMIQ.`,
     },
   });
   console.log("[materials] Course ready:", course.id);
@@ -77,11 +87,11 @@ export async function ensureCourseAndTopicHierarchy(params: {
   const topic = await db.topic.upsert({
     where: { slug: topicSlug },
     update: {
-      name: params.topicName,
+      name: topicName,
       courseId: course.id,
     },
     create: {
-      name: params.topicName,
+      name: topicName,
       slug: topicSlug,
       courseId: course.id,
       level: 0,
@@ -91,19 +101,19 @@ export async function ensureCourseAndTopicHierarchy(params: {
 
   let subtopic = null;
 
-  if (params.subtopicName) {
-    const slug = toSlug(`${courseSlug}-${params.topicName}-${params.subtopicName}`);
+  if (subtopicName) {
+    const slug = toSlug(`${courseSlug}-${topicName}-${subtopicName}`);
     console.log("[materials] Upserting subtopic:", slug);
     subtopic = await db.topic.upsert({
       where: { slug },
       update: {
-        name: params.subtopicName,
+        name: subtopicName,
         courseId: course.id,
         parentTopicId: topic.id,
         level: 1,
       },
       create: {
-        name: params.subtopicName,
+        name: subtopicName,
         slug,
         courseId: course.id,
         parentTopicId: topic.id,
@@ -136,7 +146,7 @@ export async function createUploadedMaterial(params: {
   storageUrl: string;
   courseCode: string;
   courseName: string;
-  department?: string;
+  department: string;
   topicName: string;
   subtopicName?: string | null;
 }) {
@@ -411,9 +421,10 @@ async function resolveChunkSubtopics(material: MaterialForProcessing, enrichedCh
       continue;
     }
 
+    const slug = toSlug(`${material.topic.slug}-${suggestedSubtopic}`);
     const topic = await db.topic.upsert({
       where: {
-        slug: toSlug(`${material.topic.name}-${suggestedSubtopic}`),
+        slug,
       },
       update: {
         name: suggestedSubtopic,
@@ -423,7 +434,7 @@ async function resolveChunkSubtopics(material: MaterialForProcessing, enrichedCh
       },
       create: {
         name: suggestedSubtopic,
-        slug: toSlug(`${material.topic.name}-${suggestedSubtopic}`),
+        slug,
         parentTopicId: material.topicId,
         courseId: material.courseId,
         level: 1,

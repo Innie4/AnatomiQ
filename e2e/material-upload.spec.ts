@@ -28,7 +28,7 @@ test.describe('Material Upload and Processing', () => {
     const uploadPage = new UploadPage(page);
     await uploadPage.gotoUploadForm();
 
-    await expect(page.getByRole('textbox', { name: /^Title/i })).toBeVisible();
+    await expect(page.getByLabel(/^Department/i)).toBeVisible();
     await expect(page.getByRole('textbox', { name: /^Course Name/i })).toBeVisible();
     await expect(page.getByRole('textbox', { name: /^Topic/i })).toBeVisible();
     await expect(page.locator('input[type="file"]')).toBeVisible();
@@ -69,7 +69,7 @@ test.describe('Material Upload and Processing', () => {
     await uploadPage.gotoUploadForm();
 
     await uploadPage.fillMaterialForm({
-      title: 'E2E Test Material',
+      department: 'Human Anatomy',
       course: 'GENERAL BIOCHEMISTRY II',
       courseCode: 'MBC 221',
       topic: 'AMINO ACID METABOLISM',

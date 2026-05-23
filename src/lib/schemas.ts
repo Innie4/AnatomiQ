@@ -1,12 +1,18 @@
 import { z } from "zod";
 
+const requiredTrimmedString = (minLength: number, fieldName: string) =>
+  z
+    .string({ error: `${fieldName} is required.` })
+    .trim()
+    .min(minLength, `${fieldName} is required.`);
+
 export const uploadMaterialSchema = z.object({
-  title: z.string().min(3),
-  courseCode: z.string().min(2),
-  courseName: z.string().min(3),
-  department: z.string().min(2).optional().default("Human Anatomy"),
-  topicName: z.string().min(2),
-  subtopicName: z.string().optional().nullable(),
+  title: requiredTrimmedString(3, "Material title"),
+  courseCode: requiredTrimmedString(2, "Course code"),
+  courseName: requiredTrimmedString(3, "Course name"),
+  department: requiredTrimmedString(2, "Department"),
+  topicName: requiredTrimmedString(2, "Topic"),
+  subtopicName: z.string().trim().optional().nullable(),
 });
 
 export const uploadMaterialSignedUrlSchema = uploadMaterialSchema.extend({
@@ -21,12 +27,12 @@ export const uploadMaterialDirectSchema = uploadMaterialSignedUrlSchema.extend({
 
 export const updateMaterialsSchema = z.object({
   materialIds: z.array(z.string().uuid()).min(1).max(100),
-  title: z.string().min(3).optional(),
-  courseCode: z.string().min(2),
-  courseName: z.string().min(3),
-  department: z.string().min(2).default("Human Anatomy"),
-  topicName: z.string().min(2),
-  subtopicName: z.string().optional().nullable(),
+  title: z.string().trim().min(3).optional(),
+  courseCode: requiredTrimmedString(2, "Course code"),
+  courseName: requiredTrimmedString(3, "Course name"),
+  department: requiredTrimmedString(2, "Department"),
+  topicName: requiredTrimmedString(2, "Topic"),
+  subtopicName: z.string().trim().optional().nullable(),
 });
 
 export const processMaterialSchema = z.object({
