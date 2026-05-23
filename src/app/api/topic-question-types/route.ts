@@ -50,7 +50,7 @@ export async function GET(request: Request) {
     // Count questions by type
     const whereClause = subtopicId
       ? { subtopicId }
-      : { topicId: topic.id, subtopicId: null };
+      : { topicId: topic.id };
 
     const [mcqCount, shortAnswerCount, theoryCount] = await Promise.all([
       db.question.count({

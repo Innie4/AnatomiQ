@@ -579,6 +579,9 @@ export async function getAdminMaterialOptions(search?: string) {
         ? {
             OR: [
               { title: { contains: search } },
+              { course: { code: { contains: search } } },
+              { course: { name: { contains: search } } },
+              { course: { department: { contains: search } } },
               { topic: { name: { contains: search } } },
               { subtopic: { name: { contains: search } } },
             ],
@@ -604,8 +607,10 @@ export async function getAdminMaterialOptions(search?: string) {
       },
       course: {
         select: {
+          code: true,
           name: true,
           slug: true,
+          department: true,
         },
       },
       _count: {
@@ -623,7 +628,9 @@ export async function getAdminMaterialOptions(search?: string) {
     title: material.title,
     status: material.status,
     courseName: material.course.name,
+    courseCode: material.course.code,
     courseSlug: material.course.slug,
+    department: material.course.department,
     topicName: material.topic.name,
     topicSlug: material.topic.slug,
     subtopicName: material.subtopic?.name ?? null,

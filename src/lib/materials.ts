@@ -47,11 +47,13 @@ export class MaterialProcessingError extends Error {
 export async function ensureCourseAndTopicHierarchy(params: {
   courseCode: string;
   courseName: string;
+  department?: string;
   topicName: string;
   subtopicName?: string | null;
 }) {
   console.log("[materials] Ensuring hierarchy:", params);
   const courseSlug = toSlug(params.courseName);
+  const topicSlug = toSlug(`${courseSlug}-${params.topicName}`);
 
   console.log("[materials] Upserting course:", courseSlug);
   const course = await db.course.upsert({
@@ -59,26 +61,28 @@ export async function ensureCourseAndTopicHierarchy(params: {
     update: {
       code: params.courseCode,
       name: params.courseName,
+      department: params.department ?? "Human Anatomy",
     },
     create: {
       code: params.courseCode,
       name: params.courseName,
       slug: courseSlug,
+      department: params.department ?? "Human Anatomy",
       description: `${params.courseName} learning material in ANATOMIQ.`,
     },
   });
   console.log("[materials] Course ready:", course.id);
 
-  console.log("[materials] Upserting topic:", toSlug(params.topicName));
+  console.log("[materials] Upserting topic:", topicSlug);
   const topic = await db.topic.upsert({
-    where: { slug: toSlug(params.topicName) },
+    where: { slug: topicSlug },
     update: {
       name: params.topicName,
       courseId: course.id,
     },
     create: {
       name: params.topicName,
-      slug: toSlug(params.topicName),
+      slug: topicSlug,
       courseId: course.id,
       level: 0,
     },
@@ -88,7 +92,7 @@ export async function ensureCourseAndTopicHierarchy(params: {
   let subtopic = null;
 
   if (params.subtopicName) {
-    const slug = toSlug(`${params.topicName}-${params.subtopicName}`);
+    const slug = toSlug(`${courseSlug}-${params.topicName}-${params.subtopicName}`);
     console.log("[materials] Upserting subtopic:", slug);
     subtopic = await db.topic.upsert({
       where: { slug },
@@ -132,6 +136,7 @@ export async function createUploadedMaterial(params: {
   storageUrl: string;
   courseCode: string;
   courseName: string;
+  department?: string;
   topicName: string;
   subtopicName?: string | null;
 }) {
@@ -144,6 +149,7 @@ export async function createUploadedMaterial(params: {
   const { course, topic, subtopic } = await ensureCourseAndTopicHierarchy({
     courseCode: params.courseCode,
     courseName: params.courseName,
+    department: params.department,
     topicName: params.topicName,
     subtopicName: params.subtopicName,
   });
@@ -174,6 +180,65 @@ export async function createUploadedMaterial(params: {
 
   console.log("[materials] Material record created successfully:", material.id);
   return material;
+}
+
+export async function updateMaterialsCatalog(params: {
+  materialIds: string[];
+  title?: string;
+  courseCode: string;
+  courseName: string;
+  department: string;
+  topicName: string;
+  subtopicName?: string | null;
+}) {
+  if (!hasDatabase) {
+    throw new Error("Database is not configured.");
+  }
+
+  const { course, topic, subtopic } = await ensureCourseAndTopicHierarchy({
+    courseCode: params.courseCode,
+    courseName: params.courseName,
+    department: params.department,
+    topicName: params.topicName,
+    subtopicName: params.subtopicName,
+  });
+
+  await db.$transaction([
+    db.material.updateMany({
+      where: { id: { in: params.materialIds } },
+      data: {
+        ...(params.title && params.materialIds.length === 1 ? { title: params.title } : {}),
+        courseId: course.id,
+        topicId: topic.id,
+        subtopicId: subtopic?.id ?? null,
+      },
+    }),
+    db.contentChunk.updateMany({
+      where: { materialId: { in: params.materialIds } },
+      data: {
+        topicId: topic.id,
+        subtopicId: subtopic?.id ?? null,
+      },
+    }),
+    db.question.updateMany({
+      where: { materialId: { in: params.materialIds } },
+      data: {
+        courseId: course.id,
+        topicId: topic.id,
+        subtopicId: subtopic?.id ?? null,
+      },
+    }),
+  ]);
+
+  return db.material.findMany({
+    where: { id: { in: params.materialIds } },
+    include: {
+      course: true,
+      topic: true,
+      subtopic: true,
+    },
+    orderBy: { updatedAt: "desc" },
+  });
 }
 
 async function getMaterialForProcessing(materialId: string) {

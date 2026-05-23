@@ -36,7 +36,7 @@ export async function POST(request: Request) {
       }
 
       const storageKey = normalizeStorageKey(payload.storageKey);
-      const expectedPrefix = `materials/${toSlug(payload.courseName)}/`;
+      const expectedPrefix = `materials/${toSlug(payload.department)}/${toSlug(payload.courseName)}/`;
 
       if (!storageKey.startsWith(expectedPrefix)) {
         return fail("Invalid material storage key.");
@@ -54,6 +54,7 @@ export async function POST(request: Request) {
         storageUrl: getStoragePublicUrl(storageKey),
         courseCode: payload.courseCode,
         courseName: payload.courseName,
+        department: payload.department,
         topicName: payload.topicName,
         subtopicName: payload.subtopicName,
       });
@@ -105,6 +106,7 @@ export async function POST(request: Request) {
       title: formData.get("title"),
       courseCode: formData.get("courseCode"),
       courseName: formData.get("courseName"),
+      department: formData.get("department") || undefined,
       topicName: formData.get("topicName"),
       subtopicName: formData.get("subtopicName") || null,
     });
@@ -114,7 +116,7 @@ export async function POST(request: Request) {
     console.log("[upload-material] Converting file to buffer");
     const buffer = Buffer.from(await file.arrayBuffer());
     const extension = file.name.split(".").pop() || "bin";
-    const storageKey = `materials/${toSlug(parsed.courseName)}/${Date.now()}-${randomUUID()}.${extension}`;
+    const storageKey = `materials/${toSlug(parsed.department)}/${toSlug(parsed.courseName)}/${Date.now()}-${randomUUID()}.${extension}`;
 
     console.log("[upload-material] Uploading to S3:", storageKey);
     const storage = await uploadBufferToS3({
@@ -132,6 +134,7 @@ export async function POST(request: Request) {
       storageUrl: storage.url,
       courseCode: parsed.courseCode,
       courseName: parsed.courseName,
+      department: parsed.department,
       topicName: parsed.topicName,
       subtopicName: parsed.subtopicName,
     });

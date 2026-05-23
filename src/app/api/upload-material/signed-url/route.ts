@@ -26,7 +26,7 @@ export async function POST(request: Request) {
     }
 
     const extension = payload.fileName.split(".").pop()?.toLowerCase().replace(/[^a-z0-9]/g, "") || "bin";
-    const storageKey = `materials/${toSlug(payload.courseName)}/${Date.now()}-${randomUUID()}.${extension}`;
+    const storageKey = `materials/${toSlug(payload.department)}/${toSlug(payload.courseName)}/${Date.now()}-${randomUUID()}.${extension}`;
     const signedUpload = await createSignedStorageUploadUrl(storageKey);
 
     return ok({

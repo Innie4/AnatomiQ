@@ -104,6 +104,8 @@ model Course {
   Material    Material[]
   Question    Question[]
   Topic       Topic[]
+
+  @@index([department, code])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -149,6 +151,9 @@ model Material {
   Question     Question[]
 
   @@index([status, updatedAt])
+  @@index([courseId, status, createdAt])
+  @@index([topicId, status])
+  @@index([subtopicId, status])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -211,6 +216,8 @@ model Topic {
   childTopics                                 Topic[]            @relation("TopicToTopic")
 
   @@unique([courseId, name, parentTopicId])
+  @@index([courseId, level])
+  @@index([parentTopicId])
 }
 
 enum CounterMetric {

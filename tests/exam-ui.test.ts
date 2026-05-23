@@ -13,13 +13,16 @@ test("exam question count dropdown exposes the full supported range", () => {
   assert.ok(QUESTION_COUNT_OPTIONS.includes(100), "Should include 100 questions");
 });
 
-test("exam setup controls use wider responsive grid spans", () => {
+test("exam setup uses department-first searchable course selection", () => {
   const source = readFileSync("src/components/exam/exam-client.tsx", "utf8");
 
-  assert.match(source, /xl:grid-cols-6/);
+  assert.match(source, /Department/);
+  assert.match(source, /Search courses/);
+  assert.match(source, /Choose your department, then your course/);
+  assert.match(source, /md:grid-cols-2 xl:grid-cols-3/);
   assert.match(source, /Question type/);
   assert.match(source, /Question number/);
-  assert.ok((source.match(/xl:col-span-2/g) ?? []).length >= 6);
+  assert.match(source, /filteredCourses/);
 });
 
 test("exam timeout auto-submit is triggered outside timer state updaters", () => {

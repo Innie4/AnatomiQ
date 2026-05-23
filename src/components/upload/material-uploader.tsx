@@ -50,6 +50,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
   const [title, setTitle] = useState("");
   const [courseCode, setCourseCode] = useState("GEN101");
   const [courseName, setCourseName] = useState("");
+  const [department, setDepartment] = useState("Human Anatomy");
   const [topicName, setTopicName] = useState("");
   const [subtopicName, setSubtopicName] = useState("");
   const [loading, setLoading] = useState(false);
@@ -67,7 +68,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
   }
 
   async function handleUpload() {
-    if (!file || !title || !courseCode || !courseName || !topicName) {
+    if (!file || !title || !courseCode || !courseName || !department || !topicName) {
       setMessage({ tone: "error", text: "Please fill in all required fields and select a file." });
       return;
     }
@@ -86,6 +87,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
         title,
         courseCode,
         courseName,
+        department,
         topicName,
         subtopicName: subtopicName || null,
         fileName: file.name,
@@ -240,6 +242,20 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
             </div>
 
             <div>
+              <label htmlFor="department-name" className="mb-2 block text-sm font-medium text-slate-700">
+                Department <span className="text-rose-500">*</span>
+              </label>
+              <input
+                id="department-name"
+                type="text"
+                value={department}
+                onChange={(e) => setDepartment(e.target.value)}
+                className="w-full rounded-xl border border-slate-200 bg-white px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
+                placeholder="e.g., Human Anatomy"
+              />
+            </div>
+
+            <div>
               <label htmlFor="topic-name" className="mb-2 block text-sm font-medium text-slate-700">
                 Topic <span className="text-rose-500">*</span>
               </label>
@@ -287,7 +303,7 @@ export function MaterialUploader({ adminKey, onSuccess }: { adminKey: string; on
           <div className="flex items-center gap-4 pt-4">
             <button
               onClick={() => void handleUpload()}
-              disabled={loading || !file || !title || !courseCode || !courseName || !topicName}
+              disabled={loading || !file || !title || !courseCode || !courseName || !department || !topicName}
               className="inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-[#0969da] to-[#0ca678] px-6 py-3 text-sm font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl active:scale-95 disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
             >
               {loading ? (
