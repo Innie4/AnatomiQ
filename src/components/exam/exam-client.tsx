@@ -13,7 +13,6 @@ import {
   Layers3,
   LoaderCircle,
   Search,
-  Sparkles,
   Target,
   Trophy,
   X,
@@ -54,7 +53,6 @@ type DepartmentCard = {
   courseCount: number;
   topicCount: number;
   readyMaterialCount: number;
-  accent: string;
   bg: string;
   text: string;
   ring: string;
@@ -63,56 +61,48 @@ type DepartmentCard = {
 
 const departmentStyles = [
   {
-    accent: "#0f766e",
     bg: "from-teal-50 via-white to-cyan-50",
     text: "text-teal-950",
     ring: "border-teal-200 hover:border-teal-400 hover:shadow-teal-100",
     shape: "bg-teal-500",
   },
   {
-    accent: "#be123c",
     bg: "from-rose-50 via-white to-pink-50",
     text: "text-rose-950",
     ring: "border-rose-200 hover:border-rose-400 hover:shadow-rose-100",
     shape: "bg-rose-500",
   },
   {
-    accent: "#7c3aed",
     bg: "from-violet-50 via-white to-fuchsia-50",
     text: "text-violet-950",
     ring: "border-violet-200 hover:border-violet-400 hover:shadow-violet-100",
     shape: "bg-violet-500",
   },
   {
-    accent: "#b45309",
     bg: "from-amber-50 via-white to-yellow-50",
     text: "text-amber-950",
     ring: "border-amber-200 hover:border-amber-400 hover:shadow-amber-100",
     shape: "bg-amber-500",
   },
   {
-    accent: "#1d4ed8",
     bg: "from-blue-50 via-white to-sky-50",
     text: "text-blue-950",
     ring: "border-blue-200 hover:border-blue-400 hover:shadow-blue-100",
     shape: "bg-blue-500",
   },
   {
-    accent: "#047857",
     bg: "from-emerald-50 via-white to-lime-50",
     text: "text-emerald-950",
     ring: "border-emerald-200 hover:border-emerald-400 hover:shadow-emerald-100",
     shape: "bg-emerald-500",
   },
   {
-    accent: "#c2410c",
     bg: "from-orange-50 via-white to-red-50",
     text: "text-orange-950",
     ring: "border-orange-200 hover:border-orange-400 hover:shadow-orange-100",
     shape: "bg-orange-500",
   },
   {
-    accent: "#0e7490",
     bg: "from-cyan-50 via-white to-indigo-50",
     text: "text-cyan-950",
     ring: "border-cyan-200 hover:border-cyan-400 hover:shadow-cyan-100",
@@ -126,16 +116,6 @@ const steps = [
   { id: 3, label: "Format", icon: Layers3 },
   { id: 4, label: "Launch", icon: Trophy },
 ] as const;
-
-function randomIndex(length: number) {
-  if (length <= 1) {
-    return 0;
-  }
-
-  const values = new Uint32Array(1);
-  crypto.getRandomValues(values);
-  return values[0] % length;
-}
 
 function typeLabel(value: "MCQ" | "SHORT_ANSWER" | "THEORY" | "MIXED") {
   switch (value) {
@@ -175,7 +155,7 @@ export function ExamClient({
   const [subtopicSlug, setSubtopicSlug] = useState(initialSubtopic ?? "");
   const [type, setType] = useState<"MCQ" | "SHORT_ANSWER" | "THEORY" | "MIXED">("MCQ");
   const [count, setCount] = useState(12);
-  const [durationMinutes, setDurationMinutes] = useState(0);
+  const [durationMinutes, setDurationMinutes] = useState<number | "">("");
   const [step, setStep] = useState(initialStep);
   const [isModalOpen, setIsModalOpen] = useState(Boolean(inferredCourse));
   const [loading, setLoading] = useState(false);
@@ -229,7 +209,8 @@ export function ExamClient({
     ? subtopicSlug
     : "";
   const isMixedModeAvailable = availability.availableTypes.length > 1;
-  const isFormValid = Boolean(hasExamCatalog && selectedCourse && selectedTopic && type && count > 0);
+  const hasTimer = typeof durationMinutes === "number" && durationMinutes > 0;
+  const isFormValid = Boolean(hasExamCatalog && selectedCourse && selectedTopic && type && count > 0 && hasTimer);
 
   useEffect(() => {
     if (!isModalOpen) {
@@ -343,6 +324,11 @@ export function ExamClient({
       return;
     }
 
+    if (config.durationMinutes <= 0) {
+      setError("Choose a timer before generating an exam.");
+      return;
+    }
+
     setLoading(true);
     setError(null);
 
@@ -393,8 +379,13 @@ export function ExamClient({
   }
 
   async function startExam() {
-    if (!isFormValid || !selectedCourse || !selectedTopic) {
+    if (!selectedCourse || !selectedTopic) {
       setError("Choose a course and topic before generating an exam.");
+      return;
+    }
+
+    if (!hasTimer) {
+      setError("Choose a timer before generating an exam.");
       return;
     }
 
@@ -405,38 +396,6 @@ export function ExamClient({
       type,
       count,
       durationMinutes,
-    });
-  }
-
-  async function startRandomExam() {
-    const pool = filteredCourses.filter((course) => course.topics.length > 0);
-    if (!pool.length) {
-      setError("No processed material is available for this department.");
-      return;
-    }
-
-    const randomCourse = pool[randomIndex(pool.length)];
-    const randomTopic = randomCourse.topics[randomIndex(randomCourse.topics.length)];
-    const types: Array<"MCQ" | "SHORT_ANSWER" | "THEORY"> = ["MCQ", "SHORT_ANSWER", "THEORY"];
-    const randomType = types[randomIndex(types.length)];
-    const randomCount = QUESTION_COUNT_OPTIONS[randomIndex(QUESTION_COUNT_OPTIONS.length)];
-    const timer = TIMER_OPTIONS[randomIndex(Math.min(5, TIMER_OPTIONS.length))].value;
-
-    setCourseSlug(randomCourse.slug);
-    setTopicSlug(randomTopic.slug);
-    setSubtopicSlug("");
-    setType(randomType);
-    setCount(randomCount);
-    setDurationMinutes(timer);
-    setStep(4);
-
-    await startExamWithConfig({
-      course: randomCourse,
-      topicSlug: randomTopic.slug,
-      subtopicSlug: undefined,
-      type: randomType,
-      count: randomCount,
-      durationMinutes: timer,
     });
   }
 
@@ -492,10 +451,7 @@ export function ExamClient({
             />
             <div className="relative flex h-full min-h-44 flex-col justify-between">
               <div>
-                <span className="inline-flex h-12 w-12 items-center justify-center rounded-xl bg-white/85 shadow-sm">
-                  <Sparkles className="h-6 w-6" style={{ color: card.accent }} />
-                </span>
-                <h2 className={`mt-5 text-2xl font-black ${card.text}`}>{card.name}</h2>
+                <h2 className={`text-2xl font-black ${card.text}`}>{card.name}</h2>
               </div>
               <div className="mt-6 grid grid-cols-3 gap-2 text-center">
                 <div className="rounded-xl bg-white/75 px-2 py-3">
@@ -757,11 +713,15 @@ export function ExamClient({
                         <span className="block text-sm font-bold text-slate-700">Timer</span>
                         <select
                           value={durationMinutes}
-                          onChange={(event) => setDurationMinutes(Number(event.target.value))}
+                          onChange={(event) =>
+                            setDurationMinutes(event.target.value ? Number(event.target.value) : "")
+                          }
                           className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none"
                           aria-label="Exam timer"
+                          required
                         >
-                          {TIMER_OPTIONS.map((option) => (
+                          <option value="">Select timer</option>
+                          {TIMER_OPTIONS.filter((option) => option.value > 0).map((option) => (
                             <option key={option.value} value={option.value}>
                               {option.label}
                             </option>
@@ -784,6 +744,7 @@ export function ExamClient({
                         <h3 className="mt-4 text-2xl font-black text-emerald-950">Ready to launch</h3>
                         <p className="mt-2 text-sm leading-6 text-emerald-800">
                           {selectedCourse?.code} / {selectedTopic?.name} / {typeLabel(type)} / {count} questions
+                          {hasTimer ? ` / ${durationMinutes} minutes` : " / timer not selected"}
                         </p>
                       </div>
                     </div>
@@ -796,14 +757,6 @@ export function ExamClient({
                       >
                         {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <FileQuestion className="h-5 w-5" />}
                         {loading ? "Building exam..." : "Generate exam"}
-                      </button>
-                      <button
-                        onClick={() => void startRandomExam()}
-                        disabled={loading || !filteredCourses.length}
-                        className="inline-flex items-center justify-center gap-2 rounded-2xl border-2 border-sky-200 bg-white px-6 py-4 text-sm font-bold text-sky-700 shadow-sm hover:bg-sky-50 disabled:cursor-not-allowed disabled:opacity-50"
-                      >
-                        {loading ? <LoaderCircle className="h-5 w-5 animate-spin" /> : <Sparkles className="h-5 w-5" />}
-                        Surprise me
                       </button>
                     </div>
                   </div>

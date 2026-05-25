@@ -39,7 +39,6 @@ export const EXAM_TYPE_OPTIONS = [
 export const QUESTION_COUNT_OPTIONS = [5, 10, 15, 20, 25, 30, 40, 50, 60, 70, 80, 90, 100] as const;
 
 export const TIMER_OPTIONS = [
-  { label: "No timer", value: 0 },
   { label: "20 minutes", value: 20 },
   { label: "40 minutes", value: 40 },
   { label: "60 minutes (1 hour)", value: 60 },

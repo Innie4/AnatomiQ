@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Shuffle, LoaderCircle } from "lucide-react";
 
 const types = ["MCQ", "SHORT_ANSWER", "THEORY", "MIXED"] as const;
-const timerOptions = [0, 15, 30, 45, 60];
+const timerOptions = [15, 30, 45, 60];
 
 type TopicOption = {
   id: string;
@@ -33,7 +33,7 @@ type StartExamPayload = {
   subtopicSlug?: string;
   type: (typeof types)[number];
   count: number;
-  durationMinutes?: number;
+  durationMinutes: number;
 };
 
 export function RandomizeExamButton({ className }: { className?: string }) {
@@ -123,16 +123,12 @@ export function RandomizeExamButton({ className }: { className?: string }) {
         topicSlug: randomTopic.courseSlug, // Always use the parent topic slug
         type: randomType,
         count: randomCount,
+        durationMinutes: randomTimer,
       };
 
       // Add subtopicSlug only if this is a subtopic
       if (randomTopic.isSubtopic) {
         payload.subtopicSlug = randomTopic.slug;
-      }
-
-      // Only add durationMinutes if it's greater than 0
-      if (randomTimer > 0) {
-        payload.durationMinutes = randomTimer;
       }
 
       console.log("Randomize exam payload:", JSON.stringify(payload, null, 2));

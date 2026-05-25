@@ -162,6 +162,7 @@ Explanations
           subtopicSlug: material.subtopic?.slug,
           type: "SHORT_ANSWER",
           count: 2,
+          durationMinutes: 20,
         }),
       }),
     );
