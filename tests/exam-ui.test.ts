@@ -13,13 +13,17 @@ test("exam question count dropdown exposes the full supported range", () => {
   assert.ok(QUESTION_COUNT_OPTIONS.includes(100), "Should include 100 questions");
 });
 
-test("exam setup uses department-first searchable course selection", () => {
+test("exam setup uses department-first modal course selection", () => {
   const source = readFileSync("src/components/exam/exam-client.tsx", "utf8");
 
-  assert.match(source, /Department/);
+  assert.match(source, /Pick your department arena/);
+  assert.match(source, /departmentCards/);
+  assert.match(source, /role="dialog"/);
+  assert.match(source, /aria-modal="true"/);
   assert.match(source, /Search courses/);
-  assert.match(source, /Choose your department, then your course/);
-  assert.match(source, /md:grid-cols-2 xl:grid-cols-3/);
+  assert.match(source, /Build your exam quest/);
+  assert.match(source, /grid gap-5 sm:grid-cols-2 xl:grid-cols-3/);
+  assert.match(source, /Pick an uploaded course/);
   assert.match(source, /Question type/);
   assert.match(source, /Question number/);
   assert.match(source, /filteredCourses/);
