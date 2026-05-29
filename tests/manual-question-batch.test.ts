@@ -136,6 +136,39 @@ EXPLANATIONS
   assert.deepEqual(parsed[0].options, ["1", "2", "3", "4"]);
 });
 
+test("manual question batch parser accepts compact answer rows", () => {
+  const parsed = parseManualQuestionBatch({
+    type: QuestionType.MCQ,
+    defaultDifficulty: Difficulty.INTERMEDIATE,
+    input: `QUESTIONS
+
+1. What is direct current?
+2. Which motors are simpler than d.c. motors?
+3. What is the common power-system frequency?
+
+OPTIONS
+
+1. A. Reversing current | B. Steady one-direction current | C. Capacitor-only current | D. Sinusoidal current
+2. A. Series motors | B. Universal motors | C. Induction motors | D. Stepper motors
+3. A. 25 Hz | B. 60 Hz | C. 100 Hz | D. 50 Hz
+
+ANSWERS
+
+1-B | 2-C | 3-D
+
+EXPLANATIONS
+
+1. Direct current is steady and flows in one direction.
+2. The material identifies induction motors as cheaper and simpler.
+3. The material states the common frequency is 50 Hz.`,
+  });
+
+  assert.equal(parsed.length, 3);
+  assert.equal(parsed[0].answer, "Steady one-direction current");
+  assert.equal(parsed[1].answer, "Induction motors");
+  assert.equal(parsed[2].answer, "50 Hz");
+});
+
 test("manual question batch parser supports large numbered MCQ banks", () => {
   const total = 200;
   const numberedLines = (prefix: string) =>

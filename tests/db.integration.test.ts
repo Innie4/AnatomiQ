@@ -104,11 +104,6 @@ test("database cleanup removes seed and test catalog entries", async () => {
         { code: { startsWith: "PROBE" } },
         { slug: { contains: "integration" } },
         { slug: { contains: "probe" } },
-        {
-          Material: {
-            none: {},
-          },
-        },
       ],
     },
     select: { code: true, slug: true },

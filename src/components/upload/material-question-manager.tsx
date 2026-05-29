@@ -52,14 +52,14 @@ type EditableQuestion = {
 
 const numberedTemplate = `Questions
 1. Which chamber forms the apex of the heart?
-2. State the nerve supply of the diaphragm.
+2. Which nerve supplies the diaphragm?
 
 Options
 1. Right ventricle | Left ventricle | Right atrium | Left atrium
+2. Vagus nerve | Phrenic nerve | Facial nerve | Median nerve
 
 Answers
-1. B
-2. The phrenic nerve supplies the diaphragm.
+1-B | 2-B
 
 Explanations
 1. The apex of the heart is formed by the left ventricle.
@@ -604,7 +604,8 @@ export function MaterialQuestionManager({
           <div className="rounded-[1.5rem] border border-slate-200 bg-slate-50/80 p-4 text-sm leading-6 text-slate-600">
             Numbered bulk uploads must keep matching numbers across <span className="font-mono">Questions</span>,
             <span className="font-mono"> Answers</span>, and <span className="font-mono">Explanations</span>. MCQ
-            uploads also require numbered <span className="font-mono">Options</span>.
+            uploads also require numbered <span className="font-mono">Options</span>. Answers may be listed one per
+            line or compactly, for example <span className="font-mono">1-B | 2-C | 3-D</span>.
           </div>
 
           <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">

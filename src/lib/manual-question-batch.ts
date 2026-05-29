@@ -214,7 +214,22 @@ function parseNumberedEntries(lines: string[], label: string) {
       continue;
     }
 
-    const numberedMatch = line.match(/^(\d+)[.)]\s*(.*)$/);
+    const pipeFragments = line.split(/\s*\|\s*/g).map((fragment) => fragment.trim()).filter(Boolean);
+    const compactEntries = pipeFragments
+      .map((fragment) => fragment.trim())
+      .map((fragment) => fragment.match(/^(\d+)\s*(?:[.):]|-)\s*(.+)$/))
+      .filter((match): match is RegExpMatchArray => Boolean(match));
+
+    if (compactEntries.length > 1 && compactEntries.length === pipeFragments.length) {
+      for (const compactEntry of compactEntries) {
+        currentNumber = Number(compactEntry[1]);
+        entries.set(currentNumber, [compactEntry[2].trim()]);
+      }
+
+      continue;
+    }
+
+    const numberedMatch = line.match(/^(\d+)\s*(?:[.):]|-)\s*(.*)$/);
 
     if (numberedMatch) {
       currentNumber = Number(numberedMatch[1]);
