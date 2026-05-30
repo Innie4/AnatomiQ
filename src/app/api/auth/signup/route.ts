@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { hashPassword, signToken } from "@/lib/auth";
 import { rateLimit, getClientIP } from "@/lib/rate-limit";
 import { db } from "@/lib/db";
-import { generateUniqueReferralCode, processReferral } from "@/lib/referral";
+import { generateUniqueReferralCode, processReferral, validateReferralCode } from "@/lib/referral";
 import { generateToken } from "@/lib/tokens";
 import { sendVerificationEmail } from "@/lib/email";
 import { serializeFacultyUser, setAuthCookie } from "@/lib/auth-session";
@@ -56,6 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { fullName, email, password, department, faculty, course, referralCode } = validation.data;
+    const submittedReferralCode = referralCode?.trim().toUpperCase();
 
     // Check if user already exists
     const existingUser = await db.facultyUser.findUnique({
@@ -67,6 +68,13 @@ export async function POST(request: NextRequest) {
         { error: "An account with this email already exists" },
         { status: 409 }
       );
+    }
+
+    if (submittedReferralCode) {
+      const referrerId = await validateReferralCode(submittedReferralCode);
+      if (!referrerId) {
+        return NextResponse.json({ error: "That referral code is not active." }, { status: 400 });
+      }
     }
 
     // Hash password
@@ -96,8 +104,8 @@ export async function POST(request: NextRequest) {
     });
 
     // Process referral if provided
-    if (referralCode) {
-      await processReferral(user.id, referralCode);
+    if (submittedReferralCode) {
+      await processReferral(user.id, submittedReferralCode);
     }
 
     // Send verification email (don't block signup on email failure)

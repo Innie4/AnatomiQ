@@ -56,22 +56,24 @@ export async function POST(request: Request) {
 
     const payload = courseSchema.parse(await request.json());
     const slug = toSlug(payload.name);
+    const code = payload.code.toUpperCase();
+    const department = payload.department || "Human Anatomy";
 
     const course = await db.course.upsert({
-      where: { code: payload.code.toUpperCase() },
+      where: { department_code: { department, code } },
       update: {
         name: payload.name,
         slug,
         semester: payload.semester as CourseSemester,
-        department: payload.department || undefined,
+        department,
         description: payload.description || undefined,
       },
       create: {
-        code: payload.code.toUpperCase(),
+        code,
         name: payload.name,
         slug,
         semester: payload.semester as CourseSemester,
-        department: payload.department || "Human Anatomy",
+        department,
         description: payload.description || null,
       },
       select: {

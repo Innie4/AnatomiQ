@@ -6,7 +6,7 @@ import { signToken } from "@/lib/auth";
 import { isKnownCourse, isKnownDepartment, isKnownFaculty } from "@/lib/auth-options";
 import { serializeFacultyUser, setAuthCookie } from "@/lib/auth-session";
 import { db } from "@/lib/db";
-import { processReferral } from "@/lib/referral";
+import { processReferral, validateReferralCode } from "@/lib/referral";
 
 const completeProfileSchema = z.object({
   fullName: z.string().trim().min(2, "Full name must be at least 2 characters"),
@@ -51,6 +51,10 @@ export async function POST(request: NextRequest) {
 
   const submittedReferralCode = payload.data.referralCode?.toUpperCase();
   if (submittedReferralCode && !updatedUser.referredBy && submittedReferralCode !== updatedUser.referralCode) {
+    const referrerId = await validateReferralCode(submittedReferralCode);
+    if (!referrerId) {
+      return NextResponse.json({ error: "That referral code is not active." }, { status: 400 });
+    }
     await processReferral(updatedUser.id, submittedReferralCode);
   }
 

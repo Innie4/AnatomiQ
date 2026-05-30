@@ -22,7 +22,14 @@ export async function POST(request: NextRequest) {
       where: { id: payload.userId },
     });
 
-    if (!user || !user.passwordHash) {
+    if (!user || user.isGuest) {
+      return NextResponse.json(
+        { error: "Guests need to sign in or create an account before changing a password.", code: "GUEST_REQUIRES_ACCOUNT" },
+        { status: 403 },
+      );
+    }
+
+    if (!user.passwordHash) {
       return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 

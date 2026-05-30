@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
+import { startAuthentication } from "@simplewebauthn/browser";
 import { signIn } from "next-auth/react";
-import { Loader2, Lock, Mail, UserCircle2 } from "lucide-react";
+import { Fingerprint, Loader2, Lock, Mail, UserCircle2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 function GoogleIcon() {
@@ -49,7 +50,53 @@ export function SignInForm() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [biometricLoading, setBiometricLoading] = useState(false);
+  const [biometricModal, setBiometricModal] = useState<"prompt" | "success" | null>(null);
   const [error, setError] = useState<string | null>(null);
+
+  const closeBiometricModal = () => {
+    if (biometricModal === "prompt") {
+      setError("Biometric login was cancelled. Use your password to continue.");
+    }
+    setBiometricModal(null);
+  };
+
+  const handleBiometricSignIn = async () => {
+    setBiometricLoading(true);
+    setBiometricModal("prompt");
+    setError(null);
+
+    try {
+      const optionsResponse = await fetch("/api/auth/biometric/login-options", { method: "POST" });
+      const options = await optionsResponse.json();
+
+      if (!optionsResponse.ok) {
+        throw new Error(options.error || "Biometric login is not set up yet.");
+      }
+
+      const assertion = await startAuthentication(options);
+      const verifyResponse = await fetch("/api/auth/biometric/login-verify", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(assertion),
+      });
+      const result = await verifyResponse.json();
+
+      if (!verifyResponse.ok) {
+        throw new Error(result.error || "Biometric login failed.");
+      }
+
+      localStorage.setItem("anatomiq:auth-token", result.token);
+      localStorage.setItem("anatomiq:user", JSON.stringify(result.user));
+      setBiometricModal("success");
+      window.setTimeout(() => router.push(callbackUrl), 650);
+    } catch (err) {
+      setBiometricModal(null);
+      setError(err instanceof Error ? err.message : "Use your password to continue.");
+    } finally {
+      setBiometricLoading(false);
+    }
+  };
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -113,6 +160,16 @@ export function SignInForm() {
           <h2 className="text-2xl font-bold text-slate-900">Welcome back</h2>
           <p className="mt-2 text-sm text-slate-600">Sign in to continue your anatomy journey.</p>
         </div>
+
+        <button
+          type="button"
+          onClick={() => void handleBiometricSignIn()}
+          disabled={loading || biometricLoading}
+          className="mb-4 flex w-full items-center justify-center gap-3 rounded-2xl bg-slate-950 px-6 py-4 font-bold text-white shadow-lg transition hover:-translate-y-0.5 disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {biometricLoading ? <Loader2 className="h-5 w-5 animate-spin" /> : <Fingerprint className="h-5 w-5" />}
+          Use fingerprint or passkey
+        </button>
 
         <div className="mb-6 flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50/70 px-4 py-3">
           <div>
@@ -231,6 +288,42 @@ export function SignInForm() {
           </Link>
         </div>
       </div>
+
+      {biometricModal ? (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/55 p-4 backdrop-blur-sm"
+          onMouseDown={(event) => {
+            if (event.target === event.currentTarget) closeBiometricModal();
+          }}
+        >
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="biometric-dialog-title"
+            className="w-full max-w-sm rounded-[2rem] border border-white/70 bg-white p-6 text-center shadow-[0_30px_90px_rgba(15,23,42,0.24)]"
+          >
+            <button
+              type="button"
+              onClick={closeBiometricModal}
+              className="ml-auto flex h-9 w-9 items-center justify-center rounded-full bg-slate-100 text-slate-600"
+              aria-label="Close biometric login"
+            >
+              <X className="h-4 w-4" />
+            </button>
+            <div className={`mx-auto mt-2 flex h-20 w-20 items-center justify-center rounded-[1.5rem] ${biometricModal === "success" ? "bg-emerald-100 text-emerald-700" : "bg-sky-100 text-sky-700"}`}>
+              {biometricModal === "success" ? <UserCircle2 className="h-10 w-10" /> : <Fingerprint className="h-10 w-10 animate-pulse" />}
+            </div>
+            <h3 id="biometric-dialog-title" className="mt-5 text-2xl font-black text-slate-950">
+              {biometricModal === "success" ? "Unlocked" : "Fingerprint check"}
+            </h3>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              {biometricModal === "success"
+                ? "Taking you into AnatomiQ."
+                : "Use your device fingerprint, face unlock, or screen lock. Tap outside to fall back to password."}
+            </p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -118,6 +118,7 @@ enum CourseSemester {
 model FacultyUser {
   id                        String         @id @default(uuid())
   email                     String         @unique
+  phoneNumber               String?        @unique
   passwordHash              String?
   fullName                  String
   department                String         @default("Human Anatomy")
@@ -132,6 +133,7 @@ model FacultyUser {
   emailNotifications        Boolean        @default(true)
   referralNotifications     Boolean        @default(true)
   subscriptionNotifications Boolean        @default(true)
+  biometricsEnabled         Boolean        @default(false)
   requiresProfileCompletion Boolean        @default(false)
   referralCode              String?        @unique
   referredBy                String?
@@ -139,6 +141,9 @@ model FacultyUser {
   selectedCourses           String[]       @default([])
   resetToken                String?        @unique
   resetTokenExpiry          DateTime?
+  resetOtpHash              String?
+  resetOtpExpiry            DateTime?
+  resetOtpChannel           PasswordResetChannel?
   emailVerified             Boolean        @default(false)
   verificationToken         String?        @unique
   createdAt                 DateTime       @default(now())
@@ -149,6 +154,7 @@ model FacultyUser {
   ReferralReceived          Referral?      @relation("ReferredUserRelation")
   ExamResults               ExamResult[]
   Notifications             Notification[]
+  WebAuthnCredentials       WebAuthnCredential[]
 
   @@index([referredBy])
 }
@@ -273,6 +279,29 @@ model Material {
   @@index([courseId, status, createdAt])
   @@index([topicId, status])
   @@index([subtopicId, status])
+}
+
+enum PasswordResetChannel {
+  EMAIL
+  PHONE
+}
+
+/// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
+model WebAuthnCredential {
+  id           String      @id @default(uuid())
+  userId       String
+  credentialId String      @unique
+  publicKey    String
+  counter      Int         @default(0)
+  deviceType   String
+  backedUp     Boolean     @default(false)
+  transports   String[]    @default([])
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+  lastUsedAt   DateTime?
+  user         FacultyUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.

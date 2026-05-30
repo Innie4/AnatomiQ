@@ -52,7 +52,7 @@ export async function validateReferralCode(
   code: string
 ): Promise<string | null> {
   const referrer = await db.facultyUser.findUnique({
-    where: { referralCode: code },
+    where: { referralCode: code.trim().toUpperCase() },
     select: { id: true, isActive: true },
   });
 
@@ -71,11 +71,29 @@ export async function processReferral(
   referralCode: string
 ): Promise<boolean> {
   try {
-    const referrerId = await validateReferralCode(referralCode);
+    const normalizedCode = referralCode.trim().toUpperCase();
+    const referrerId = await validateReferralCode(normalizedCode);
 
-    if (!referrerId) {
+    if (!referrerId || referrerId === referredUserId) {
       return false;
     }
+
+    const existingReferral = await db.referral.findUnique({
+      where: { referredUserId },
+    });
+
+    if (existingReferral) {
+      return true;
+    }
+
+    const referredUser = await db.facultyUser.findUnique({
+      where: { id: referredUserId },
+      select: { fullName: true },
+    });
+    const referrer = await db.facultyUser.findUnique({
+      where: { id: referrerId },
+      select: { referralNotifications: true },
+    });
 
     // Create referral record and increment count in a transaction
     await db.$transaction([
@@ -83,7 +101,8 @@ export async function processReferral(
         data: {
           referrerId,
           referredUserId,
-          status: "PENDING",
+          status: "COMPLETED",
+          completedAt: new Date(),
         },
       }),
       db.facultyUser.update({
@@ -97,9 +116,22 @@ export async function processReferral(
       db.facultyUser.update({
         where: { id: referredUserId },
         data: {
-          referredBy: referralCode,
+          referredBy: normalizedCode,
         },
       }),
+      ...(referrer?.referralNotifications
+        ? [
+            db.notification.create({
+              data: {
+                userId: referrerId,
+                type: "REFERRAL_SUCCESS",
+                title: "Referral completed",
+                message: `${referredUser?.fullName || "A new user"} joined AnatomiQ with your referral code.`,
+                link: "/referrals",
+              },
+            }),
+          ]
+        : []),
     ]);
 
     return true;

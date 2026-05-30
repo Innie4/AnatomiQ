@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { generateToken, generateTokenExpiry } from "@/lib/tokens";
-import { sendPasswordResetEmail } from "@/lib/email";
+import { hashPassword } from "@/lib/auth";
+import { generateOtp, generateOtpExpiry, generateToken, generateTokenExpiry } from "@/lib/tokens";
+import { sendPasswordResetEmail, sendPasswordResetOtpEmail } from "@/lib/email";
+import { sendPasswordResetSms } from "@/lib/sms";
 import { z } from "zod";
 
 const forgotPasswordSchema = z.object({
-  email: z.string().email("Invalid email address"),
+  channel: z.enum(["email", "phone"]).default("email"),
+  email: z.string().email("Invalid email address").optional(),
+  phoneNumber: z.string().min(7, "Phone number is required").optional(),
 });
+
+const genericMessage = "If the account exists, a password reset code has been sent.";
 
 export async function POST(request: NextRequest) {
   try {
@@ -20,23 +26,34 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { email } = validation.data;
+    const { channel, email, phoneNumber } = validation.data;
+
+    if (channel === "email" && !email) {
+      return NextResponse.json({ error: "Email address is required" }, { status: 400 });
+    }
+
+    if (channel === "phone" && !phoneNumber) {
+      return NextResponse.json({ error: "Phone number is required" }, { status: 400 });
+    }
 
     // Find user
-    const user = await db.facultyUser.findUnique({
-      where: { email },
-    });
+    const user = channel === "email"
+      ? await db.facultyUser.findUnique({ where: { email } })
+      : await db.facultyUser.findUnique({ where: { phoneNumber } });
 
     // Always return success to prevent email enumeration
     if (!user) {
       return NextResponse.json({
-        message: "If that email exists, a password reset link has been sent.",
+        message: genericMessage,
       });
     }
 
     // Generate reset token
     const resetToken = generateToken();
     const resetTokenExpiry = generateTokenExpiry();
+    const otp = generateOtp();
+    const resetOtpHash = await hashPassword(otp);
+    const resetOtpExpiry = generateOtpExpiry();
 
     // Save token to database
     await db.facultyUser.update({
@@ -44,15 +61,24 @@ export async function POST(request: NextRequest) {
       data: {
         resetToken,
         resetTokenExpiry,
+        resetOtpHash,
+        resetOtpExpiry,
+        resetOtpChannel: channel === "email" ? "EMAIL" : "PHONE",
       },
     });
 
-    // Send email
-    const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
-    await sendPasswordResetEmail(email, resetToken, appUrl);
+    if (channel === "email" && email) {
+      const appUrl = process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000";
+      await Promise.all([
+        sendPasswordResetEmail(email, resetToken, appUrl),
+        sendPasswordResetOtpEmail(email, otp),
+      ]);
+    } else if (phoneNumber) {
+      await sendPasswordResetSms(phoneNumber, otp);
+    }
 
     return NextResponse.json({
-      message: "If that email exists, a password reset link has been sent.",
+      message: genericMessage,
     });
   } catch (error) {
     console.error("Forgot password error:", error);

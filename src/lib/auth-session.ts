@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import type { FacultyUser } from "@prisma/client";
 
-const AUTH_COOKIE_NAME = "anatomiq:auth-token";
+export const AUTH_COOKIE_NAME = "anatomiq_auth_token";
 const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
 export function setAuthCookie(response: NextResponse, token: string) {
@@ -33,6 +33,7 @@ export function serializeFacultyUser(user: FacultyUser) {
   return {
     id: user.id,
     email: user.email,
+    phoneNumber: user.phoneNumber,
     fullName: user.fullName,
     department: user.department,
     faculty: user.faculty,
@@ -45,6 +46,7 @@ export function serializeFacultyUser(user: FacultyUser) {
       referralNotifications: user.referralNotifications,
       subscriptionNotifications: user.subscriptionNotifications,
     },
+    biometricsEnabled: user.biometricsEnabled,
     requiresProfileCompletion: user.requiresProfileCompletion,
   };
 }

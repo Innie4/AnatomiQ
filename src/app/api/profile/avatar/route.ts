@@ -15,6 +15,15 @@ export async function POST(request: Request) {
       return fail("Unauthorized", 401);
     }
 
+    const user = await db.facultyUser.findUnique({
+      where: { id: auth.userId },
+      select: { isGuest: true },
+    });
+
+    if (!user || user.isGuest) {
+      return fail("Guests need to sign in or create an account before editing profile settings.", 403);
+    }
+
     const formData = await request.formData();
     const file = formData.get("file");
 

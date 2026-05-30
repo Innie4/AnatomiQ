@@ -1,6 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
+import Link from "next/link";
 import { BookOpen, Check, Loader2, Search } from "lucide-react";
 import { useCourses } from "@/hooks/use-courses";
 
@@ -19,6 +20,7 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
   const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [guestModal, setGuestModal] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [query, setQuery] = useState("");
 
@@ -58,7 +60,7 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
         return;
       }
 
-      await fetch("/api/profile/courses", {
+      const response = await fetch("/api/profile/courses", {
         method: "PUT",
         headers: {
           "Content-Type": "application/json",
@@ -66,6 +68,10 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
         },
         body: JSON.stringify({ selectedCourses: courses }),
       });
+      const data = await response.json();
+      if (!response.ok && data.code === "GUEST_REQUIRES_ACCOUNT") {
+        setGuestModal(true);
+      }
     } catch (error) {
       console.error("Error saving courses:", error);
     } finally {
@@ -201,6 +207,22 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
           No courses match that search.
         </p>
       )}
+
+      {guestModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div role="dialog" aria-modal="true" aria-labelledby="course-guest-title" className="w-full max-w-md rounded-[2rem] border border-white/80 bg-white p-6 text-center shadow-[0_30px_90px_rgba(15,23,42,0.22)]">
+            <h2 id="course-guest-title" className="text-2xl font-black text-slate-950">Save your course picks</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600">
+              Guest sessions can preview courses, but saving selections needs an account.
+            </p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <Link href="/signin" className="rounded-2xl border border-slate-300 px-4 py-3 text-sm font-black text-slate-800">Log in</Link>
+              <Link href="/signup" className="rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-black text-white">Sign up</Link>
+            </div>
+            <button type="button" onClick={() => setGuestModal(false)} className="mt-4 text-sm font-bold text-slate-500">Keep browsing</button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useCallback, useEffect, useState } from "react";
 import { Copy, Check, Users, Gift } from "lucide-react";
 
@@ -77,6 +78,28 @@ export function ReferralCard() {
   }
 
   if (!stats) return null;
+
+  if (!stats.referralCode) {
+    return (
+      <div className="overflow-hidden rounded-2xl border border-slate-200 bg-white dark:border-slate-800 dark:bg-slate-900">
+        <div className="bg-gradient-to-br from-[#0969da] to-[#0ca678] p-6 text-white">
+          <div className="mb-2 flex items-center gap-3">
+            <Gift className="h-6 w-6" />
+            <h3 className="text-xl font-bold">Refer & Earn</h3>
+          </div>
+          <p className="text-sm text-blue-100">Create an account to unlock your referral code and reward trail.</p>
+        </div>
+        <div className="grid grid-cols-2 gap-3 p-6">
+          <Link href="/signin" className="rounded-xl border border-slate-300 px-4 py-3 text-center text-sm font-black text-slate-800 dark:border-slate-700 dark:text-white">
+            Log in
+          </Link>
+          <Link href="/signup" className="rounded-xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-center text-sm font-black text-white">
+            Sign up
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-2xl border border-slate-200 overflow-hidden">

@@ -21,6 +21,18 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
+    const user = await db.facultyUser.findUnique({
+      where: { id: payload.userId },
+      select: { isGuest: true },
+    });
+
+    if (!user || user.isGuest) {
+      return NextResponse.json(
+        { error: "Guests need to sign in or create an account before editing courses.", code: "GUEST_REQUIRES_ACCOUNT" },
+        { status: 403 },
+      );
+    }
+
     const body = await request.json();
     const validation = updateCoursesSchema.safeParse(body);
 

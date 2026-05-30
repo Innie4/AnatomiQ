@@ -1,11 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
-import { hashPassword } from "@/lib/auth";
+import { comparePassword, hashPassword } from "@/lib/auth";
 import { isTokenExpired } from "@/lib/tokens";
 import { z } from "zod";
 
 const resetPasswordSchema = z.object({
-  token: z.string().min(1, "Token is required"),
+  token: z.string().optional(),
+  channel: z.enum(["email", "phone"]).optional(),
+  identifier: z.string().optional(),
+  otp: z.string().regex(/^\d{6}$/, "Enter the 6-digit code").optional(),
   password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
@@ -21,26 +24,44 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const { token, password } = validation.data;
+    const { token, channel, identifier, otp, password } = validation.data;
 
-    // Find user with this reset token
-    const user = await db.facultyUser.findUnique({
-      where: { resetToken: token },
-    });
+    const user = token
+      ? await db.facultyUser.findUnique({ where: { resetToken: token } })
+      : channel === "email" && identifier
+        ? await db.facultyUser.findUnique({ where: { email: identifier } })
+        : channel === "phone" && identifier
+          ? await db.facultyUser.findUnique({ where: { phoneNumber: identifier } })
+          : null;
 
     if (!user) {
       return NextResponse.json(
-        { error: "Invalid or expired reset token" },
+        { error: "Invalid or expired reset request" },
         { status: 400 }
       );
     }
 
-    // Check if token is expired
-    if (isTokenExpired(user.resetTokenExpiry)) {
+    if (token && isTokenExpired(user.resetTokenExpiry)) {
       return NextResponse.json(
         { error: "Reset token has expired. Please request a new one." },
         { status: 400 }
       );
+    }
+
+    if (!token) {
+      if (!otp || !user.resetOtpHash || isTokenExpired(user.resetOtpExpiry)) {
+        return NextResponse.json(
+          { error: "Reset code has expired. Please request a new one." },
+          { status: 400 },
+        );
+      }
+
+      const expectedChannel = channel === "email" ? "EMAIL" : "PHONE";
+      const codeMatches = await comparePassword(otp, user.resetOtpHash);
+
+      if (user.resetOtpChannel !== expectedChannel || !codeMatches) {
+        return NextResponse.json({ error: "Invalid reset code" }, { status: 400 });
+      }
     }
 
     // Hash new password
@@ -53,6 +74,9 @@ export async function POST(request: NextRequest) {
         passwordHash,
         resetToken: null,
         resetTokenExpiry: null,
+        resetOtpHash: null,
+        resetOtpExpiry: null,
+        resetOtpChannel: null,
       },
     });
 

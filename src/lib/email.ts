@@ -115,6 +115,27 @@ If you didn't request this, you can safely ignore this email.`;
   });
 }
 
+export async function sendPasswordResetOtpEmail(email: string, otp: string): Promise<boolean> {
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+      <h2 style="color: #0969da;">Your AnatomiQ Reset Code</h2>
+      <p>Use this one-time password to reset your AnatomiQ account password:</p>
+      <div style="font-size: 32px; letter-spacing: 8px; font-weight: 700; color: #0f1419; margin: 24px 0;">${otp}</div>
+      <p style="color: #999; font-size: 14px;">This code expires in 10 minutes.</p>
+      <p style="color: #999; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
+    </div>
+  `;
+
+  const text = `Your AnatomiQ reset code is ${otp}. It expires in 10 minutes.`;
+
+  return sendEmail({
+    to: email,
+    subject: "Your AnatomiQ Password Reset Code",
+    html,
+    text,
+  });
+}
+
 export async function sendVerificationEmail(
   email: string,
   verificationToken: string,

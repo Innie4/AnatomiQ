@@ -21,15 +21,10 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     }
 
     const applyTheme = (theme: string | null) => {
-      const resolvedTheme =
-        theme === "dark" ||
-        (theme === "system" && window.matchMedia("(prefers-color-scheme: dark)").matches)
-          ? "dark"
-          : "light";
-      document.documentElement.classList.toggle("dark", resolvedTheme === "dark");
+      document.documentElement.classList.toggle("dark", theme === "dark");
     };
 
-    applyTheme(localStorage.getItem("anatomiq:theme") || "system");
+    applyTheme(localStorage.getItem("anatomiq:theme") || "light");
   }, []);
 
   const handleSplashComplete = () => {

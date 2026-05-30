@@ -69,6 +69,27 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    const user = await db.facultyUser.findUnique({
+      where: { id: payload.userId },
+      select: {
+        emailNotifications: true,
+        referralNotifications: true,
+        subscriptionNotifications: true,
+      },
+    });
+
+    if (!user) {
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
+    }
+
+    if (
+      (type === "REFERRAL_SUCCESS" && !user.referralNotifications) ||
+      (type === "SUBSCRIPTION_UPDATE" && !user.subscriptionNotifications) ||
+      (type === "EXAM_COMPLETE" && !user.emailNotifications)
+    ) {
+      return NextResponse.json({ skipped: true });
+    }
+
     const notification = await db.notification.create({
       data: {
         userId: payload.userId,

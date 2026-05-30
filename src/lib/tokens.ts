@@ -16,6 +16,16 @@ export function generateTokenExpiry(): Date {
   return expiry;
 }
 
+export function generateOtp(): string {
+  return Math.floor(100000 + Math.random() * 900000).toString();
+}
+
+export function generateOtpExpiry(): Date {
+  const expiry = new Date();
+  expiry.setMinutes(expiry.getMinutes() + 10);
+  return expiry;
+}
+
 /**
  * Check if token is expired
  */

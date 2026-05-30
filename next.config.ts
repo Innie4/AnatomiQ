@@ -8,7 +8,7 @@ const nextConfig: NextConfig = {
       bodySizeLimit: "50mb",
     },
   },
-  serverExternalPackages: ["pdf-parse", "tesseract.js"],
+  serverExternalPackages: ["pdf-parse", "paystack-node", "tesseract.js"],
   outputFileTracingIncludes: {
     "/api/process-material": [
       "./node_modules/pdfjs-dist/legacy/build/pdf.worker*.mjs",

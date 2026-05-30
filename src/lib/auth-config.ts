@@ -14,6 +14,7 @@ function getProviderIdentity(provider: SocialProvider, providerAccountId: string
 }
 
 export const { handlers, auth, signIn, signOut } = NextAuth({
+  secret: process.env.AUTH_SECRET || process.env.NEXTAUTH_SECRET || process.env.JWT_SECRET || "fallback-dev-secret-change-in-production",
   session: {
     strategy: "jwt",
   },

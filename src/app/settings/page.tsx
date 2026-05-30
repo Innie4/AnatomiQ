@@ -1,14 +1,23 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
+import { startRegistration } from "@simplewebauthn/browser";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { Lock, Save, Settings, Trash2 } from "lucide-react";
+import { ArrowLeft, Fingerprint, Loader2, Save, Settings, ShieldAlert } from "lucide-react";
 
+type PreferenceKey = "emailNotifications" | "referralNotifications" | "subscriptionNotifications";
 type Preferences = {
   theme: "light" | "dark";
   emailNotifications: boolean;
   referralNotifications: boolean;
   subscriptionNotifications: boolean;
+};
+
+type SettingsProfile = {
+  isGuest: boolean;
+  biometricsEnabled: boolean;
+  preferences: Preferences;
 };
 
 const defaultPreferences: Preferences = {
@@ -18,63 +27,77 @@ const defaultPreferences: Preferences = {
   subscriptionNotifications: true,
 };
 
+function Toggle({ checked, onChange, disabled = false }: { checked: boolean; onChange: (value: boolean) => void; disabled?: boolean }) {
+  return (
+    <button
+      type="button"
+      role="switch"
+      aria-checked={checked}
+      disabled={disabled}
+      onClick={() => onChange(!checked)}
+      className={`relative h-8 w-14 rounded-full transition ${checked ? "bg-gradient-to-r from-[#0969da] to-[#0ca678]" : "bg-slate-300 dark:bg-slate-700"} disabled:cursor-not-allowed disabled:opacity-60`}
+    >
+      <span className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform ${checked ? "translate-x-7" : "translate-x-1"}`} />
+    </button>
+  );
+}
+
 export default function SettingsPage() {
   const router = useRouter();
-  const [preferences, setPreferences] = useState<Preferences>(defaultPreferences);
-  const [passwordData, setPasswordData] = useState({
-    currentPassword: "",
-    newPassword: "",
-    confirmPassword: "",
-  });
+  const [profile, setProfile] = useState<SettingsProfile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
+  const [guestModal, setGuestModal] = useState(false);
 
-  useEffect(() => {
-    let cancelled = false;
+  const applyTheme = (theme: "light" | "dark") => {
+    document.documentElement.classList.toggle("dark", theme === "dark");
+    localStorage.setItem("anatomiq:theme", theme);
+  };
 
-    async function loadSettings() {
-      const token = localStorage.getItem("anatomiq:auth-token");
-      if (!token) {
-        if (!cancelled) router.push("/signin");
-        return;
-      }
-
-      const response = await fetch("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        const themePref = data.themePreference || defaultPreferences.theme;
-        if (!cancelled) {
-          setPreferences({
-            theme: themePref === "dark" ? "dark" : "light",
-            emailNotifications: data.emailNotifications ?? true,
-            referralNotifications: data.referralNotifications ?? true,
-            subscriptionNotifications: data.subscriptionNotifications ?? true,
-          });
-        }
-      }
-
-      if (!cancelled) setLoading(false);
+  const loadSettings = useCallback(async () => {
+    const token = localStorage.getItem("anatomiq:auth-token");
+    if (!token) {
+      router.push("/signin");
+      return;
     }
 
-    loadSettings();
-    return () => { cancelled = true; };
+    const response = await fetch("/api/profile", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (response.ok) {
+      const data = await response.json();
+      const preferences = {
+        ...defaultPreferences,
+        ...data.preferences,
+        theme: data.preferences?.theme === "dark" ? "dark" : "light",
+      };
+      setProfile({
+        isGuest: data.isGuest,
+        biometricsEnabled: data.biometricsEnabled,
+        preferences,
+      });
+      applyTheme(preferences.theme);
+    } else {
+      setError("Unable to load settings.");
+    }
+
+    setLoading(false);
   }, [router]);
 
-  function applyTheme(theme: "light" | "dark") {
-    document.documentElement.classList.remove("dark");
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    }
-    localStorage.setItem("anatomiq:theme", theme);
-  }
+  useEffect(() => {
+    void loadSettings();
+  }, [loadSettings]);
 
-  async function saveSettings() {
-    setMessage("");
-    setError("");
+  const patchProfile = async (body: Record<string, unknown>) => {
+    if (!profile) return;
+    if (profile.isGuest) {
+      setGuestModal(true);
+      return;
+    }
+
     const token = localStorage.getItem("anatomiq:auth-token");
     const response = await fetch("/api/profile", {
       method: "PATCH",
@@ -82,160 +105,173 @@ export default function SettingsPage() {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
-      body: JSON.stringify({
-        themePreference: preferences.theme,
-        emailNotifications: preferences.emailNotifications,
-        referralNotifications: preferences.referralNotifications,
-        subscriptionNotifications: preferences.subscriptionNotifications,
-      }),
+      body: JSON.stringify(body),
     });
+    const data = await response.json();
 
-    if (response.ok) {
-      applyTheme(preferences.theme);
-      setMessage("Settings saved.");
-    } else {
-      setError("Failed to save settings.");
+    if (!response.ok) {
+      if (data.code === "GUEST_REQUIRES_ACCOUNT") setGuestModal(true);
+      throw new Error(data.error || "Unable to save settings.");
     }
-  }
+  };
 
-  async function changePassword(event: React.FormEvent) {
-    event.preventDefault();
-    setMessage("");
+  const updateTheme = async (theme: "light" | "dark") => {
+    if (!profile) return;
+    const previous = profile;
+    setProfile({ ...profile, preferences: { ...profile.preferences, theme } });
+    applyTheme(theme);
     setError("");
 
-    if (passwordData.newPassword !== passwordData.confirmPassword) {
-      setError("Passwords do not match.");
+    try {
+      await patchProfile({ themePreference: theme });
+      setMessage("Theme updated.");
+    } catch (themeError) {
+      setProfile(previous);
+      applyTheme(previous.preferences.theme);
+      setError(themeError instanceof Error ? themeError.message : "Unable to update theme.");
+    }
+  };
+
+  const updatePreference = async (key: PreferenceKey, checked: boolean) => {
+    if (!profile) return;
+    const previous = profile;
+    setProfile({ ...profile, preferences: { ...profile.preferences, [key]: checked } });
+    setError("");
+
+    try {
+      await patchProfile({ [key]: checked });
+      setMessage("Notification preference updated.");
+    } catch (preferenceError) {
+      setProfile(previous);
+      setError(preferenceError instanceof Error ? preferenceError.message : "Unable to update preference.");
+    }
+  };
+
+  const toggleBiometrics = async (enabled: boolean) => {
+    if (!profile) return;
+    if (profile.isGuest) {
+      setGuestModal(true);
       return;
     }
 
-    const token = localStorage.getItem("anatomiq:auth-token");
-    const response = await fetch("/api/auth/change-password", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify({
-        currentPassword: passwordData.currentPassword,
-        newPassword: passwordData.newPassword,
-      }),
-    });
+    setSaving(true);
+    setError("");
+    try {
+      if (enabled) {
+        const token = localStorage.getItem("anatomiq:auth-token");
+        const optionsResponse = await fetch("/api/auth/biometric/register-options", {
+          method: "POST",
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        const options = await optionsResponse.json();
+        if (!optionsResponse.ok) throw new Error(options.error || "Unable to start biometric setup.");
 
-    if (response.ok) {
-      setPasswordData({ currentPassword: "", newPassword: "", confirmPassword: "" });
-      setMessage("Password changed.");
-    } else {
-      const data = await response.json();
-      setError(data.error || "Failed to change password.");
+        const attestation = await startRegistration(options);
+        const verifyResponse = await fetch("/api/auth/biometric/register-verify", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(attestation),
+        });
+        const result = await verifyResponse.json();
+        if (!verifyResponse.ok) throw new Error(result.error || "Unable to verify biometrics.");
+      } else {
+        await patchProfile({ biometricsEnabled: false });
+      }
+
+      setProfile({ ...profile, biometricsEnabled: enabled });
+      setMessage(enabled ? "Biometric login enabled." : "Biometric login disabled.");
+    } catch (biometricError) {
+      setError(biometricError instanceof Error ? biometricError.message : "Unable to update biometric login.");
+    } finally {
+      setSaving(false);
     }
-  }
-
-  async function deleteAccount() {
-    if (!confirm("Delete your account permanently?")) return;
-    if (prompt('Type "DELETE" to confirm.') !== "DELETE") return;
-
-    const token = localStorage.getItem("anatomiq:auth-token");
-    const response = await fetch("/api/auth/delete-account", {
-      method: "DELETE",
-      headers: { Authorization: `Bearer ${token}` },
-    });
-
-    if (response.ok) {
-      localStorage.clear();
-      router.push("/signin");
-    } else {
-      setError("Failed to delete account.");
-    }
-  }
+  };
 
   if (loading) {
-    return <div className="min-h-screen bg-slate-50 p-8 text-slate-600">Loading settings...</div>;
+    return <main className="flex min-h-screen items-center justify-center"><Loader2 className="h-8 w-8 animate-spin text-[#0969da]" /></main>;
   }
 
+  if (!profile) return null;
+
   return (
-    <main className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 px-4 py-16">
+    <main className="min-h-screen px-4 py-12">
       <div className="mx-auto max-w-4xl space-y-6">
-        <div>
-          <div className="flex items-center gap-3 text-slate-900">
-            <Settings className="h-8 w-8 text-blue-600" />
-            <h1 className="text-4xl font-bold">Settings</h1>
-          </div>
-          <p className="mt-2 text-slate-600">Theme, notifications, password, and account controls.</p>
-        </div>
+        <Link href="/profile" className="inline-flex items-center gap-2 text-sm font-bold text-slate-600 hover:text-slate-950 dark:text-slate-300">
+          <ArrowLeft className="h-4 w-4" />
+          Back to profile
+        </Link>
 
-        {message ? <div className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 text-emerald-700">{message}</div> : null}
-        {error ? <div className="rounded-xl border border-rose-200 bg-rose-50 p-4 text-rose-700">{error}</div> : null}
-
-        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-slate-900">Preferences</h2>
-          <div className="mt-6 space-y-5">
+        <section className="glass-panel rounded-[2rem] border border-white/80 p-8 shadow-[0_30px_90px_rgba(31,78,126,0.12)]">
+          <div className="flex items-center gap-3">
+            <Settings className="h-8 w-8 text-[#0969da]" />
             <div>
-              <label className="mb-3 block text-sm font-semibold text-slate-700">Theme</label>
-              <div className="flex items-center gap-4">
-                <span className={`text-sm font-medium ${preferences.theme === "light" ? "text-blue-600" : "text-slate-500"}`}>Light</span>
-                <button
-                  type="button"
-                  onClick={() => setPreferences((value) => ({ ...value, theme: value.theme === "light" ? "dark" : "light" }))}
-                  className={`relative h-8 w-14 rounded-full transition-colors ${
-                    preferences.theme === "dark" ? "bg-slate-800" : "bg-slate-200"
-                  }`}
-                >
-                  <span
-                    className={`absolute top-1 h-6 w-6 rounded-full bg-white shadow-md transition-transform ${
-                      preferences.theme === "dark" ? "translate-x-7" : "translate-x-1"
-                    }`}
-                  />
-                </button>
-                <span className={`text-sm font-medium ${preferences.theme === "dark" ? "text-blue-600" : "text-slate-500"}`}>Dark</span>
+              <h1 className="text-4xl font-black text-slate-950 dark:text-white">Settings</h1>
+              <p className="mt-2 text-slate-600 dark:text-slate-300">Theme, notifications, and biometric login.</p>
+            </div>
+          </div>
+        </section>
+
+        {message ? <div className="rounded-2xl border border-emerald-200 bg-emerald-50 px-4 py-3 text-sm font-bold text-emerald-700">{message}</div> : null}
+        {error ? <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm font-bold text-rose-700">{error}</div> : null}
+
+        <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm dark:border-slate-800 dark:bg-slate-900">
+          <div className="space-y-4">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+              <div>
+                <p className="font-black text-slate-950 dark:text-white">Dark mode</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">One switch. Light or dark across the platform.</p>
               </div>
+              <Toggle checked={profile.preferences.theme === "dark"} onChange={(checked) => void updateTheme(checked ? "dark" : "light")} />
             </div>
 
             {[
               ["emailNotifications", "Email notifications"],
-              ["referralNotifications", "Referral updates"],
               ["subscriptionNotifications", "Subscription reminders"],
+              ["referralNotifications", "Referral updates"],
             ].map(([key, label]) => (
-              <label key={key} className="flex items-center justify-between rounded-xl border border-slate-200 p-4">
-                <span className="font-semibold text-slate-900">{label}</span>
-                <input
-                  type="checkbox"
-                  checked={preferences[key as keyof Preferences] as boolean}
-                  onChange={(event) => setPreferences((value) => ({ ...value, [key]: event.target.checked }))}
-                  className="h-5 w-5"
-                />
-              </label>
+              <div key={key} className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+                <p className="font-black text-slate-950 dark:text-white">{label}</p>
+                <Toggle checked={profile.preferences[key as PreferenceKey]} onChange={(checked) => void updatePreference(key as PreferenceKey, checked)} />
+              </div>
             ))}
 
-            <button onClick={() => void saveSettings()} className="inline-flex items-center gap-2 rounded-xl bg-blue-600 px-5 py-3 text-sm font-semibold text-white">
+            <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
+              <div>
+                <p className="flex items-center gap-2 font-black text-slate-950 dark:text-white"><Fingerprint className="h-5 w-5 text-[#0969da]" /> Biometric login</p>
+                <p className="text-sm text-slate-600 dark:text-slate-300">Use your device fingerprint, face unlock, or screen lock before password fallback.</p>
+              </div>
+              <Toggle checked={profile.biometricsEnabled} disabled={saving} onChange={(checked) => void toggleBiometrics(checked)} />
+            </div>
+          </div>
+
+          <div className="mt-6">
+            <Link href="/profile" className="inline-flex items-center gap-2 rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-5 py-3 text-sm font-black text-white">
               <Save className="h-4 w-4" />
-              Save settings
-            </button>
+              Profile controls
+            </Link>
           </div>
-        </section>
-
-        <section className="rounded-3xl border border-slate-200 bg-white p-8 shadow-lg">
-          <div className="mb-5 flex items-center gap-2">
-            <Lock className="h-5 w-5 text-slate-600" />
-            <h2 className="text-2xl font-bold text-slate-900">Change Password</h2>
-          </div>
-          <form onSubmit={changePassword} className="grid gap-3 md:grid-cols-3">
-            <input type="password" value={passwordData.currentPassword} onChange={(event) => setPasswordData((value) => ({ ...value, currentPassword: event.target.value }))} className="rounded-xl border border-slate-300 px-4 py-3" placeholder="Current password" required />
-            <input type="password" value={passwordData.newPassword} onChange={(event) => setPasswordData((value) => ({ ...value, newPassword: event.target.value }))} className="rounded-xl border border-slate-300 px-4 py-3" placeholder="New password" minLength={8} required />
-            <input type="password" value={passwordData.confirmPassword} onChange={(event) => setPasswordData((value) => ({ ...value, confirmPassword: event.target.value }))} className="rounded-xl border border-slate-300 px-4 py-3" placeholder="Confirm password" required />
-            <button type="submit" className="rounded-xl border border-slate-300 bg-white px-5 py-3 text-sm font-semibold text-slate-700 hover:bg-slate-50 md:col-span-3">
-              Update password
-            </button>
-          </form>
-        </section>
-
-        <section className="rounded-3xl border border-rose-200 bg-white p-8 shadow-lg">
-          <h2 className="text-2xl font-bold text-rose-700">Danger Zone</h2>
-          <button onClick={() => void deleteAccount()} className="mt-5 inline-flex items-center gap-2 rounded-xl bg-rose-600 px-5 py-3 text-sm font-semibold text-white hover:bg-rose-700">
-            <Trash2 className="h-4 w-4" />
-            Delete account
-          </button>
         </section>
       </div>
+
+      {guestModal ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-slate-950/60 p-4 backdrop-blur-sm">
+          <div role="dialog" aria-modal="true" aria-labelledby="settings-guest-title" className="w-full max-w-md rounded-[2rem] border border-white/80 bg-white p-6 text-center shadow-[0_30px_90px_rgba(15,23,42,0.22)] dark:bg-slate-900">
+            <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-2xl bg-amber-100 text-amber-700">
+              <ShieldAlert className="h-8 w-8" />
+            </div>
+            <h2 id="settings-guest-title" className="mt-5 text-2xl font-black text-slate-950 dark:text-white">Log in or sign up</h2>
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Guest sessions cannot save settings.</p>
+            <div className="mt-6 grid grid-cols-2 gap-3">
+              <Link href="/signin" className="rounded-2xl border border-slate-300 px-4 py-3 text-sm font-black text-slate-800 dark:border-slate-700 dark:text-white">Log in</Link>
+              <Link href="/signup" className="rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-black text-white">Sign up</Link>
+            </div>
+            <button type="button" onClick={() => setGuestModal(false)} className="mt-4 text-sm font-bold text-slate-500">Stay as guest</button>
+          </div>
+        </div>
+      ) : null}
     </main>
   );
 }
