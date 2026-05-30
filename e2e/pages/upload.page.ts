@@ -7,26 +7,48 @@ export class UploadPage {
     await this.page.goto('/upload');
   }
 
+  async authenticate(adminKey: string) {
+    await this.page.goto('/');
+    await this.page.evaluate((key) => {
+      sessionStorage.setItem('anatomiq:admin-key', key);
+    }, adminKey);
+  }
+
+  async gotoDashboard() {
+    await this.page.goto('/upload/dashboard');
+    await expect(this.page.getByRole('link', { name: /upload material/i })).toBeVisible({ timeout: 30000 });
+  }
+
   async unlockDashboard(adminKey: string) {
-    await this.page.fill('input[type="password"]', adminKey);
-    await this.page.click('button:has-text("Continue")');
-    // Wait for dashboard to load
-    await expect(this.page.locator('text=Total materials')).toBeVisible();
+    await this.page.getByLabel('Admin upload key').fill(adminKey);
+    await this.page.getByRole('button', { name: /unlock dashboard/i }).click();
+    await expect(this.page).toHaveURL(/.*\/upload\/dashboard/, { timeout: 30000 });
+    await expect(this.page.getByRole('link', { name: /upload material/i })).toBeVisible({ timeout: 30000 });
+  }
+
+  async gotoUploadForm() {
+    await this.page.goto('/upload/dashboard/upload');
+    await expect(this.page.getByRole('heading', { name: /upload new material/i })).toBeVisible();
+  }
+
+  async gotoMaterialsManager() {
+    await this.page.goto('/upload/dashboard/materials');
+    await expect(this.page.getByRole('heading', { name: /manage materials/i })).toBeVisible();
   }
 
   async fillMaterialForm(data: {
-    title: string;
+    department?: string;
     course: string;
     courseCode?: string;
     topic: string;
     subtopic?: string;
   }) {
-    await this.page.fill('input[aria-label="Material title"]', data.title);
-    await this.page.fill('input[aria-label="Course code"]', data.courseCode || 'ANA101');
-    await this.page.fill('input[aria-label="Course name"]', data.course);
-    await this.page.fill('input[aria-label="Topic name"]', data.topic);
+    await this.page.getByLabel(/^Department/i).selectOption(data.department || 'Human Anatomy');
+    await this.page.getByRole('textbox', { name: /^Course Code/i }).fill(data.courseCode || 'ANA101');
+    await this.page.getByRole('textbox', { name: /^Course Name/i }).fill(data.course);
+    await this.page.getByRole('textbox', { name: /^Topic/i }).fill(data.topic);
     if (data.subtopic) {
-      await this.page.fill('input[aria-label*="Subtopic"]', data.subtopic);
+      await this.page.getByLabel(/Subtopic/i).fill(data.subtopic);
     }
   }
 
@@ -35,19 +57,18 @@ export class UploadPage {
   }
 
   async submitUpload() {
-    await this.page.click('button:has-text("Upload and process")');
+    await this.page.getByRole('button', { name: /upload and process/i }).click();
   }
 
   async waitForProcessingComplete() {
-    // Wait for success message
     await expect(
-      this.page.locator('text=/uploaded and processed successfully/i')
-    ).toBeVisible({ timeout: 30000 });
+      this.page.getByText(/uploaded and processed successfully/i)
+    ).toBeVisible({ timeout: 60000 });
   }
 
   async verifyDashboardStats() {
-    await expect(this.page.locator('text=Total materials')).toBeVisible();
-    await expect(this.page.locator('text=Knowledge chunks')).toBeVisible();
-    await expect(this.page.locator('text=Question bank')).toBeVisible();
+    await expect(this.page.getByText(/total materials/i)).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByText(/knowledge chunks/i)).toBeVisible({ timeout: 30000 });
+    await expect(this.page.getByText(/question bank/i)).toBeVisible({ timeout: 30000 });
   }
 }

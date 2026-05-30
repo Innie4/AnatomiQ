@@ -94,7 +94,7 @@ model ContentChunk {
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Course {
   id          String         @id @default(uuid())
-  code        String         @unique
+  code        String
   name        String
   slug        String         @unique
   semester    CourseSemester @default(FIRST)
@@ -105,6 +105,8 @@ model Course {
   Material    Material[]
   Question    Question[]
   Topic       Topic[]
+
+  @@unique([department, code])
 }
 
 enum CourseSemester {
@@ -240,30 +242,37 @@ enum PaymentStatus {
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
 model Material {
-  id              String         @id @default(uuid())
-  title           String
-  fileName        String
-  fileType        String
-  mimeType        String
-  kind            MaterialKind
-  courseId        String
-  topicId         String
-  subtopicId      String?
-  storageKey      String
-  storageUrl      String
-  extractedText   String?
-  extractedHash   String?
-  status          MaterialStatus @default(UPLOADED)
-  processingNotes String?
-  metadata        String?
-  sourcePages     Int?
-  createdAt       DateTime       @default(now())
-  updatedAt       DateTime       @updatedAt
-  ContentChunk    ContentChunk[]
-  course          Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
-  subtopic        Topic?         @relation("Material_subtopicIdToTopic", fields: [subtopicId], references: [id])
-  topic           Topic          @relation("Material_topicIdToTopic", fields: [topicId], references: [id])
-  Question        Question[]
+  id                  String         @id @default(uuid())
+  title               String
+  fileName            String
+  fileType            String
+  mimeType            String
+  kind                MaterialKind
+  courseId            String
+  topicId             String
+  subtopicId          String?
+  storageKey          String
+  storageUrl          String
+  extractedText       String?
+  extractedHash       String?
+  status              MaterialStatus @default(UPLOADED)
+  processingNotes     String?
+  metadata            String?
+  sourcePages         Int?
+  processingStartedAt DateTime?
+  processedAt         DateTime?
+  createdAt           DateTime       @default(now())
+  updatedAt           DateTime       @updatedAt
+  ContentChunk        ContentChunk[]
+  course              Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  subtopic            Topic?         @relation("Material_subtopicIdToTopic", fields: [subtopicId], references: [id])
+  topic               Topic          @relation("Material_topicIdToTopic", fields: [topicId], references: [id])
+  Question            Question[]
+
+  @@index([status, updatedAt])
+  @@index([courseId, status, createdAt])
+  @@index([topicId, status])
+  @@index([subtopicId, status])
 }
 
 /// This model contains row level security and requires additional setup for migrations. Visit https://pris.ly/d/row-level-security for more info.
@@ -293,8 +302,8 @@ model Question {
   subtopic        Topic?                @relation("Question_subtopicIdToTopic", fields: [subtopicId], references: [id])
   topic           Topic                 @relation("Question_topicIdToTopic", fields: [topicId], references: [id])
 
-  @@unique([materialId, manualOrder])
-  @@index([materialId, manualOrder])
+  @@unique([materialId, type, manualOrder])
+  @@index([materialId, type, manualOrder])
   @@index([materialId, type])
   @@index([subtopicId, type])
   @@index([topicId, type])
@@ -326,6 +335,8 @@ model Topic {
   childTopics         Topic[]            @relation("TopicToTopic")
 
   @@unique([courseId, name, parentTopicId])
+  @@index([courseId, level])
+  @@index([parentTopicId])
 }
 
 enum CounterMetric {

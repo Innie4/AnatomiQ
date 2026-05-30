@@ -2,15 +2,31 @@ import { spawnSync } from "node:child_process";
 
 import { loadAppEnv, validateSupabaseDatabaseUrls } from "./env-utils.mjs";
 
-function run(command, args) {
+function sleep(ms) {
+  Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, ms);
+}
+
+function run(command, args, options = {}) {
+  const attempts = options.attempts ?? 1;
   const executable = process.platform === "win32" ? "cmd.exe" : command;
   const finalArgs =
     process.platform === "win32" ? ["/d", "/s", "/c", `${command} ${args.join(" ")}`] : args;
-  const result = spawnSync(executable, finalArgs, {
-    stdio: "inherit",
-  });
 
-  if (result.status !== 0) {
+  for (let attempt = 1; attempt <= attempts; attempt += 1) {
+    const result = spawnSync(executable, finalArgs, {
+      stdio: "inherit",
+    });
+
+    if (result.status === 0) {
+      return;
+    }
+
+    if (attempt < attempts) {
+      console.warn(`${command} ${args.join(" ")} failed; retrying (${attempt + 1}/${attempts})...`);
+      sleep(3000);
+      continue;
+    }
+
     process.exit(result.status ?? 1);
   }
 }
@@ -44,5 +60,6 @@ if (databaseUrl.startsWith("file:")) {
 validateSupabaseDatabaseUrls();
 
 console.log("Preparing remote ANATOMIQ database...");
-run("npx", ["prisma", "migrate", "deploy"]);
-run("npx", ["tsx", "prisma/seed.ts"]);
+run("npx", ["prisma", "generate"]);
+run("npx", ["prisma", "migrate", "deploy"], { attempts: 3 });
+run("npx", ["tsx", "prisma/seed.ts"], { attempts: 2 });

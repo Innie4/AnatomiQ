@@ -9,6 +9,11 @@ const { loadEnvConfig } = require("@next/env") as { loadEnvConfig: (dir: string)
 
 loadEnvConfig(process.cwd());
 
+const integrationHeartbeat = setInterval(() => {
+  console.log("[tests] remote database integration still running...");
+}, 10_000);
+integrationHeartbeat.unref?.();
+
 export async function createTestMaterial() {
   const suffix = randomUUID().slice(0, 8);
   const material = await createUploadedMaterial({
@@ -19,6 +24,7 @@ export async function createTestMaterial() {
     storageUrl: `https://example.com/tests/${suffix}.txt`,
     courseCode: `TEST${suffix.substring(0, 3).toUpperCase()}`,
     courseName: `Human Anatomy Integration ${suffix}`,
+    department: "Human Anatomy",
     topicName: `Topic ${suffix}`,
     subtopicName: `Subtopic ${suffix}`,
   });
@@ -27,7 +33,24 @@ export async function createTestMaterial() {
 }
 
 export async function cleanupCourse(courseId: string) {
-  await db.course.delete({
+  await db.conceptFact.deleteMany({
+    where: {
+      chunk: {
+        material: { courseId },
+      },
+    },
+  });
+  await db.contentChunk.deleteMany({
+    where: {
+      material: { courseId },
+    },
+  });
+  await db.concept.deleteMany({
+    where: {
+      topic: { courseId },
+    },
+  });
+  await db.course.deleteMany({
     where: { id: courseId },
   });
 }

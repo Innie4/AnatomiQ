@@ -1,8 +1,6 @@
 import { ExamClient } from "@/components/exam/exam-client";
 import { SiteFooter } from "@/components/site-footer";
-import { getTopicTree } from "@/lib/topics";
-import { db } from "@/lib/db";
-import { hasDatabase } from "@/lib/env";
+import { getExamCourseCatalog } from "@/lib/course-catalog";
 
 export const dynamic = "force-dynamic";
 
@@ -11,42 +9,14 @@ export default async function ExamPage({
 }: {
   searchParams: Promise<{ course?: string; topic?: string; subtopic?: string }>;
 }) {
+  const courses = await getExamCourseCatalog();
   const params = await searchParams;
-  const topics = await getTopicTree(undefined, params.course);
-
-  // Fetch available courses
-  let courses: Array<{ id: string; code: string; name: string; slug: string; semester: "FIRST" | "SECOND" }> = [];
-  if (hasDatabase) {
-    try {
-      courses = await db.course.findMany({
-        select: {
-          id: true,
-          code: true,
-          name: true,
-          slug: true,
-          semester: true,
-        },
-        orderBy: [{ semester: "asc" }, { code: "asc" }],
-      });
-    } catch {
-      // If database fails, use default course
-      courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy", semester: "FIRST" }];
-    }
-  } else {
-    courses = [{ id: "default", code: "ANA101", name: "Human Anatomy", slug: "human-anatomy", semester: "FIRST" }];
-  }
 
   return (
     <div className="shell flex flex-1 flex-col">
       <main className="mx-auto flex w-full max-w-7xl flex-1 px-4 py-8 sm:px-6 lg:px-8">
         <ExamClient
           courses={courses}
-          topics={topics.map((topic) => ({
-            id: topic.id,
-            name: topic.name,
-            slug: topic.slug,
-            childTopics: topic.childTopics,
-          }))}
           initialCourse={params.course}
           initialTopic={params.topic}
           initialSubtopic={params.subtopic}

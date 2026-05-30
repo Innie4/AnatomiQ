@@ -79,8 +79,8 @@ describe("Admin API Endpoints", () => {
   });
 
   it("should reject files that are too large", async () => {
-    // Create a 26MB file (exceeds 25MB limit)
-    const largeContent = new Uint8Array(26 * 1024 * 1024);
+    // Create a 51MB file (exceeds 50MB limit)
+    const largeContent = new Uint8Array(51 * 1024 * 1024);
     const formData = new FormData();
     formData.append("file", new Blob([largeContent], { type: "text/plain" }), "large.txt");
     formData.append("title", "Large File");
@@ -98,6 +98,6 @@ describe("Admin API Endpoints", () => {
     assert.ok(response.status >= 400);
     const data = await response.json();
     assert.ok(data.error);
-    assert.ok(data.error.toLowerCase().includes("25mb") || data.error.toLowerCase().includes("limit"));
+    assert.ok(data.error.toLowerCase().includes("50mb") || data.error.toLowerCase().includes("limit"));
   });
 });

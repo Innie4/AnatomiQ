@@ -26,33 +26,50 @@ export async function getAdminOverview() {
   }
 
   try {
-    // Test database connection
-    await db.$connect();
-
-    const totalMaterials = await db.material.count();
-    const readyMaterials = await db.material.count({ where: { status: MaterialStatus.READY } });
-    const processingMaterials = await db.material.count({ where: { status: MaterialStatus.PROCESSING } });
-    const failedMaterials = await db.material.count({ where: { status: MaterialStatus.FAILED } });
-    const totalChunks = await db.contentChunk.count();
-    const totalQuestions = await db.question.count();
-    const totalConcepts = await db.concept.count();
-    const recentMaterials = await db.material.findMany({
-      orderBy: { createdAt: "desc" },
-      take: 8,
-      include: {
-        topic: true,
-        subtopic: true,
-        course: true,
-        _count: {
-          select: {
-            ContentChunk: true,
-            Question: true,
+    const [summaryRows, recentMaterials, topicCoverage] = await Promise.all([
+      db.$queryRaw`
+        SELECT
+          (SELECT COUNT(*)::int FROM "Material") AS "totalMaterials",
+          (SELECT COUNT(*)::int FROM "Material" WHERE "status" = 'READY') AS "readyMaterials",
+          (SELECT COUNT(*)::int FROM "Material" WHERE "status" = 'PROCESSING') AS "processingMaterials",
+          (SELECT COUNT(*)::int FROM "Material" WHERE "status" = 'FAILED') AS "failedMaterials",
+          (SELECT COUNT(*)::int FROM "ContentChunk") AS "totalChunks",
+          (SELECT COUNT(*)::int FROM "Question") AS "totalQuestions",
+          (SELECT COUNT(*)::int FROM "Concept") AS "totalConcepts"
+      ` as Promise<Array<{
+        totalMaterials: number;
+        readyMaterials: number;
+        processingMaterials: number;
+        failedMaterials: number;
+        totalChunks: number;
+        totalQuestions: number;
+        totalConcepts: number;
+      }>>,
+      db.material.findMany({
+        orderBy: { createdAt: "desc" },
+        take: 8,
+        include: {
+          topic: true,
+          subtopic: true,
+          course: true,
+          _count: {
+            select: {
+              ContentChunk: true,
+              Question: true,
+            },
           },
         },
-      },
-    });
-    const topicCoverage = await getTopicCoverage();
-
+      }),
+      getTopicCoverage(),
+    ]);
+    const [summary] = summaryRows;
+    const totalMaterials = Number(summary?.totalMaterials ?? 0);
+    const readyMaterials = Number(summary?.readyMaterials ?? 0);
+    const processingMaterials = Number(summary?.processingMaterials ?? 0);
+    const failedMaterials = Number(summary?.failedMaterials ?? 0);
+    const totalChunks = Number(summary?.totalChunks ?? 0);
+    const totalQuestions = Number(summary?.totalQuestions ?? 0);
+    const totalConcepts = Number(summary?.totalConcepts ?? 0);
     const statusDistribution = [
       { label: "Ready", value: readyMaterials, status: MaterialStatus.READY },
       { label: "Processing", value: processingMaterials, status: MaterialStatus.PROCESSING },

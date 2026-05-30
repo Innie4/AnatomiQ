@@ -1,6 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
+import { readApiPayload } from "../src/lib/client-api";
 import { toFriendlyError } from "../src/lib/friendly-errors";
+import { uploadMaterialSignedUrlSchema } from "../src/lib/schemas";
 
 describe("toFriendlyError", () => {
   it("should convert network errors to friendly messages", () => {
@@ -78,5 +80,38 @@ describe("toFriendlyError", () => {
       result,
       "Something unexpected happened. Please try again or contact support if the problem persists."
     );
+  });
+
+  it("should convert non-JSON gateway responses to readable API errors", async () => {
+    const payload = await readApiPayload<{ error?: string }>(
+      new Response("An error occurred with your deployment", {
+        status: 504,
+        headers: { "content-type": "text/plain" },
+      }),
+      "Bulk upload failed.",
+    );
+
+    assert.strictEqual(
+      payload.error,
+      "The request timed out before the server finished. Please retry after a moment.",
+    );
+  });
+
+  it("should require department for material upload payloads", () => {
+    const parsed = uploadMaterialSignedUrlSchema.safeParse({
+      title: "Neuroanatomy Primer",
+      courseCode: "ANA201",
+      courseName: "Human Anatomy",
+      topicName: "Neuroanatomy",
+      fileName: "neuroanatomy.pdf",
+      mimeType: "application/pdf",
+      fileSize: 1024,
+    });
+
+    assert.strictEqual(parsed.success, false);
+    if (parsed.success) {
+      throw new Error("Upload payload without a department should not parse.");
+    }
+    assert.match(JSON.stringify(parsed.error.flatten()), /Department/);
   });
 });

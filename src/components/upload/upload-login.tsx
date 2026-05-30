@@ -22,8 +22,7 @@ export function UploadLogin() {
     setError(null);
 
     try {
-      // Verify the key by trying to fetch admin overview
-      const response = await fetch("/api/admin/verify-key", {
+      const response = await fetch("/api/auth/verify", {
         headers: { "x-admin-upload-key": adminKey },
       });
 
@@ -35,7 +34,7 @@ export function UploadLogin() {
       sessionStorage.setItem("anatomiq:admin-key", adminKey);
 
       // Navigate to dashboard
-      router.push("/admin/upload");
+      router.push("/upload/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Authentication failed.");
     } finally {
@@ -53,7 +52,7 @@ export function UploadLogin() {
               Material upload and processing dashboard
             </h1>
             <p className="mt-4 text-base leading-7 text-slate-600">
-              Manage anatomy source files, grounded knowledge chunks, and faculty-authored question banks from one workspace.
+              Manage course source files, grounded knowledge chunks, and faculty-authored question banks from one workspace.
             </p>
           </div>
 

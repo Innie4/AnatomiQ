@@ -2,8 +2,10 @@ import {
   QuestionAuthoringMode,
   CounterMetric,
   Difficulty,
+  MaterialStatus,
   QuestionType,
   type ContentChunk,
+  type Prisma,
   type Question,
 } from "@prisma/client";
 
@@ -17,6 +19,7 @@ import {
 } from "@/lib/constants";
 import { db } from "@/lib/db";
 import { env, hasDatabase, hasOpenAi } from "@/lib/env";
+import { ConflictError, UserInputError } from "@/lib/errors";
 import { parseJsonString, toJsonString } from "@/lib/json";
 import { generateLocalQuestionDrafts } from "@/lib/local-question-generator";
 import { parseManualQuestionBatch } from "@/lib/manual-question-batch";
@@ -33,7 +36,6 @@ import { sampleArray, sha256 } from "@/lib/utils";
 type TopicSelection = {
   courseId: string;
   courseName: string;
-  courseSlug: string;
   topicId: string;
   topicName: string;
   subtopicId?: string | null;
@@ -150,7 +152,6 @@ async function findSelection(topicSlug: string, subtopicSlug?: string) {
   return {
     courseId: topic.courseId,
     courseName: topic.course.name,
-    courseSlug: topic.course.slug,
     topicId: topic.id,
     topicName: topic.name,
     subtopicId: subtopic?.id,
@@ -163,6 +164,7 @@ async function getSourceChunks(selection: TopicSelection) {
     where: {
       topicId: selection.topicId,
       ...(selection.subtopicId ? { subtopicId: selection.subtopicId } : {}),
+      material: { status: MaterialStatus.READY },
     },
     orderBy: [{ material: { createdAt: "desc" } }, { sequence: "asc" }],
   });
@@ -207,7 +209,7 @@ async function ensureUniqueManualOrder(params: {
   });
 
   if (existing) {
-    throw new Error(`Question number ${params.manualOrder} is already in use for this ${params.type} question type.`);
+    throw new ConflictError(`Question number ${params.manualOrder} is already in use for this ${params.type} question type.`);
   }
 }
 
@@ -233,7 +235,7 @@ function normalizeManualOptions(type: QuestionType, options?: string[]) {
   const normalized = (options ?? []).map((option) => option.trim()).filter(Boolean).slice(0, 4);
 
   if (normalized.length !== 4) {
-    throw new Error("MCQ questions require exactly four options.");
+    throw new UserInputError("MCQ questions require exactly four options.");
   }
 
   return normalized;
@@ -248,7 +250,7 @@ function ensureAnswerMatchesOptions(answer: string, options?: string[]) {
   const resolved = answerIndex >= 0 ? options[answerIndex] : answer.trim();
 
   if (!options.some((option) => normalizeComparableAnswer(option) === normalizeComparableAnswer(resolved))) {
-    throw new Error("The answer must match one of the provided options.");
+    throw new UserInputError("The answer must match one of the provided options.");
   }
 
   return resolved;
@@ -260,11 +262,14 @@ async function buildManualQuestionRecord(
   manualOrder: number,
   existingQuestions: Question[],
   excludeQuestionId?: string,
+  precomputedEmbedding?: number[] | null,
 ) {
   const normalizedOptions = normalizeManualOptions(payload.type, payload.options);
   const normalizedAnswer = ensureAnswerMatchesOptions(payload.answer, normalizedOptions);
-  const hash = sha256(`${payload.type}:${payload.stem}`);
-  const [embedding] = await embedTexts([payload.stem]);
+  const hash = sha256(`${material.id}:${payload.type}:${payload.stem}`);
+  const [generatedEmbedding] =
+    precomputedEmbedding === undefined ? await embedTexts([payload.stem]) : [precomputedEmbedding];
+  const embedding = generatedEmbedding ?? null;
   const comparableExisting = existingQuestions
     .filter((question) => question.id !== excludeQuestionId)
     .map((question) => ({
@@ -283,7 +288,7 @@ async function buildManualQuestionRecord(
       comparableExisting,
     )
   ) {
-    throw new Error("A highly similar question already exists for this material.");
+    throw new UserInputError("A highly similar question already exists for this material.");
   }
 
   return {
@@ -307,6 +312,38 @@ async function buildManualQuestionRecord(
     textFingerprint: payload.stem.toLowerCase(),
     embedding: embedding ? toJsonString(embedding) : undefined,
   };
+}
+
+function buildManualQuestionCreateInput(params: {
+  material: ManualQuestionMaterial;
+  payload: ManualQuestionPayload;
+  manualOrder: number;
+  sourceChunkIds: string;
+  sourceSnippet: string;
+}) {
+  const normalizedOptions = normalizeManualOptions(params.payload.type, params.payload.options);
+  const normalizedAnswer = ensureAnswerMatchesOptions(params.payload.answer, normalizedOptions);
+  const stem = params.payload.stem.trim();
+  const hash = sha256(`${params.material.id}:${params.payload.type}:${stem}`);
+
+  return {
+    courseId: params.material.courseId,
+    topicId: params.material.topicId,
+    subtopicId: params.material.subtopicId,
+    materialId: params.material.id,
+    manualOrder: params.manualOrder,
+    type: params.payload.type,
+    stem,
+    options: normalizedOptions ? toJsonString(normalizedOptions) : undefined,
+    answer: normalizedAnswer,
+    explanation: params.payload.explanation.trim(),
+    difficulty: params.payload.difficulty,
+    authoringMode: QuestionAuthoringMode.MANUAL,
+    sourceChunkIds: params.sourceChunkIds,
+    sourceSnippet: params.sourceSnippet,
+    questionHash: hash,
+    textFingerprint: stem.toLowerCase(),
+  } satisfies Prisma.QuestionCreateManyInput;
 }
 
 async function generateQuestionsFromChunks(params: {
@@ -439,7 +476,7 @@ export async function ensureQuestionBank(params: {
   ]);
 
   if (!chunks.length && !existing.length) {
-    throw new Error("No processed material exists for this topic yet. Upload and process anatomy material first.");
+    throw new Error("No processed material exists for this topic yet. Upload and process course material first.");
   }
 
   const available = existing.length >= params.count ? existing : [...existing];
@@ -542,6 +579,9 @@ export async function getAdminMaterialOptions(search?: string) {
         ? {
             OR: [
               { title: { contains: search } },
+              { course: { code: { contains: search } } },
+              { course: { name: { contains: search } } },
+              { course: { department: { contains: search } } },
               { topic: { name: { contains: search } } },
               { subtopic: { name: { contains: search } } },
             ],
@@ -567,8 +607,10 @@ export async function getAdminMaterialOptions(search?: string) {
       },
       course: {
         select: {
+          code: true,
           name: true,
           slug: true,
+          department: true,
         },
       },
       _count: {
@@ -586,7 +628,9 @@ export async function getAdminMaterialOptions(search?: string) {
     title: material.title,
     status: material.status,
     courseName: material.course.name,
+    courseCode: material.course.code,
     courseSlug: material.course.slug,
+    department: material.course.department,
     topicName: material.topic.name,
     topicSlug: material.topic.slug,
     subtopicName: material.subtopic?.name ?? null,
@@ -757,12 +801,19 @@ export async function createManualQuestionBank(params: {
     orderBy: [{ manualOrder: "asc" }, { createdAt: "asc" }],
   });
 
-  const created: Question[] = [];
+  const records: Prisma.QuestionCreateManyInput[] = [];
+  const acceptedComparable: Array<{ stem: string; hash: string; embedding?: number[] | null }> = [];
   let skippedCount = 0;
   const linkedChunkIds = material.ContentChunk.map((chunk) => chunk.id);
+  const sourceChunkIds = toJsonString(linkedChunkIds);
   const fallbackSourceSnippet =
     material.extractedText?.slice(0, 220) ||
     `Faculty-authored question bank linked to ${material.title} in ${material.topic.name}.`;
+  const existingComparable = existing.map((question) => ({
+    stem: question.stem,
+    hash: question.questionHash,
+    embedding: parseJsonString<number[] | null>(question.embedding, null),
+  }));
 
   // Get the next available manual order for this question type
   const maxOrder = existing.length > 0
@@ -770,7 +821,8 @@ export async function createManualQuestionBank(params: {
     : 0;
   let nextManualOrder = maxOrder + 1;
 
-  for (const candidate of parsedQuestions) {
+  for (let index = 0; index < parsedQuestions.length; index += 1) {
+    const candidate = parsedQuestions[index];
     // Always assign the next available order, ignoring candidate.manualOrder
     const targetManualOrder = nextManualOrder;
     const payload = {
@@ -779,30 +831,37 @@ export async function createManualQuestionBank(params: {
       explanation: candidate.explanation,
     } satisfies ManualQuestionPayload;
 
-    try {
-      const record = await buildManualQuestionRecord(material, payload, targetManualOrder, [
-        ...existing,
-        ...created,
-      ]);
-      const question = await db.question.create({
-        data: {
-          ...record,
-          sourceChunkIds: toJsonString(linkedChunkIds),
-          sourceSnippet: fallbackSourceSnippet,
-        },
-      });
+    const stem = payload.stem.trim();
+    const hash = sha256(`${material.id}:${payload.type}:${stem}`);
 
-      created.push(question);
-      nextManualOrder += 1;
-    } catch (error) {
-      if (error instanceof Error && /highly similar question/i.test(error.message)) {
-        skippedCount += 1;
-        continue;
-      }
-
-      throw error;
+    if (
+      isDuplicateQuestion(
+        { stem, hash, embedding: null },
+        [...existingComparable, ...acceptedComparable],
+      )
+    ) {
+      skippedCount += 1;
+      continue;
     }
+
+    records.push(
+      buildManualQuestionCreateInput({
+        material,
+        payload,
+        manualOrder: targetManualOrder,
+        sourceChunkIds,
+        sourceSnippet: fallbackSourceSnippet,
+      }),
+    );
+    acceptedComparable.push({ stem, hash, embedding: null });
+    nextManualOrder += 1;
   }
+
+  const created = records.length
+    ? await db.question.createManyAndReturn({
+        data: records,
+      })
+    : [];
 
   return {
     material: {

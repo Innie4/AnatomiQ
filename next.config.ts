@@ -2,7 +2,21 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   output: "standalone",
-  serverExternalPackages: ["pdf-parse", "tesseract.js", "got", "paystack-node"],
+  experimental: {
+    proxyClientMaxBodySize: "50mb",
+    serverActions: {
+      bodySizeLimit: "50mb",
+    },
+  },
+  serverExternalPackages: ["pdf-parse", "tesseract.js"],
+  outputFileTracingIncludes: {
+    "/api/process-material": [
+      "./node_modules/pdfjs-dist/legacy/build/pdf.worker*.mjs",
+    ],
+    "/api/upload-manual-questions": [
+      "./node_modules/pdfjs-dist/legacy/build/pdf.worker*.mjs",
+    ],
+  },
   images: {
     remotePatterns: [
       {

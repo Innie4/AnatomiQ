@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode, useCallback, useEffect, useState } from "react";
+import { useState, useEffect, ReactNode } from "react";
 import { LoaderCircle, AlertCircle } from "lucide-react";
 
 export function AdminAuthWrapper({ children }: { children: (adminKey: string) => ReactNode }) {
@@ -8,51 +8,42 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
   const [adminKey, setAdminKey] = useState("");
   const [inputKey, setInputKey] = useState("");
   const [error, setError] = useState("");
-  const [checking, setChecking] = useState(false);
-
-  const verifyKey = useCallback(async (key: string) => {
-    setChecking(true);
-    try {
-      const response = await fetch("/api/admin/verify-key", {
-        headers: { "x-admin-upload-key": key },
-      });
-
-      if (!response.ok) {
-        throw new Error("Invalid admin key. Please enter a valid key.");
-      }
-
-      sessionStorage.setItem("anatomiq:admin-key", key);
-      localStorage.removeItem("anatomiq:admin-key");
-      setAdminKey(key);
-      setError("");
-    } catch (verificationError) {
-      sessionStorage.removeItem("anatomiq:admin-key");
-      localStorage.removeItem("anatomiq:admin-key");
-      setAdminKey("");
-      setError(verificationError instanceof Error ? verificationError.message : "Invalid admin key.");
-    } finally {
-      setChecking(false);
-    }
-  }, []);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setMounted(true);
-    const savedKey =
-      sessionStorage.getItem("anatomiq:admin-key") ||
-      localStorage.getItem("anatomiq:admin-key");
+    const savedKey = sessionStorage.getItem("anatomiq:admin-key") ?? localStorage.getItem("anatomiq:admin-key");
     const wasCleared = sessionStorage.getItem("anatomiq:key-cleared");
 
     if (wasCleared) {
       setError("Invalid admin key. Please enter a valid key.");
       sessionStorage.removeItem("anatomiq:key-cleared");
     } else if (savedKey) {
-      void verifyKey(savedKey);
+      setAdminKey(savedKey);
     }
-  }, [verifyKey]);
+  }, []);
 
-  function handleSubmit() {
-    if (inputKey.trim()) {
-      void verifyKey(inputKey.trim());
+  async function handleSubmit() {
+    const trimmedKey = inputKey.trim();
+    if (trimmedKey) {
+      setError("");
+      setLoading(true);
+      try {
+        const response = await fetch("/api/auth/verify", {
+          headers: { "x-admin-upload-key": trimmedKey },
+        });
+
+        if (!response.ok) {
+          throw new Error("Invalid admin key. Please enter a valid key.");
+        }
+
+        sessionStorage.setItem("anatomiq:admin-key", trimmedKey);
+        setAdminKey(trimmedKey);
+      } catch (err) {
+        setError(err instanceof Error ? err.message : "Authentication failed.");
+      } finally {
+        setLoading(false);
+      }
     }
   }
 
@@ -89,19 +80,20 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
             }}
             onKeyDown={(e) => {
               if (e.key === "Enter") {
-                handleSubmit();
+                void handleSubmit();
               }
             }}
             placeholder="Enter admin key"
+            aria-label="Admin upload key"
             className="mt-6 w-full rounded-xl border border-slate-200 px-4 py-3 outline-none transition-colors focus:border-[#0969da] focus:ring-2 focus:ring-[#0969da]/20"
             autoFocus
           />
           <button
-            onClick={handleSubmit}
-            disabled={!inputKey || checking}
+            onClick={() => void handleSubmit()}
+            disabled={!inputKey.trim() || loading}
             className="mt-4 w-full rounded-xl bg-gradient-to-r from-[#0969da] to-[#0ca678] px-4 py-3 font-semibold text-white shadow-lg transition-all hover:scale-105 hover:shadow-xl disabled:cursor-not-allowed disabled:opacity-50 disabled:transform-none"
           >
-            {checking ? "Checking..." : "Continue"}
+            {loading ? "Checking..." : "Unlock dashboard"}
           </button>
         </div>
       </div>

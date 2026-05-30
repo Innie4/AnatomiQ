@@ -1,0 +1,963 @@
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+Error: Failed to find Server Action. This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Error: Failed to find Server Action. This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+Request body exceeded 10MB for /api/upload-material. Only the first 10MB will be available unless configured. See https://nextjs.org/docs/app/api-reference/config/next-config-js/middlewareClientMaxBodySize for more details.
+Request body exceeded 10MB for /signin?callbackUrl=%2Fapi%2Fupload-material. Only the first 10MB will be available unless configured. See https://nextjs.org/docs/app/api-reference/config/next-config-js/middlewareClientMaxBodySize for more details.
+Error: Failed to find Server Action. This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+Error: Failed to find Server Action. This request might be from an older or newer deployment.
+Read more: https://nextjs.org/docs/messages/failed-to-find-server-action
+    at ignore-listed frames
+[upload-material] Error occurred: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "title"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:47:41)
+  45 |
+  46 |     console.log("[upload-material] Validating schema");
+> 47 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  48 |       title: formData.get("title"),
+  49 |       courseCode: formData.get("courseCode"),
+  50 |       courseName: formData.get("courseName"),
+[api] Route error: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "title"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:47:41)
+  45 |
+  46 |     console.log("[upload-material] Validating schema");
+> 47 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  48 |       title: formData.get("title"),
+  49 |       courseCode: formData.get("courseCode"),
+  50 |       courseName: formData.get("courseName"),
+Request body exceeded 10MB for /api/upload-material. Only the first 10MB will be available unless configured. See https://nextjs.org/docs/app/api-reference/config/next-config-js/middlewareClientMaxBodySize for more details.
+[upload-material] Error occurred: TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+[api] Route error: TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+[api] Stack trace: TypeError: Failed to parse body as FormData.
+    at parsingError (node:internal/deps/undici/undici:6655:14)
+    at multipartFormDataParser (node:internal/deps/undici/undici:6427:19)
+    at node:internal/deps/undici/undici:6920:34
+    at successSteps (node:internal/deps/undici/undici:6967:27)
+    at readAllBytes (node:internal/deps/undici/undici:5890:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[upload-material] Error occurred: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "title"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:47:41)
+  45 |
+  46 |     console.log("[upload-material] Validating schema");
+> 47 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  48 |       title: formData.get("title"),
+  49 |       courseCode: formData.get("courseCode"),
+  50 |       courseName: formData.get("courseName"),
+[api] Route error: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "title"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:47:41)
+  45 |
+  46 |     console.log("[upload-material] Validating schema");
+> 47 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  48 |       title: formData.get("title"),
+  49 |       courseCode: formData.get("courseCode"),
+  50 |       courseName: formData.get("courseName"),
+Request body exceeded 10MB for /api/upload-material. Only the first 10MB will be available unless configured. See https://nextjs.org/docs/app/api-reference/config/next-config-js/middlewareClientMaxBodySize for more details.
+[upload-material] Error occurred: TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+[api] Route error: TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+[api] Stack trace: TypeError: Failed to parse body as FormData.
+    at parsingError (node:internal/deps/undici/undici:6655:14)
+    at multipartFormDataParser (node:internal/deps/undici/undici:6427:19)
+    at node:internal/deps/undici/undici:6920:34
+    at successSteps (node:internal/deps/undici/undici:6967:27)
+    at readAllBytes (node:internal/deps/undici/undici:5890:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+Request body exceeded 10MB for /api/upload-material. Only the first 10MB will be available unless configured. See https://nextjs.org/docs/app/api-reference/config/next-config-js/middlewareClientMaxBodySize for more details.
+[upload-material] Error occurred: TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+[api] Route error: TypeError: Failed to parse body as FormData.
+    at ignore-listed frames {
+  [cause]: TypeError: expected boundary after body
+      at ignore-listed frames
+}
+[api] Stack trace: TypeError: Failed to parse body as FormData.
+    at parsingError (node:internal/deps/undici/undici:6655:14)
+    at multipartFormDataParser (node:internal/deps/undici/undici:6427:19)
+    at node:internal/deps/undici/undici:6920:34
+    at successSteps (node:internal/deps/undici/undici:6967:27)
+    at readAllBytes (node:internal/deps/undici/undici:5890:13)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+[upload-material] Error occurred: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "title"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:52:41)
+  50 |
+  51 |     console.log("[upload-material] Validating schema");
+> 52 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  53 |       title: formData.get("title"),
+  54 |       courseCode: formData.get("courseCode"),
+  55 |       courseName: formData.get("courseName"),
+[api] Route error: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "title"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:52:41)
+  50 |
+  51 |     console.log("[upload-material] Validating schema");
+> 52 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  53 |       title: formData.get("title"),
+  54 |       courseCode: formData.get("courseCode"),
+  55 |       courseName: formData.get("courseName"),
+Request body exceeded 10MB for /api/upload-material. Only the first 10MB will be available unless configured. See https://nextjs.org/docs/app/api-reference/config/next-config-js/middlewareClientMaxBodySize for more details.
+[upload-material] Error occurred: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:52:41)
+  50 |
+  51 |     console.log("[upload-material] Validating schema");
+> 52 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  53 |       title: formData.get("title"),
+  54 |       courseCode: formData.get("courseCode"),
+  55 |       courseName: formData.get("courseName"),
+[api] Route error: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "courseCode"
+    ],
+    "message": "Invalid input: expected string, received null"
+  },
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "topicName"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at POST (src\app\api\upload-material\route.ts:52:41)
+  50 |
+  51 |     console.log("[upload-material] Validating schema");
+> 52 |     const parsed = uploadMaterialSchema.parse({
+     |                                         ^
+  53 |       title: formData.get("title"),
+  54 |       courseCode: formData.get("courseCode"),
+  55 |       courseName: formData.get("courseName"),
+[api] Route error: Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findUniqueOrThrow()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0b8qijn._.js:1309:142
+
+  1306     return material;
+  1307 }
+  1308 async function getMaterialForProcessing(materialId) {
+→ 1309     return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findUniqueOrThrow(
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+    at <unknown> (src\lib\materials.ts:147:22)
+    at async processMaterial (src\lib\materials.ts:241:20)
+    at async POST (src\app\api\process-material\route.ts:15:20)
+  145 |
+  146 | async function getMaterialForProcessing(materialId: string) {
+> 147 |   return db.material.findUniqueOrThrow({
+      |                      ^
+  148 |     where: { id: materialId },
+  149 |     include: {
+  150 |       course: true, {
+  code: 'P2025',
+  meta: { modelName: 'Material', cause: 'No record was found for a query.' },
+  clientVersion: '6.18.0'
+}
+[api] Stack trace: PrismaClientKnownRequestError: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findUniqueOrThrow()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0b8qijn._.js:1309:142
+
+  1306     return material;
+  1307 }
+  1308 async function getMaterialForProcessing(materialId) {
+→ 1309     return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findUniqueOrThrow(
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+    at ei.handleRequestError (C:\Users\Dell-Pc\AnatomiQ\node_modules\@prisma\client\runtime\library.js:121:7268)
+    at ei.handleAndLogRequestError (C:\Users\Dell-Pc\AnatomiQ\node_modules\@prisma\client\runtime\library.js:121:6593)
+    at ei.request (C:\Users\Dell-Pc\AnatomiQ\node_modules\@prisma\client\runtime\library.js:121:6300)
+    at async a (C:\Users\Dell-Pc\AnatomiQ\node_modules\@prisma\client\runtime\library.js:130:9551)
+    at async processMaterial (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0b8qijn._.js:1389:22)
+    at async POST (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0brlghm._.js:1530:24)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+    at async AppRouteRouteModule.handle (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:47321)
+    at async responseGenerator (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_next_0fxl-gv._.js:17684:38)
+    at async AppRouteRouteModule.handleResponse (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:1:227216)
+    at async handleResponse (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_next_0fxl-gv._.js:17747:32)
+    at async Module.handler (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_next_0fxl-gv._.js:17801:13)
+    at async DevServer.renderToResponseWithComponentsImpl (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\base-server.js:1454:9)
+    at async DevServer.renderPageComponent (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\base-server.js:1506:24)
+    at async DevServer.renderToResponseImpl (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\base-server.js:1556:32)
+    at async DevServer.pipeImpl (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\base-server.js:1043:25)
+    at async NextNodeServer.handleCatchallRenderRequest (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\next-server.js:338:17)
+    at async DevServer.handleRequestImpl (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\base-server.js:934:17)
+    at async C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\dev\next-dev-server.js:394:20
+    at async Span.traceAsyncFn (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\trace\trace.js:164:20)
+    at async DevServer.handleRequest (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\dev\next-dev-server.js:390:24)
+    at async invokeRender (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\lib\router-server.js:266:21)
+    at async handleRequest (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\lib\router-server.js:465:24)
+    at async requestHandlerImpl (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\lib\router-server.js:514:13)
+    at async Server.requestListener (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\server\lib\start-server.js:225:13)
+[api] Route error: Error [ZodError]: [
+  {
+    "expected": "string",
+    "code": "invalid_type",
+    "path": [
+      "materialId"
+    ],
+    "message": "Invalid input: expected string, received null"
+  }
+]
+    at GET (src\app\api\material-questions\route.ts:17:47)
+  15 |
+  16 |     const url = new URL(request.url);
+> 17 |     const query = materialQuestionQuerySchema.parse({
+     |                                               ^
+  18 |       materialId: url.searchParams.get("materialId"),
+  19 |       type: url.searchParams.get("type"),
+  20 |     });
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /signin. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+Falling back to an empty admin overview because the database is unavailable. Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:558:143
+
+  555     }
+  556 }),
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+→ 558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+    at <unknown> (src\lib\admin-overview.ts:48:19)
+    at async getAdminOverview (src\lib\admin-overview.ts:42:9)
+    at async GET (src\app\api\admin-overview\route.ts:14:22)
+  46 |       db.material.count({ where: { status: MaterialStatus.FAILED } }),
+  47 |       db.contentChunk.count(),
+> 48 |       db.question.count(),
+     |                   ^
+  49 |       db.concept.count(),
+  50 |       db.material.findMany({
+  51 |         orderBy: { createdAt: "desc" }, {
+  code: 'P2024',
+  meta: { modelName: 'Question', connection_limit: 1, timeout: 10 },
+  clientVersion: '6.18.0'
+}
+Falling back to static anatomy topics because the database is unavailable. Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+    at <unknown> (src\lib\topic-coverage.ts:66:35)
+    at async getTopicCoverage (src\lib\topic-coverage.ts:66:20)
+  64 |     await db.$connect();
+  65 |
+> 66 |     const topics = await db.topic.findMany({
+     |                                   ^
+  67 |       where: {
+  68 |         level: 0,
+  69 |         ...(courseSlug ? { course: { slug: courseSlug } } : {}), {
+  code: 'P2024',
+  meta: { modelName: 'Topic', connection_limit: 1, timeout: 10 },
+  clientVersion: '6.18.0'
+}
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+Falling back to static anatomy topics because the database is unavailable. Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+    at <unknown> (src\lib\topic-coverage.ts:66:35)
+    at async getTopicCoverage (src\lib\topic-coverage.ts:66:20)
+    at async getAdminOverview (src\lib\admin-overview.ts:42:9)
+    at async GET (src\app\api\admin-overview\route.ts:14:22)
+  64 |     await db.$connect();
+  65 |
+> 66 |     const topics = await db.topic.findMany({
+     |                                   ^
+  67 |       where: {
+  68 |         level: 0,
+  69 |         ...(courseSlug ? { course: { slug: courseSlug } } : {}), {
+  code: 'P2024',
+  meta: { modelName: 'Topic', connection_limit: 1, timeout: 10 },
+  clientVersion: '6.18.0'
+}
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+⚠ Unsupported metadata themeColor is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+⚠ Unsupported metadata viewport is configured in metadata export in /upload. Please move it to viewport export instead.
+Read more: https://nextjs.org/docs/app/api-reference/functions/generate-viewport
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] Service Worker registration failed: SecurityError: Failed to register a ServiceWorker for scope ('http://localhost:3000/') with script ('http://localhost:3000/sw.js'): The script resource is behind a redirect, which is disallowed. (src/components/pwa-install.tsx:19:19)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+[browser] Image with src "/anatomiQ.png" has "fill" but is missing "sizes" prop. Please add it to improve page performance. Read more: https://nextjs.org/docs/api-reference/next/image#sizes
+[31m[auth][error][0m MissingSecret: Please define a `secret`. Read more at https://errors.authjs.dev#missingsecret
+    at assertConfig (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:513:16)
+    at Auth (C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\node_modules_@auth_core_07q0t5a._.js:5344:204)
+    at async AppRouteRouteModule.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.dev.js:5:40115)
+[browser] ClientFetchError: There was a problem with the server configuration. Check the server logs for more information.. Read more at https://errors.authjs.dev#autherror
+Falling back to an empty admin overview because the database is unavailable. Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:557:147
+
+  554         status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$2c$__$5b$project$5d2f$node_modules$2f40$prisma$2f$client$29$__["MaterialStatus"].FAILED
+  555     }
+  556 }),
+→ 557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+    at <unknown> (src\lib\admin-overview.ts:47:23)
+    at async getAdminOverview (src\lib\admin-overview.ts:42:9)
+    at async GET (src\app\api\admin-overview\route.ts:14:22)
+  45 |       db.material.count({ where: { status: MaterialStatus.PROCESSING } }),
+  46 |       db.material.count({ where: { status: MaterialStatus.FAILED } }),
+> 47 |       db.contentChunk.count(),
+     |                       ^
+  48 |       db.question.count(),
+  49 |       db.concept.count(),
+  50 |       db.material.findMany({ {
+  code: 'P2024',
+  meta: { modelName: 'ContentChunk', connection_limit: 1, timeout: 10 },
+  clientVersion: '6.18.0'
+}
+Falling back to static anatomy topics because the database is unavailable. Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+    at <unknown> (src\lib\topic-coverage.ts:66:35)
+    at async getTopicCoverage (src\lib\topic-coverage.ts:66:20)
+  64 |     await db.$connect();
+  65 |
+> 66 |     const topics = await db.topic.findMany({
+     |                                   ^
+  67 |       where: {
+  68 |         level: 0,
+  69 |         ...(courseSlug ? { course: { slug: courseSlug } } : {}), {
+  code: 'P2024',
+  meta: { modelName: 'Topic', connection_limit: 1, timeout: 10 },
+  clientVersion: '6.18.0'
+}
+Falling back to an empty admin overview because the database is unavailable. Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:560:143
+
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+  558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(),
+  559 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count(),
+→ 560 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+    at <unknown> (src\lib\admin-overview.ts:50:19)
+    at async getAdminOverview (src\lib\admin-overview.ts:42:9)
+    at async GET (src\app\api\admin-overview\route.ts:14:22)
+  48 |       db.question.count(),
+  49 |       db.concept.count(),
+> 50 |       db.material.findMany({
+     |                   ^
+  51 |         orderBy: { createdAt: "desc" },
+  52 |         take: 8,
+  53 |         include: { {
+  code: 'P2024',
+  meta: { modelName: 'Material', connection_limit: 1, timeout: 10 },
+  clientVersion: '6.18.0'
+}
+Falling back to static anatomy topics because the database is unavailable. Error [PrismaClientKnownRequestError]: 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+    at <unknown> (src\lib\topic-coverage.ts:66:35)
+    at async getTopicCoverage (src\lib\topic-coverage.ts:66:20)
+  64 |     await db.$connect();
+  65 |
+> 66 |     const topics = await db.topic.findMany({
+     |                                   ^
+  67 |       where: {
+  68 |         level: 0,
+  69 |         ...(courseSlug ? { course: { slug: courseSlug } } : {}), {
+  code: 'P2024',
+  meta: { modelName: 'Topic', connection_limit: 1, timeout: 10 },
+  clientVersion: '6.18.0'
+}

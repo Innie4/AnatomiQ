@@ -127,16 +127,16 @@ export function TopicExplorer({
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">Topic explorer</p>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
           <div>
-            <h1 className="display-title text-4xl text-slate-950 sm:text-5xl">Regional anatomy, organized for recall</h1>
+            <h1 className="display-title text-4xl text-slate-950 sm:text-5xl">Course topics, organized for recall</h1>
             <p className="mt-3 max-w-2xl text-base leading-7 text-slate-600">
-              Browse the live anatomy taxonomy, inspect subtopics, and jump directly into topic-specific exam generation.
+              Browse the live topic taxonomy, inspect subtopics, and jump directly into topic-specific exam generation.
             </p>
           </div>
           <form action="/topics" className="flex w-full max-w-xl gap-3">
             <input
               name="q"
               defaultValue={search}
-              placeholder="Search thorax, hand, cranial nerves..."
+              placeholder="Search subjects, topics, or subtopics..."
               className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-slate-900 outline-none placeholder:text-slate-400"
             />
             <button className="rounded-2xl bg-slate-950 px-5 py-3 text-sm font-semibold text-white hover:-translate-y-0.5">
@@ -147,6 +147,12 @@ export function TopicExplorer({
       </section>
 
       <section className="grid gap-6 lg:grid-cols-2">
+        {!topics.length ? (
+          <div className="glass-panel rounded-[1.75rem] border border-white/80 p-6 text-sm leading-6 text-slate-600 lg:col-span-2">
+            No uploaded topics are available yet. Upload and process course material from the dashboard to populate the topic explorer.
+          </div>
+        ) : null}
+
         {topics.map((topic, index) => (
           <FadeIn key={topic.id} delay={index * 0.05} className="glass-panel rounded-[1.75rem] border border-white/80 p-6">
             <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">

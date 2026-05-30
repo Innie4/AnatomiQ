@@ -42,6 +42,11 @@ export function toFriendlyError(error: unknown): string {
   }
 
   // File upload errors
+  if (lowerMessage.includes("processing failed") || lowerMessage.includes("material was uploaded")) {
+    return "The file was uploaded, but processing could not finish. Try a clearer PDF, image, or text file.";
+  }
+
+  // File upload errors
   if (lowerMessage.includes("file") || lowerMessage.includes("upload")) {
     return "There was a problem uploading your file. Please check the file and try again.";
   }

@@ -80,6 +80,8 @@ describe("Upload Integration Tests", () => {
     const formData = new FormData();
     formData.append("file", new Blob(["test content"], { type: "text/plain" }), "test.txt");
     formData.append("title", "Test Material");
+    formData.append("department", "Human Anatomy");
+    formData.append("courseCode", "ANA101");
     formData.append("courseName", "Human Anatomy");
     // Missing topicName
 
@@ -92,6 +94,25 @@ describe("Upload Integration Tests", () => {
     });
 
     assert.ok(response.status >= 400, "Should fail validation without topic");
+  });
+
+  it("should validate upload material requires department", async () => {
+    const formData = new FormData();
+    formData.append("file", new Blob(["test content"], { type: "text/plain" }), "test.txt");
+    formData.append("title", "Test Material");
+    formData.append("courseCode", "ANA101");
+    formData.append("courseName", "Human Anatomy");
+    formData.append("topicName", "Test Topic");
+
+    const response = await fetch(`${BASE_URL}/api/upload-material`, {
+      method: "POST",
+      headers: {
+        "x-admin-upload-key": ADMIN_KEY,
+      },
+      body: formData,
+    });
+
+    assert.ok(response.status >= 400, "Should fail validation without department");
   });
 
   it("should handle process-material with authentication", async () => {

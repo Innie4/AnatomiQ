@@ -20,7 +20,7 @@ const navigationLinks = [
     href: "/topics",
     label: "Topics",
     icon: BookOpen,
-    description: "Explore anatomy topics"
+    description: "Explore topics"
   },
   {
     href: "/exam",
@@ -86,8 +86,18 @@ export function AppNavigation() {
     }
   }, [avatarUrl]);
 
-  // Don't show navigation on upload pages and exam sessions
-  if (pathname?.startsWith("/upload") || pathname?.startsWith("/exam-session")) {
+  const noNavigationPages = [
+    "/upload",
+    "/admin",
+    "/exam-session",
+    "/signin",
+    "/signup",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-email",
+  ];
+
+  if (noNavigationPages.some((page) => pathname?.startsWith(page))) {
     return null;
   }
 
@@ -118,7 +128,7 @@ export function AppNavigation() {
               </div>
               <div>
                 <div className="text-lg font-bold text-slate-900">{APP_NAME}</div>
-                <div className="text-xs text-slate-500">Anatomy Learning</div>
+                <div className="text-xs text-slate-500">Public Course Learning</div>
               </div>
             </div>
             <NotificationBell />

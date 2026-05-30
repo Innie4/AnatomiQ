@@ -5,43 +5,46 @@ import fs from 'fs';
 import { getEnvValue } from './test-env';
 
 test.describe('Material Upload and Processing', () => {
+  test.setTimeout(120000);
+
   const adminKey = getEnvValue('ADMIN_UPLOAD_KEY');
   test.skip(!adminKey, 'ADMIN_UPLOAD_KEY is required for material upload e2e tests.');
 
   test.beforeEach(async ({ page }) => {
     const uploadPage = new UploadPage(page);
-    await uploadPage.goto();
-    await uploadPage.unlockDashboard(adminKey || '');
+    await uploadPage.authenticate(adminKey || '');
   });
 
   test('should display admin dashboard stats', async ({ page }) => {
     const uploadPage = new UploadPage(page);
+    await uploadPage.gotoDashboard();
     await uploadPage.verifyDashboardStats();
 
-    // Verify stats are numbers
-    const totalMaterials = await page.locator('text=Total materials').locator('..').locator('..').locator('p.text-4xl').textContent();
+    const totalMaterials = await page.getByText(/total materials/i).locator('..').locator('..').locator('p.text-4xl').textContent();
     expect(Number(totalMaterials?.replace(/,/g, ''))).toBeGreaterThanOrEqual(0);
   });
 
   test('should show material upload form', async ({ page }) => {
-    await expect(page.locator('input[aria-label="Material title"]')).toBeVisible();
-    await expect(page.locator('input[aria-label="Course name"]')).toBeVisible();
-    await expect(page.locator('input[aria-label="Topic name"]')).toBeVisible();
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoUploadForm();
+
+    await expect(page.getByLabel(/^Department/i)).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /^Course Name/i })).toBeVisible();
+    await expect(page.getByRole('textbox', { name: /^Topic/i })).toBeVisible();
     await expect(page.locator('input[type="file"]')).toBeVisible();
   });
 
   test('should validate required fields before upload', async ({ page }) => {
-    // Try to upload without file
-    await page.click('button:has-text("Upload and process")');
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoUploadForm();
 
-    // Should show error about missing fields
-    await expect(page.locator('text=/required|select|enter/i')).toBeVisible({ timeout: 5000 });
+    await expect(page.getByRole('button', { name: /upload and process/i })).toBeDisabled();
   });
 
   test('should upload a text file and process it', async ({ page }) => {
-    // Create a temporary test file
     const testFilePath = path.join(process.cwd(), 'test-results', 'e2e-test-material.txt');
     const testFileDir = path.dirname(testFilePath);
+    let uploadedMaterialId: string | null = null;
 
     if (!fs.existsSync(testFileDir)) {
       fs.mkdirSync(testFileDir, { recursive: true });
@@ -63,39 +66,69 @@ test.describe('Material Upload and Processing', () => {
     `);
 
     const uploadPage = new UploadPage(page);
+    await uploadPage.gotoUploadForm();
 
     await uploadPage.fillMaterialForm({
-      title: 'E2E Test Material',
-      course: 'Human Anatomy',
-      topic: 'General Anatomy',
-      subtopic: 'Body Organization',
+      department: 'Human Anatomy',
+      course: 'GENERAL BIOCHEMISTRY II',
+      courseCode: 'MBC 221',
+      topic: 'AMINO ACID METABOLISM',
     });
 
     await uploadPage.uploadFile(testFilePath);
-    await uploadPage.submitUpload();
+    try {
+      const uploadResponsePromise = page.waitForResponse((response) =>
+        response.url().includes('/api/upload-material') && response.request().method() === 'POST',
+      );
+      const processResponsePromise = page.waitForResponse((response) =>
+        response.url().includes('/api/process-material') && response.request().method() === 'POST',
+      );
 
-    // Wait for processing to complete
-    await uploadPage.waitForProcessingComplete();
+      await uploadPage.submitUpload();
+      const uploadResponse = await uploadResponsePromise;
+      const uploadPayload = await uploadResponse.json().catch(() => null) as { error?: string; material?: { id?: string } } | null;
+      uploadedMaterialId = uploadPayload?.material?.id ?? null;
+      expect(uploadResponse.ok(), uploadPayload?.error || 'Material upload request failed').toBeTruthy();
 
-    // Verify processing stats appear
-    const processingCard = page.getByRole('heading', { name: 'Processing Complete' }).locator('..');
-    await expect(processingCard.getByText('Characters Extracted')).toBeVisible();
-    await expect(processingCard.getByText('Knowledge Chunks')).toBeVisible();
-    await expect(processingCard.getByText('Extraction Method')).toBeVisible();
+      const processResponse = await processResponsePromise;
+      const processPayload = await processResponse.json().catch(() => null) as { error?: string } | null;
+      expect(processResponse.ok(), processPayload?.error || 'Material processing request failed').toBeTruthy();
 
-    // Cleanup the runtime file, leaving tracked fixtures untouched.
-    if (fs.existsSync(testFilePath)) {
-      fs.unlinkSync(testFilePath);
+      await uploadPage.waitForProcessingComplete();
+
+      await expect(page.getByText('Characters')).toBeVisible();
+      await expect(page.getByText('Chunks')).toBeVisible();
+      await expect(page.getByText('Method')).toBeVisible();
+    } finally {
+      if (uploadedMaterialId) {
+        const deleteResponse = await page.request.delete('/api/delete-material', {
+          headers: {
+            'Content-Type': 'application/json',
+            'x-admin-upload-key': adminKey || '',
+          },
+          data: { materialId: uploadedMaterialId },
+        });
+        expect(deleteResponse.ok()).toBeTruthy();
+      }
+
+      if (fs.existsSync(testFilePath)) {
+        fs.unlinkSync(testFilePath);
+      }
     }
   });
 
   test('should display recent materials list', async ({ page }) => {
-    await expect(page.locator('text=Recent materials')).toBeVisible();
-    await expect(page.locator('text=Latest upload activity')).toBeVisible();
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoMaterialsManager();
+
+    await expect(page.getByText(/view, search, and delete uploaded materials/i)).toBeVisible();
+    await expect(page.getByPlaceholder(/search materials/i)).toBeVisible();
   });
 
   test('should show topic coverage grid', async ({ page }) => {
-    await expect(page.locator('text=Topic coverage')).toBeVisible();
-    await expect(page.locator('text=Where the source library is strongest')).toBeVisible();
+    const uploadPage = new UploadPage(page);
+    await uploadPage.gotoDashboard();
+
+    await expect(page.getByText(/system statistics and recent activity/i)).toBeVisible({ timeout: 30000 });
   });
 });

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { Shuffle, LoaderCircle } from "lucide-react";
 
 const types = ["MCQ", "SHORT_ANSWER", "THEORY", "MIXED"] as const;
-const timerOptions = [0, 15, 30, 45, 60];
+const timerOptions = [15, 30, 45, 60];
 
 type TopicOption = {
   id: string;
@@ -31,9 +31,9 @@ type TopicData = {
 type StartExamPayload = {
   topicSlug: string;
   subtopicSlug?: string;
-  type: typeof types[number];
+  type: (typeof types)[number];
   count: number;
-  durationMinutes?: number;
+  durationMinutes: number;
 };
 
 export function RandomizeExamButton({ className }: { className?: string }) {
@@ -44,6 +44,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
     setLoading(true);
 
     try {
+      // Fetch all available topics from API
       const topicsResponse = await fetch("/api/topics");
       if (!topicsResponse.ok) {
         throw new Error("Failed to fetch topics");
@@ -52,8 +53,10 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       const topicsData = await topicsResponse.json();
       const allTopics: TopicOption[] = [];
 
+      // Flatten all topics and subtopics into a single array
       if (topicsData.topics && Array.isArray(topicsData.topics)) {
         (topicsData.topics as TopicData[]).forEach((topic) => {
+          // Add main topic (topic slug IS the courseSlug)
           allTopics.push({
             id: topic.id,
             slug: topic.slug,
@@ -62,13 +65,14 @@ export function RandomizeExamButton({ className }: { className?: string }) {
             isSubtopic: false,
           });
 
+          // Add subtopics if they exist (childTopics, not children)
           if (topic.childTopics && Array.isArray(topic.childTopics)) {
             topic.childTopics.forEach((subtopic) => {
               allTopics.push({
                 id: subtopic.id,
                 slug: subtopic.slug,
                 name: subtopic.name,
-                courseSlug: topic.slug,
+                courseSlug: topic.slug, // Parent topic's slug is the courseSlug
                 isSubtopic: true,
               });
             });
@@ -80,6 +84,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
         throw new Error("No topics available");
       }
 
+      // Filter topics that have processed material by checking available question types
       const topicsWithMaterial: TopicOption[] = [];
 
       for (const topic of allTopics) {
@@ -92,36 +97,38 @@ export function RandomizeExamButton({ className }: { className?: string }) {
           const availabilityResponse = await fetch(`/api/topic-question-types?${params}`);
           if (availabilityResponse.ok) {
             const data = await availabilityResponse.json();
+            // Only include topics that have at least one available question type
             if (data.availableTypes && data.availableTypes.length > 0) {
               topicsWithMaterial.push(topic);
             }
           }
         } catch {
+          // Skip topics that error out
           continue;
         }
       }
 
       if (topicsWithMaterial.length === 0) {
-        throw new Error("No topics with processed material available. Please upload and process anatomy material first.");
+        throw new Error("No topics with processed material available. Please upload and process course material first.");
       }
 
+      // Generate random exam parameters from topics with material only
       const randomTopic = topicsWithMaterial[Math.floor(Math.random() * topicsWithMaterial.length)];
       const randomType = types[Math.floor(Math.random() * types.length)];
-      const randomCount = Math.floor(Math.random() * 13) + 8;
+      const randomCount = Math.floor(Math.random() * 13) + 8; // 8-20 questions
       const randomTimer = timerOptions[Math.floor(Math.random() * timerOptions.length)];
 
+      // Build payload based on whether it's a subtopic or main topic
       const payload: StartExamPayload = {
-        topicSlug: randomTopic.courseSlug,
+        topicSlug: randomTopic.courseSlug, // Always use the parent topic slug
         type: randomType,
         count: randomCount,
+        durationMinutes: randomTimer,
       };
 
+      // Add subtopicSlug only if this is a subtopic
       if (randomTopic.isSubtopic) {
         payload.subtopicSlug = randomTopic.slug;
-      }
-
-      if (randomTimer > 0) {
-        payload.durationMinutes = randomTimer;
       }
 
       console.log("Randomize exam payload:", JSON.stringify(payload, null, 2));
@@ -141,8 +148,10 @@ export function RandomizeExamButton({ className }: { className?: string }) {
 
       const examData = await response.json();
 
+      // Store in sessionStorage
       sessionStorage.setItem("anatomiq:active-exam", JSON.stringify(examData));
 
+      // Navigate to exam session
       router.push("/exam-session");
     } catch (error) {
       console.error("Failed to randomize exam:", error);

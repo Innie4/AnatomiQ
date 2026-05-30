@@ -1,11 +1,38 @@
 import { z } from "zod";
 
+const requiredTrimmedString = (minLength: number, fieldName: string) =>
+  z
+    .string({ error: `${fieldName} is required.` })
+    .trim()
+    .min(minLength, `${fieldName} is required.`);
+
 export const uploadMaterialSchema = z.object({
-  title: z.string().min(3),
-  courseCode: z.string().min(2),
-  courseName: z.string().min(3),
-  topicName: z.string().min(2),
-  subtopicName: z.string().optional().nullable(),
+  title: requiredTrimmedString(3, "Material title"),
+  courseCode: requiredTrimmedString(2, "Course code"),
+  courseName: requiredTrimmedString(3, "Course name"),
+  department: requiredTrimmedString(2, "Department"),
+  topicName: requiredTrimmedString(2, "Topic"),
+  subtopicName: z.string().trim().optional().nullable(),
+});
+
+export const uploadMaterialSignedUrlSchema = uploadMaterialSchema.extend({
+  fileName: z.string().min(1),
+  mimeType: z.string().min(1),
+  fileSize: z.number().int().positive(),
+});
+
+export const uploadMaterialDirectSchema = uploadMaterialSignedUrlSchema.extend({
+  storageKey: z.string().min(1),
+});
+
+export const updateMaterialsSchema = z.object({
+  materialIds: z.array(z.string().uuid()).min(1).max(100),
+  title: z.string().trim().min(3).optional(),
+  courseCode: requiredTrimmedString(2, "Course code"),
+  courseName: requiredTrimmedString(3, "Course name"),
+  department: requiredTrimmedString(2, "Department"),
+  topicName: requiredTrimmedString(2, "Topic"),
+  subtopicName: z.string().trim().optional().nullable(),
 });
 
 export const processMaterialSchema = z.object({
@@ -83,7 +110,7 @@ export const startExamSchema = z.object({
   subtopicSlug: z.string().optional(),
   type: z.enum(["MCQ", "SHORT_ANSWER", "THEORY", "MIXED"]),
   count: z.number().int().min(1).max(30),
-  durationMinutes: z.number().int().min(0).max(180).optional(),
+  durationMinutes: z.number({ error: "Timer is required." }).int().min(1, "Timer is required.").max(180),
 });
 
 export const gradeMcqSchema = z.object({

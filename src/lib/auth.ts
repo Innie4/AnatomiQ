@@ -95,7 +95,7 @@ export async function authenticateRequest(
         userId: "legacy-admin",
         email: "admin@legacy",
         fullName: "Legacy Admin",
-        department: "Human Anatomy",
+        department: "University of Uyo",
       };
     }
 

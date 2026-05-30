@@ -162,6 +162,7 @@ Explanations
           subtopicSlug: material.subtopic?.slug,
           type: "SHORT_ANSWER",
           count: 2,
+          durationMinutes: 20,
         }),
       }),
     );
@@ -190,6 +191,214 @@ Explanations
         materialId: material.id,
       },
     });
+    await cleanupCourse(material.course.id);
+  }
+});
+
+test("manual upload API returns validation errors without a 500", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "MCQ",
+          defaultDifficulty: "INTERMEDIATE",
+          input: `Question: Which chamber forms the apex of the heart?
+Options:
+- Right ventricle
+- Left ventricle
+Answer: B
+Explanation: The apex is formed by the left ventricle.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { error?: string };
+
+    assert.equal(response.status, 422);
+    assert.match(payload.error ?? "", /must include exactly four options/i);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});
+
+test("manual upload API returns unsupported leading text errors without a 500", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "SHORT_ANSWER",
+          defaultDifficulty: "INTERMEDIATE",
+          input: `Here are my questions:
+Question: State the nerve supply of the diaphragm.
+Answer: The phrenic nerve.
+Explanation: The phrenic nerve is the motor supply.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { error?: string };
+
+    assert.equal(response.status, 422);
+    assert.match(payload.error ?? "", /contains text before a supported field label/i);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});
+
+test("manual upload API accepts indented uppercase numbered MCQ sections", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "MCQ",
+          defaultDifficulty: "INTERMEDIATE",
+          input: ` QUESTIONS
+
+1. Amino acid metabolism refers to which of the following?
+2. Which inherited metabolic diseases are caused by defects in amino acid metabolism?
+
+ OPTIONS
+
+1. A. Only the synthesis of amino acids | B. Biochemical processes of synthesis, breakdown, interconversion, and utilization of amino acids | C. Only the catabolism of amino acids | D. Transport of amino acids in the blood
+2. A. Diabetes mellitus and hypertension | B. Phenylketonuria (PKU) and Maple Syrup Urine Disease (MSUD) | C. Sickle cell anemia and thalassemia | D. Hemophilia and Turner syndrome
+
+ ANSWERS
+
+1. B
+2. B
+
+EXPLANATIONS
+
+1. The material defines amino acid metabolism as synthesis, breakdown, interconversion, and utilization of amino acids.
+2. The material explicitly states PKU and MSUD are inherited metabolic diseases caused by defects in amino acid metabolism.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { createdCount: number; totalSubmitted: number };
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.createdCount, 2);
+    assert.equal(payload.totalSubmitted, 2);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});
+
+test("manual upload API accepts answer letters for numeric MCQ options", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "MCQ",
+          defaultDifficulty: "INTERMEDIATE",
+          input: `QUESTIONS
+
+38. How many ATP molecules are required for carbamoyl phosphate formation?
+
+OPTIONS
+
+38. A. 1 | B. 2 | C. 3 | D. 4
+
+ANSWERS
+
+38. B
+
+EXPLANATIONS
+
+38. The material states formation of carbamoyl phosphate requires 2 ATP.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { createdCount: number; totalSubmitted: number };
+
+    assert.equal(response.status, 200);
+    assert.equal(payload.createdCount, 1);
+    assert.equal(payload.totalSubmitted, 1);
+  } finally {
+    await cleanupCourse(material.course.id);
+  }
+});
+
+test("manual upload API accepts compact pipe-separated answer rows", async () => {
+  const material = await createTestMaterial();
+  const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
+
+  try {
+    const response = await uploadManualQuestions(
+      new Request("http://localhost/api/upload-manual-questions", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          "x-admin-upload-key": adminKey,
+        },
+        body: JSON.stringify({
+          materialId: material.id,
+          type: "MCQ",
+          defaultDifficulty: "INTERMEDIATE",
+          input: `QUESTIONS
+
+1. What is direct current?
+2. Which motors are simpler than d.c. motors?
+3. What is the common power-system frequency?
+
+OPTIONS
+
+1. A. Reversing current | B. Steady one-direction current | C. Capacitor-only current | D. Sinusoidal current
+2. A. Series motors | B. Universal motors | C. Induction motors | D. Stepper motors
+3. A. 25 Hz | B. 60 Hz | C. 100 Hz | D. 50 Hz
+
+ANSWERS
+
+1-B | 2-C | 3-D
+
+EXPLANATIONS
+
+1. Direct current is steady and flows in one direction.
+2. The material identifies induction motors as cheaper and simpler.
+3. The material states the common frequency is 50 Hz.`,
+        }),
+      }),
+    );
+    const payload = (await response.json()) as { createdCount: number; totalSubmitted: number; error?: string };
+
+    assert.equal(response.status, 200, payload.error);
+    assert.equal(payload.createdCount, 3);
+    assert.equal(payload.totalSubmitted, 3);
+  } finally {
     await cleanupCourse(material.course.id);
   }
 });

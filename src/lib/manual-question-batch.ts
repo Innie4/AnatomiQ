@@ -1,5 +1,6 @@
 import { Difficulty, QuestionType } from "@prisma/client";
 
+import { UserInputError } from "@/lib/errors";
 import { normalizeWhitespace, tokenSimilarity } from "@/lib/text";
 
 export type ManualQuestionBatchItem = {
@@ -31,11 +32,19 @@ function mapDifficulty(value: string | undefined, fallback: Difficulty) {
     return normalized;
   }
 
-  throw new Error(`Invalid difficulty value: ${value}`);
+  throw new UserInputError(`Invalid difficulty value: ${value}`);
 }
 
 function normalizeOptionLine(line: string) {
   return line.replace(/^[-*]\s*/, "").replace(/^[A-D][.)]\s*/i, "").trim();
+}
+
+function normalizeComparableAnswer(value: string) {
+  return value.trim().toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
+}
+
+function answerMatchesOption(option: string, answer: string) {
+  return normalizeComparableAnswer(option) === normalizeComparableAnswer(answer) || tokenSimilarity(option, answer) >= 1;
 }
 
 function splitBlocks(input: string) {
@@ -54,7 +63,7 @@ function parseLegacyBlocks(params: {
   const blocks = splitBlocks(params.input);
 
   if (!blocks.length) {
-    throw new Error("Add at least one question block before uploading.");
+    throw new UserInputError("Add at least one question block before uploading.");
   }
 
   return blocks.map((block, index) => {
@@ -96,7 +105,7 @@ function parseLegacyBlocks(params: {
       }
 
       if (!currentField) {
-        throw new Error(`Question block ${index + 1} contains text before a supported field label.`);
+        throw new UserInputError(`Question block ${index + 1} contains text before a supported field label.`);
       }
 
       if (!fields.has(currentField)) {
@@ -115,27 +124,27 @@ function parseLegacyBlocks(params: {
     const difficulty = mapDifficulty(fields.get("difficulty")?.join(" ").trim(), params.defaultDifficulty);
 
     if (!stem) {
-      throw new Error(`Question block ${index + 1} is missing a Question field.`);
+      throw new UserInputError(`Question block ${index + 1} is missing a Question field.`);
     }
 
     if (!rawAnswer) {
-      throw new Error(`Question block ${index + 1} is missing an Answer field.`);
+      throw new UserInputError(`Question block ${index + 1} is missing an Answer field.`);
     }
 
     if (!explanation) {
-      throw new Error(`Question block ${index + 1} is missing an Explanation field.`);
+      throw new UserInputError(`Question block ${index + 1} is missing an Explanation field.`);
     }
 
     if (params.type === QuestionType.MCQ) {
       if (options.length !== 4) {
-        throw new Error(`Question block ${index + 1} must include exactly four options for MCQ uploads.`);
+        throw new UserInputError(`Question block ${index + 1} must include exactly four options for MCQ uploads.`);
       }
 
       const answerIndex = ["A", "B", "C", "D"].indexOf(rawAnswer.trim().toUpperCase());
       const answer = answerIndex >= 0 ? options[answerIndex] : rawAnswer;
 
-      if (!options.some((option) => option.trim().toLowerCase() === answer.trim().toLowerCase())) {
-        throw new Error(`Question block ${index + 1} has an answer that does not match the provided options.`);
+      if (!options.some((option) => answerMatchesOption(option, answer))) {
+        throw new UserInputError(`Question block ${index + 1} has an answer that does not match the provided options.`);
       }
 
       return {
@@ -205,7 +214,22 @@ function parseNumberedEntries(lines: string[], label: string) {
       continue;
     }
 
-    const numberedMatch = line.match(/^(\d+)[.)]\s*(.*)$/);
+    const pipeFragments = line.split(/\s*\|\s*/g).map((fragment) => fragment.trim()).filter(Boolean);
+    const compactEntries = pipeFragments
+      .map((fragment) => fragment.trim())
+      .map((fragment) => fragment.match(/^(\d+)\s*(?:[.):]|-)\s*(.+)$/))
+      .filter((match): match is RegExpMatchArray => Boolean(match));
+
+    if (compactEntries.length > 1 && compactEntries.length === pipeFragments.length) {
+      for (const compactEntry of compactEntries) {
+        currentNumber = Number(compactEntry[1]);
+        entries.set(currentNumber, [compactEntry[2].trim()]);
+      }
+
+      continue;
+    }
+
+    const numberedMatch = line.match(/^(\d+)\s*(?:[.):]|-)\s*(.*)$/);
 
     if (numberedMatch) {
       currentNumber = Number(numberedMatch[1]);
@@ -219,14 +243,14 @@ function parseNumberedEntries(lines: string[], label: string) {
     }
 
     if (currentNumber === null) {
-      throw new Error(`${label} section contains content without a question number.`);
+      throw new UserInputError(`${label} section contains content without a question number.`);
     }
 
     entries.get(currentNumber)?.push(line);
   }
 
   if (!entries.size) {
-    throw new Error(`${label} section is empty.`);
+    throw new UserInputError(`${label} section is empty.`);
   }
 
   return entries;
@@ -275,12 +299,12 @@ function ensureMatchingNumbers(
   const targetNumbers = [...target.keys()].sort((a, b) => a - b);
 
   if (questionNumbers.length !== targetNumbers.length) {
-    throw new Error(`${label} count does not match the number of questions.`);
+    throw new UserInputError(`${label} count does not match the number of questions.`);
   }
 
   for (const questionNumber of questionNumbers) {
     if (!target.has(questionNumber)) {
-      throw new Error(`${label} is missing entry number ${questionNumber}.`);
+      throw new UserInputError(`${label} is missing entry number ${questionNumber}.`);
     }
   }
 }
@@ -296,7 +320,7 @@ function parseNumberedSections(params: {
   const explanationLines = sections.get("explanations");
 
   if (!questionLines || !answerLines || !explanationLines) {
-    throw new Error("Numbered uploads must include Questions, Answers, and Explanations sections.");
+    throw new UserInputError("Numbered uploads must include Questions, Answers, and Explanations sections.");
   }
 
   const questions = parseNumberedEntries(questionLines, "Questions");
@@ -312,7 +336,7 @@ function parseNumberedSections(params: {
 
   if (params.type === QuestionType.MCQ) {
     if (!options) {
-      throw new Error("MCQ numbered uploads must include an Options section.");
+      throw new UserInputError("MCQ numbered uploads must include an Options section.");
     }
 
     ensureMatchingNumbers(questions, options, "Options");
@@ -330,15 +354,15 @@ function parseNumberedSections(params: {
       );
 
       if (!stem) {
-        throw new Error(`Question ${manualOrder} is empty.`);
+        throw new UserInputError(`Question ${manualOrder} is empty.`);
       }
 
       if (!rawAnswer) {
-        throw new Error(`Answer ${manualOrder} is empty.`);
+        throw new UserInputError(`Answer ${manualOrder} is empty.`);
       }
 
       if (!explanation) {
-        throw new Error(`Explanation ${manualOrder} is empty.`);
+        throw new UserInputError(`Explanation ${manualOrder} is empty.`);
       }
 
       if (params.type !== QuestionType.MCQ) {
@@ -355,14 +379,14 @@ function parseNumberedSections(params: {
       const parsedOptions = parseOptionEntry(options?.get(manualOrder) ?? []);
 
       if (parsedOptions.length !== 4) {
-        throw new Error(`Options for question ${manualOrder} must contain exactly four choices.`);
+        throw new UserInputError(`Options for question ${manualOrder} must contain exactly four choices.`);
       }
 
       const answerIndex = ["A", "B", "C", "D"].indexOf(rawAnswer.trim().toUpperCase());
       const answer = answerIndex >= 0 ? parsedOptions[answerIndex] : rawAnswer;
 
-      if (!parsedOptions.some((option) => tokenSimilarity(option, answer) >= 1)) {
-        throw new Error(`Answer ${manualOrder} does not match the provided options.`);
+      if (!parsedOptions.some((option) => answerMatchesOption(option, answer))) {
+        throw new UserInputError(`Answer ${manualOrder} does not match the provided options.`);
       }
 
       return {
@@ -378,8 +402,11 @@ function parseNumberedSections(params: {
 }
 
 function looksLikeNumberedUpload(input: string) {
-  const normalized = input.toLowerCase();
-  return normalized.includes("\nquestions") && normalized.includes("\nanswers") && normalized.includes("\nexplanations");
+  return (
+    /^\s*questions\s*:?\s*$/im.test(input) &&
+    /^\s*answers\s*:?\s*$/im.test(input) &&
+    /^\s*explanations\s*:?\s*$/im.test(input)
+  );
 }
 
 export function parseManualQuestionBatch(params: {
@@ -388,7 +415,7 @@ export function parseManualQuestionBatch(params: {
   input: string;
 }) {
   const normalized = normalizeWhitespace(params.input);
-  return looksLikeNumberedUpload(`\n${normalized}`)
+  return looksLikeNumberedUpload(normalized)
     ? parseNumberedSections({ ...params, input: normalized })
     : parseLegacyBlocks({ ...params, input: normalized });
 }

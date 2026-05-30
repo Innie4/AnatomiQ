@@ -1,0 +1,121 @@
+⚠ "next start" does not work with "output: standalone" configuration. Use "node .next/standalone/server.js" instead.
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)
+[31m[auth][error][0m UntrustedHost: Host must be trusted. URL was: http://localhost:3000/api/auth/session. Read more at https://errors.authjs.dev#untrustedhost
+    at C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:51445
+    at aO (C:\Users\Dell-Pc\AnatomiQ\.next\server\chunks\_0spt4pb._.js:404:54110)
+    at process.processTicksAndRejections (node:internal/process/task_queues:104:5)
+    at async rB.do (C:\Users\Dell-Pc\AnatomiQ\node_modules\next\dist\compiled\next-server\app-route-turbo.runtime.prod.js:5:20926)

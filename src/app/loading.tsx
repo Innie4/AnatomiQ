@@ -14,7 +14,7 @@ export default function Loading() {
           />
         </div>
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">ANATOMIQ</p>
-        <p className="mt-3 text-lg text-slate-700">Preparing the anatomy workspace...</p>
+        <p className="mt-3 text-lg text-slate-700">Preparing the workspace...</p>
       </div>
     </div>
   );

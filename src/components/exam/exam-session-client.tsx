@@ -1,8 +1,8 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Circle, Clock3, LoaderCircle } from "lucide-react";
-import { startTransition, useEffect, useEffectEvent, useState } from "react";
+import { AlertCircle, ArrowLeft, ArrowRight, CheckCircle, Clock3, LoaderCircle } from "lucide-react";
+import { startTransition, useEffect, useEffectEvent, useRef, useState } from "react";
 import { toFriendlyError } from "@/lib/friendly-errors";
 
 type ExamQuestion = {
@@ -59,6 +59,7 @@ export function ExamSessionClient() {
   const [gracePeriod, setGracePeriod] = useState(false);
   const [graceTimeLeft, setGraceTimeLeft] = useState(180); // 3 minutes in seconds
   const [showGraceModal, setShowGraceModal] = useState(false);
+  const submissionStartedRef = useRef(false);
 
   // Load exam from sessionStorage
   useEffect(() => {
@@ -88,7 +89,7 @@ export function ExamSessionClient() {
       : `${String(Math.floor(displayTimeLeft / 60)).padStart(2, "0")}:${String(displayTimeLeft % 60).padStart(2, "0")}`;
 
   const autoSubmit = useEffectEvent(async () => {
-    if (!examData || submitting) return;
+    if (!examData || submissionStartedRef.current) return;
     await handleSubmitExam(true);
   });
 
@@ -101,9 +102,6 @@ export function ExamSessionClient() {
         if (typeof current !== "number") return current;
         if (current <= 1) {
           window.clearInterval(timer);
-          // Trigger grace period instead of auto-submit
-          setGracePeriod(true);
-          setShowGraceModal(true);
           return 0;
         }
         return current - 1;
@@ -113,15 +111,23 @@ export function ExamSessionClient() {
     return () => window.clearInterval(timer);
   }, [timeLeft, gracePeriod]);
 
+  // Start grace period after the main timer reaches zero. Keep this side effect
+  // outside the timer state updater so React can keep state transitions pure.
+  useEffect(() => {
+    if (timeLeft !== 0 || gracePeriod || submissionStartedRef.current) return;
+
+    setGracePeriod(true);
+    setShowGraceModal(true);
+  }, [timeLeft, gracePeriod]);
+
   // Grace period countdown
   useEffect(() => {
-    if (!gracePeriod) return;
+    if (!gracePeriod || submissionStartedRef.current) return;
 
     const timer = window.setInterval(() => {
       setGraceTimeLeft((current) => {
         if (current <= 1) {
           window.clearInterval(timer);
-          void autoSubmit();
           return 0;
         }
         return current - 1;
@@ -129,11 +135,20 @@ export function ExamSessionClient() {
     }, 1000);
 
     return () => window.clearInterval(timer);
-  }, [gracePeriod, autoSubmit]);
+  }, [gracePeriod]);
+
+  // Submit once when grace time expires. Calling submit from here avoids the
+  // crash caused by mutating state and navigating inside a setState callback.
+  useEffect(() => {
+    if (!gracePeriod || graceTimeLeft !== 0 || submissionStartedRef.current) return;
+
+    void autoSubmit();
+  }, [gracePeriod, graceTimeLeft]);
 
   async function handleSubmitExam(timedOut = false) {
-    if (!examData) return;
+    if (!examData || submissionStartedRef.current) return;
 
+    submissionStartedRef.current = true;
     setSubmitting(true);
     setError(null);
 
@@ -204,6 +219,7 @@ export function ExamSessionClient() {
         router.push("/results");
       });
     } catch (submitError) {
+      submissionStartedRef.current = false;
       setError(toFriendlyError(submitError));
     } finally {
       setSubmitting(false);

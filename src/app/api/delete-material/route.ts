@@ -5,7 +5,10 @@ import { db } from "@/lib/db";
 import { z } from "zod";
 
 const deleteMaterialSchema = z.object({
-  materialId: z.string().uuid(),
+  materialId: z.string().uuid().optional(),
+  materialIds: z.array(z.string().uuid()).min(1).max(100).optional(),
+}).refine((value) => value.materialId || value.materialIds?.length, {
+  message: "materialId or materialIds is required.",
 });
 
 export async function DELETE(request: NextRequest) {
@@ -24,11 +27,12 @@ export async function DELETE(request: NextRequest) {
       return fail("Invalid JSON", 400);
     }
 
-    const { materialId } = deleteMaterialSchema.parse(body);
+    const parsed = deleteMaterialSchema.parse(body);
+    const materialIds = parsed.materialIds ?? (parsed.materialId ? [parsed.materialId] : []);
 
     // Check if material exists and count related records
-    const material = await db.material.findUnique({
-      where: { id: materialId },
+    const materials = await db.material.findMany({
+      where: { id: { in: materialIds } },
       include: {
         _count: {
           select: {
@@ -39,35 +43,37 @@ export async function DELETE(request: NextRequest) {
       },
     });
 
-    if (!material) {
+    if (!materials.length) {
       return fail("Material not found", 404);
     }
 
     // Store counts before deletion
-    const questionCount = material._count.Question;
-    const chunkCount = material._count.ContentChunk;
+    const questionCount = materials.reduce((total, material) => total + material._count.Question, 0);
+    const chunkCount = materials.reduce((total, material) => total + material._count.ContentChunk, 0);
+    const foundIds = materials.map((material) => material.id);
 
     // Delete all related data (cascading)
     // 1. Delete questions linked to this material
     await db.question.deleteMany({
-      where: { materialId },
+      where: { materialId: { in: foundIds } },
     });
 
     // 2. Delete chunks
     await db.contentChunk.deleteMany({
-      where: { materialId },
+      where: { materialId: { in: foundIds } },
     });
 
-    // 3. Delete the material itself
-    await db.material.delete({
-      where: { id: materialId },
+    // 3. Delete the materials themselves
+    await db.material.deleteMany({
+      where: { id: { in: foundIds } },
     });
 
     return ok({
       success: true,
       message: "Material and all related data deleted successfully",
       deleted: {
-        material: material.title,
+        material: materials.length === 1 ? materials[0].title : `${materials.length} materials`,
+        materialIds: foundIds,
         questions: questionCount,
         chunks: chunkCount,
       },

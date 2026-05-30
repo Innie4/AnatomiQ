@@ -1,0 +1,290 @@
+
+> anatomiq@0.1.1 dev
+> next dev
+
+▲ Next.js 16.2.4 (Turbopack)
+- Local:         http://localhost:3000
+- Network:       http://192.168.5.11:3000
+- Environments: .env
+✓ Ready in 1196ms
+
+ GET /signin?callbackUrl=%2Fapi%2Fhealth 200 in 2.2s (next.js: 521ms, proxy.ts: 63ms, application-code: 1597ms)
+ GET /signin?callbackUrl=%2Fapi%2Fhealth 200 in 309ms (next.js: 28ms, proxy.ts: 18ms, application-code: 264ms)
+ GET /signin?callbackUrl=%2Fapi%2Fcourses 200 in 204ms (next.js: 16ms, proxy.ts: 13ms, application-code: 175ms)
+ POST /signin?callbackUrl=%2Fapi%2Fadmin%2Fcourses 200 in 222ms (next.js: 11ms, proxy.ts: 14ms, application-code: 197ms)
+ GET /signin?callbackUrl=%2Fapi%2Fcourses 200 in 262ms (next.js: 11ms, proxy.ts: 12ms, application-code: 239ms)
+ GET /signin?callbackUrl=%2Fapi%2Fadmin-overview 200 in 380ms (next.js: 44ms, proxy.ts: 16ms, application-code: 319ms)
+ GET /signin?callbackUrl=%2Fapi%2Fadmin-overview 200 in 316ms (next.js: 31ms, proxy.ts: 10ms, application-code: 275ms)
+ GET /signin?callbackUrl=%2Fapi%2Fadmin-overview 200 in 234ms (next.js: 11ms, proxy.ts: 12ms, application-code: 211ms)
+ POST /signin?callbackUrl=%2Fapi%2Fupload-material 404 in 1246ms (next.js: 10ms, proxy.ts: 12ms, application-code: 1223ms)
+ POST /signin?callbackUrl=%2Fapi%2Fupload-material 404 in 957ms (next.js: 22ms, proxy.ts: 11ms, application-code: 925ms)
+ POST /signin?callbackUrl=%2Fapi%2Fupload-material 404 in 1448ms (next.js: 13ms, proxy.ts: 251ms, application-code: 1185ms)
+✓ Compiled in 817ms
+ GET /signin?callbackUrl=%2Fapi%2Fadmin-overview 200 in 1260ms (next.js: 223ms, proxy.ts: 12ms, application-code: 1024ms)
+ GET /api/admin-overview 401 in 1014ms (next.js: 869ms, proxy.ts: 42ms, application-code: 103ms)
+○ Compiling /api/admin/courses ...
+ POST /api/admin/courses 200 in 7.0s (next.js: 3.8s, proxy.ts: 194ms, application-code: 3.0s)
+ GET /api/courses 200 in 8.7s (next.js: 1137ms, proxy.ts: 23ms, application-code: 7.6s)
+ GET /api/admin-overview 200 in 11.7s (next.js: 5ms, proxy.ts: 11ms, application-code: 11.7s)
+ POST /signin?callbackUrl=%2Fapi%2Fupload-material 404 in 1207ms (next.js: 21ms, proxy.ts: 19ms, application-code: 1167ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+[upload-material] File received: test.txt 12 text/plain
+[upload-material] Validating schema
+ POST /api/upload-material 422 in 2.2s (next.js: 1095ms, proxy.ts: 15ms, application-code: 1129ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+ POST /api/upload-material 500 in 506ms (next.js: 66ms, proxy.ts: 352ms, application-code: 88ms)
+✓ Compiled in 545ms
+ GET /api/admin-overview 401 in 109ms (next.js: 82ms, proxy.ts: 13ms, application-code: 14ms)
+ GET /api/admin-overview 401 in 29ms (next.js: 6ms, proxy.ts: 12ms, application-code: 10ms)
+ POST /api/admin/courses 200 in 2.9s (next.js: 214ms, proxy.ts: 170ms, application-code: 2.6s)
+ GET /api/courses 200 in 10.3s (next.js: 37ms, proxy.ts: 14ms, application-code: 10.3s)
+ GET /api/admin-overview 200 in 10.7s (next.js: 12ms, proxy.ts: 12ms, application-code: 10.7s)
+[upload-material] Starting upload request
+[upload-material] Authentication failed
+ POST /api/upload-material 401 in 454ms (next.js: 409ms, proxy.ts: 16ms, application-code: 29ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+[upload-material] File received: test.txt 12 text/plain
+[upload-material] Validating schema
+ POST /api/upload-material 422 in 1091ms (next.js: 17ms, proxy.ts: 16ms, application-code: 1058ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+ POST /api/upload-material 500 in 594ms (next.js: 6ms, proxy.ts: 557ms, application-code: 32ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+ POST /api/upload-material 500 in 196ms (next.js: 33ms, proxy.ts: 116ms, application-code: 47ms)
+ GET /api/admin-overview 401 in 86ms (next.js: 66ms, proxy.ts: 12ms, application-code: 8ms)
+ GET /api/admin-overview 401 in 73ms (next.js: 45ms, proxy.ts: 15ms, application-code: 13ms)
+ POST /api/admin/courses 200 in 3.6s (next.js: 152ms, proxy.ts: 183ms, application-code: 3.2s)
+ GET /api/courses 200 in 11.5s (next.js: 49ms, proxy.ts: 14ms, application-code: 11.5s)
+ GET /api/admin-overview 200 in 12.1s (next.js: 9ms, proxy.ts: 12ms, application-code: 12.1s)
+[upload-material] Starting upload request
+[upload-material] Authentication failed
+ POST /api/upload-material 401 in 466ms (next.js: 429ms, proxy.ts: 16ms, application-code: 21ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+[upload-material] File received: test.txt 12 text/plain
+[upload-material] Validating schema
+ POST /api/upload-material 422 in 864ms (next.js: 18ms, proxy.ts: 25ms, application-code: 822ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+ POST /api/upload-material 413 in 380ms (next.js: 20ms, proxy.ts: 320ms, application-code: 40ms)
+ GET /api/admin-overview 200 in 11.9s (next.js: 7ms, proxy.ts: 13ms, application-code: 11.9s)
+ GET /api/admin-overview 401 in 44ms (next.js: 21ms, proxy.ts: 14ms, application-code: 9ms)
+ GET /api/admin-overview 401 in 34ms (next.js: 15ms, proxy.ts: 11ms, application-code: 8ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+[upload-material] No file provided
+ POST /api/upload-material 400 in 43ms (next.js: 15ms, proxy.ts: 14ms, application-code: 14ms)
+[upload-material] Starting upload request
+[upload-material] Authenticated user: legacy-admin
+[upload-material] Parsing form data
+[upload-material] File received: test.txt 12 text/plain
+[upload-material] Validating schema
+ POST /api/upload-material 422 in 798ms (next.js: 6ms, proxy.ts: 12ms, application-code: 779ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findUniqueOrThrow()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0b8qijn._.js:1309:142
+
+  1306     return material;
+  1307 }
+  1308 async function getMaterialForProcessing(materialId) {
+→ 1309     return __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findUniqueOrThrow(
+An operation failed because it depends on one or more records that were required but not found. No record was found for a query.
+ POST /api/process-material 500 in 6.1s (next.js: 2.9s, proxy.ts: 18ms, application-code: 3.1s)
+ POST /api/process-material 401 in 38ms (next.js: 14ms, proxy.ts: 17ms, application-code: 7ms)
+ GET /api/admin-materials 200 in 1887ms (next.js: 149ms, proxy.ts: 9ms, application-code: 1729ms)
+ GET /api/material-questions 422 in 1885ms (next.js: 1629ms, proxy.ts: 15ms, application-code: 240ms)
+ GET /signin?callbackUrl=%2F 200 in 1057ms (next.js: 252ms, proxy.ts: 14ms, application-code: 791ms)
+ GET /signin?callbackUrl=%2F 200 in 240ms (next.js: 51ms, proxy.ts: 15ms, application-code: 174ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 2.2s (next.js: 48ms, proxy.ts: 36ms, application-code: 2.1s)
+ GET /signin?callbackUrl=%2Fupload 200 in 2.1s (next.js: 212ms, proxy.ts: 137ms, application-code: 1724ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 1892ms (next.js: 536ms, proxy.ts: 105ms, application-code: 1251ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 1830ms (next.js: 580ms, proxy.ts: 311ms, application-code: 939ms)
+○ Compiling /api/auth/[...nextauth] ...
+ GET /api/auth/session 200 in 8.1s (proxy.ts: 392ms)
+ GET /api/auth/session 500 in 9.5s (next.js: 9.0s, proxy.ts: 453ms, application-code: 83ms)
+ GET /api/auth/session 500 in 9.4s (next.js: 8.9s, proxy.ts: 393ms, application-code: 84ms)
+ GET /api/auth/session 500 in 9.4s (next.js: 8.9s, proxy.ts: 434ms, application-code: 84ms)
+ GET /api/auth/session 500 in 223ms (next.js: 93ms, proxy.ts: 115ms, application-code: 14ms)
+ GET /api/auth/session 500 in 199ms (next.js: 99ms, proxy.ts: 84ms, application-code: 16ms)
+ GET /api/auth/session 500 in 259ms (next.js: 54ms, proxy.ts: 180ms, application-code: 25ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 700ms (next.js: 45ms, proxy.ts: 18ms, application-code: 636ms)
+ GET /api/auth/session 500 in 80ms (next.js: 52ms, proxy.ts: 12ms, application-code: 16ms)
+ GET /api/auth/session 500 in 99ms (next.js: 51ms, proxy.ts: 12ms, application-code: 36ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 1195ms (next.js: 16ms, proxy.ts: 14ms, application-code: 1165ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 1091ms (next.js: 62ms, proxy.ts: 113ms, application-code: 916ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 1102ms (next.js: 223ms, proxy.ts: 111ms, application-code: 769ms)
+ GET /api/auth/session 500 in 212ms (next.js: 174ms, proxy.ts: 13ms, application-code: 25ms)
+ GET /api/auth/session 500 in 878ms (next.js: 473ms, proxy.ts: 380ms, application-code: 25ms)
+ GET /api/auth/session 500 in 751ms (next.js: 487ms, proxy.ts: 239ms, application-code: 26ms)
+ GET /api/auth/session 500 in 779ms (next.js: 522ms, proxy.ts: 240ms, application-code: 17ms)
+ GET /api/auth/session 500 in 173ms (next.js: 54ms, proxy.ts: 101ms, application-code: 18ms)
+ GET /api/auth/session 500 in 100ms (next.js: 64ms, proxy.ts: 22ms, application-code: 13ms)
+ GET /signin?callbackUrl=%2Fupload 200 in 428ms (next.js: 12ms, proxy.ts: 13ms, application-code: 403ms)
+ GET /api/auth/session 500 in 64ms (next.js: 35ms, proxy.ts: 12ms, application-code: 17ms)
+ GET /api/auth/session 500 in 75ms (next.js: 14ms, proxy.ts: 26ms, application-code: 35ms)
+✓ Compiled in 1695ms
+ GET /signin?callbackUrl=%2F 200 in 1071ms (next.js: 334ms, proxy.ts: 12ms, application-code: 726ms)
+ GET /signin?callbackUrl=%2F 200 in 215ms (next.js: 19ms, proxy.ts: 17ms, application-code: 180ms)
+ GET /upload 200 in 3.5s (next.js: 605ms, proxy.ts: 15ms, application-code: 2.9s)
+ GET /upload 200 in 3.6s (next.js: 823ms, proxy.ts: 11ms, application-code: 2.8s)
+ GET /upload 200 in 1448ms (next.js: 150ms, proxy.ts: 178ms, application-code: 1120ms)
+ GET /upload 200 in 1324ms (next.js: 322ms, proxy.ts: 151ms, application-code: 851ms)
+ GET /api/auth/session 500 in 1347ms (next.js: 964ms, proxy.ts: 344ms, application-code: 39ms)
+ GET /api/auth/session 500 in 1131ms (next.js: 882ms, proxy.ts: 230ms, application-code: 19ms)
+ GET /api/auth/session 500 in 526ms (next.js: 128ms, proxy.ts: 244ms, application-code: 154ms)
+ GET /api/auth/session 500 in 474ms (next.js: 374ms, proxy.ts: 80ms, application-code: 20ms)
+ GET /api/auth/session 500 in 121ms (next.js: 80ms, proxy.ts: 25ms, application-code: 16ms)
+ GET /api/auth/session 500 in 131ms (next.js: 88ms, proxy.ts: 30ms, application-code: 13ms)
+ GET /api/auth/session 500 in 92ms (next.js: 57ms, proxy.ts: 22ms, application-code: 14ms)
+ GET /api/auth/session 500 in 68ms (next.js: 42ms, proxy.ts: 14ms, application-code: 12ms)
+ GET /api/admin-overview 401 in 106ms (next.js: 55ms, proxy.ts: 18ms, application-code: 33ms)
+ GET /upload 200 in 771ms (next.js: 55ms, proxy.ts: 17ms, application-code: 699ms)
+ GET /api/admin-overview 200 in 6.0s (next.js: 319ms, proxy.ts: 14ms, application-code: 5.7s)
+ GET /api/auth/session 500 in 108ms (next.js: 64ms, proxy.ts: 24ms, application-code: 21ms)
+ GET /api/auth/session 500 in 217ms (next.js: 170ms, proxy.ts: 28ms, application-code: 19ms)
+ GET /api/admin-overview 200 in 6.0s (next.js: 7ms, proxy.ts: 13ms, application-code: 6.0s)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:558:143
+
+  555     }
+  556 }),
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+→ 558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:560:143
+
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+  558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(),
+  559 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count(),
+→ 560 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:559:142
+
+  556 }),
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+  558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(),
+→ 559 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+ GET /api/admin-overview 200 in 5.8s (next.js: 16ms, proxy.ts: 69ms, application-code: 5.7s)
+ GET /upload 200 in 378ms (next.js: 11ms, proxy.ts: 11ms, application-code: 357ms)
+ GET /api/auth/session 500 in 246ms (next.js: 38ms, proxy.ts: 13ms, application-code: 195ms)
+ GET /api/auth/session 500 in 718ms (next.js: 430ms, proxy.ts: 96ms, application-code: 193ms)
+ GET /upload 200 in 1444ms (next.js: 695ms, proxy.ts: 117ms, application-code: 632ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+ GET /api/auth/session 500 in 150ms (next.js: 101ms, proxy.ts: 34ms, application-code: 15ms)
+ GET /api/auth/session 500 in 78ms (next.js: 26ms, proxy.ts: 28ms, application-code: 24ms)
+ GET /api/admin-overview 200 in 5.3s (next.js: 47ms, proxy.ts: 34ms, application-code: 5.2s)
+ GET /upload 200 in 542ms (next.js: 94ms, proxy.ts: 20ms, application-code: 428ms)
+ GET /api/auth/session 500 in 124ms (next.js: 93ms, proxy.ts: 13ms, application-code: 18ms)
+ GET /api/auth/session 500 in 64ms (next.js: 29ms, proxy.ts: 17ms, application-code: 18ms)
+ GET /api/admin-overview 200 in 5.9s (next.js: 37ms, proxy.ts: 13ms, application-code: 5.8s)
+ GET /upload 200 in 723ms (next.js: 300ms, proxy.ts: 15ms, application-code: 408ms)
+ GET /api/auth/session 500 in 42ms (next.js: 16ms, proxy.ts: 12ms, application-code: 14ms)
+ GET /api/auth/session 500 in 75ms (next.js: 39ms, proxy.ts: 16ms, application-code: 20ms)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:557:147
+
+  554         status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$2c$__$5b$project$5d2f$node_modules$2f40$prisma$2f$client$29$__["MaterialStatus"].FAILED
+  555     }
+  556 }),
+→ 557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:552:143
+
+  549         status: __TURBOPACK__imported__module__$5b$externals$5d2f40$prisma$2f$client__$5b$external$5d$__$2840$prisma$2f$client$2c$__cjs$2c$__$5b$project$5d2f$node_modules$2f40$prisma$2f$client$29$__["MaterialStatus"].PROCESSING
+  550     }
+  551 }),
+→ 552 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:559:142
+
+  556 }),
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+  558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(),
+→ 559 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:558:143
+
+  555     }
+  556 }),
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+→ 558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:560:143
+
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+  558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(),
+  559 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count(),
+→ 560 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+ GET /api/admin-overview 200 in 5.7s (next.js: 20ms, proxy.ts: 12ms, application-code: 5.7s)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:560:143
+
+  557 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].contentChunk.count(),
+  558 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].question.count(),
+  559 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].concept.count(),
+→ 560 __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].material.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)
+prisma:error 
+Invalid `__TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany()` invocation in
+C:\Users\Dell-Pc\AnatomiQ\.next\dev\server\chunks\[root-of-the-server]__0l8emv~._.js:405:157
+
+  402 try {
+  403     // Test database connection first
+  404     await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].$connect();
+→ 405     const topics = await __TURBOPACK__imported__module__$5b$project$5d2f$src$2f$lib$2f$db$2e$ts__$5b$app$2d$route$5d$__$28$ecmascript$29$__["db"].topic.findMany(
+Timed out fetching a new connection from the connection pool. More info: http://pris.ly/d/connection-pool (Current connection pool timeout: 10, connection limit: 1)

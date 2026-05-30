@@ -3,10 +3,14 @@ import { Difficulty, QuestionType } from "@prisma/client";
 import { handleRouteError, ok, fail } from "@/lib/api";
 import { authenticateRequest } from "@/lib/auth";
 import { extractMaterialText } from "@/lib/ai/extractors";
-import { MAX_UPLOAD_SIZE_BYTES } from "@/lib/constants";
+import { MAX_UPLOAD_SIZE_BYTES, MAX_UPLOAD_SIZE_MB } from "@/lib/constants";
 import { createManualQuestionBank } from "@/lib/questions";
 import { uploadManualQuestionBatchSchema } from "@/lib/schemas";
 import { db } from "@/lib/db";
+import { UserInputError } from "@/lib/errors";
+
+export const runtime = "nodejs";
+export const maxDuration = 60;
 
 export async function POST(request: Request) {
   try {
@@ -36,11 +40,11 @@ export async function POST(request: Request) {
 
       if (file instanceof File) {
         if (!["application/pdf", "text/plain"].includes(file.type)) {
-          throw new Error("Bulk question files must be PDF or plain text.");
+          throw new UserInputError("Bulk question files must be PDF or plain text.");
         }
 
         if (file.size > MAX_UPLOAD_SIZE_BYTES) {
-          throw new Error("The uploaded question file exceeds the 25MB limit.");
+          throw new UserInputError(`The uploaded question file exceeds the ${MAX_UPLOAD_SIZE_MB}MB limit.`);
         }
 
         const extraction = await extractMaterialText({

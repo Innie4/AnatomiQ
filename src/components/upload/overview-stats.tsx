@@ -43,6 +43,7 @@ export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string;
       if (!response.ok) {
         if (response.status === 401) {
           localStorage.removeItem("anatomiq:admin-key");
+          sessionStorage.removeItem("anatomiq:admin-key");
           sessionStorage.setItem("anatomiq:key-cleared", "true");
           window.location.reload();
           return;
@@ -187,7 +188,7 @@ export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string;
           {
             label: "Total materials",
             value: overview.summary.totalMaterials,
-            helper: "Uploaded anatomy assets",
+            helper: "Uploaded course materials",
             icon: Database,
             color: "text-blue-600",
           },

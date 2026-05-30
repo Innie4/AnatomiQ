@@ -6,32 +6,35 @@ test.describe('Admin Login Flow', () => {
 
   test('should login with valid credentials', async ({ page }) => {
     test.skip(!adminKey, 'ADMIN_UPLOAD_KEY is required for the valid admin login e2e test.');
+
     await page.goto('/upload');
+    await page.getByLabel('Admin upload key').fill(adminKey || '');
+    await page.getByRole('button', { name: /unlock dashboard/i }).click();
 
-    // Enter admin key
-    await page.fill('input[type="password"]', adminKey || '');
-    await page.click('button:has-text("Continue")');
-
-    // Verify dashboard loads
-    await expect(page.locator('text=Total materials')).toBeVisible();
-    await expect(page.locator('text=Material upload and processing dashboard')).toBeVisible();
+    await expect(page).toHaveURL(/.*\/upload\/dashboard/, { timeout: 30000 });
+    await expect(page.getByRole('heading', { name: /dashboard overview/i })).toBeVisible({ timeout: 30000 });
+    await expect(page.getByText(/total materials/i)).toBeVisible({ timeout: 30000 });
   });
 
   test('should reject invalid admin key', async ({ page }) => {
     await page.goto('/upload');
 
-    await page.fill('input[type="password"]', 'invalid-key-12345');
-    await page.click('button:has-text("Continue")');
+    await page.getByLabel('Admin upload key').fill('invalid-key-12345');
+    await page.getByRole('button', { name: /unlock dashboard/i }).click();
 
-    // Should show error
-    await expect(page.locator('text=/unauthorized|invalid|error/i')).toBeVisible();
+    await expect(page.getByText(/invalid admin key/i)).toBeVisible();
   });
 
-  test('should keep admin key masked before submit', async ({ page }) => {
+  test('should show/hide admin key with eye toggle', async ({ page }) => {
     await page.goto('/upload');
 
-    const input = page.getByPlaceholder('Enter admin key');
+    const input = page.getByLabel('Admin upload key');
+    await expect(input).toHaveAttribute('type', 'password');
 
+    await page.getByRole('button', { name: /show admin key/i }).click();
+    await expect(input).toHaveAttribute('type', 'text');
+
+    await page.getByRole('button', { name: /hide admin key/i }).click();
     await expect(input).toHaveAttribute('type', 'password');
   });
 });

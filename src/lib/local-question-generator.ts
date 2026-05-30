@@ -46,7 +46,7 @@ function buildMcqDraft(
 
   return {
     type: QuestionType.MCQ,
-    stem: `Which option best matches the uploaded anatomy material for ${chunk.heading ?? "this topic"}?`,
+    stem: `Which option best matches the uploaded material for ${chunk.heading ?? "this topic"}?`,
     options,
     answer: sentence,
     explanation: "The correct option is the exact grounded statement pulled from the uploaded source material.",
@@ -59,7 +59,7 @@ function buildMcqDraft(
 function buildShortAnswerDraft(chunk: ContentChunk, sentence: string): LocalQuestionDraft {
   return {
     type: QuestionType.SHORT_ANSWER,
-    stem: `State the key anatomy point conveyed in this source passage from ${chunk.heading ?? "the uploaded material"}.`,
+    stem: `State the key point conveyed in this source passage from ${chunk.heading ?? "the uploaded material"}.`,
     answer: sentence,
     explanation: "This answer is lifted directly from the uploaded material to preserve grounding.",
     difficulty: toDifficulty(sentence.length),
@@ -73,7 +73,7 @@ function buildTheoryDraft(chunk: ContentChunk): LocalQuestionDraft {
 
   return {
     type: QuestionType.THEORY,
-    stem: `Using only the uploaded material, discuss the anatomy points covered in this passage: "${chunkSnippet}"`,
+    stem: `Using only the uploaded material, discuss the points covered in this passage: "${chunkSnippet}"`,
     answer: normalizeWhitespace(chunk.text),
     explanation: "The structured reference answer reproduces the content of the cited chunk only.",
     difficulty: toDifficulty(chunk.text.length),
