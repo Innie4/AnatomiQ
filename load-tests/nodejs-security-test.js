@@ -377,7 +377,7 @@ function printSummary() {
 
 async function runSecurityTests() {
   console.log('='.repeat(70));
-  console.log('AnatomiQ Security Testing Suite');
+  console.log('AcademIQ Security Testing Suite');
   console.log('='.repeat(70));
   console.log('');
   console.log(`Target URL: ${BASE_URL}`);

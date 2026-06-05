@@ -7,13 +7,13 @@ export default function Loading() {
         <div className="mx-auto mb-4 h-16 w-16">
           <Image
             src="/anatomiQ.png"
-            alt="ANATOMIQ"
+            alt="AcademIQ"
             width={64}
             height={64}
             className="object-contain"
           />
         </div>
-        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">ANATOMIQ</p>
+        <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">AcademIQ</p>
         <p className="mt-3 text-lg text-slate-700">Preparing the workspace...</p>
       </div>
     </div>

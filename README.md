@@ -1,8 +1,8 @@
-# ANATOMIQ
+# AcademIQ
 
 Smarter learning. Better recall.
 
-ANATOMIQ is a public AI-powered learning and exam-generation platform for all students at the University of Uyo. It supports any course by generating topic-grounded exams from uploaded source materials.
+AcademIQ is a public AI-powered learning and exam-generation platform for all students at the University of Uyo. It supports any course by generating topic-grounded exams from uploaded source materials.
 
 ## Included
 
@@ -93,7 +93,7 @@ OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
 3. Add the values from `.env.example` to Vercel
 4. Add the same database and storage values to your local `.env` if you want local admin uploads to hit the remote services too
 
-ANATOMIQ automatically prepares the remote database during `npm run build` when both `DATABASE_URL` and `DIRECT_URL` are present. That step runs Prisma migrations and then seeds the course taxonomy before the Next.js build continues.
+AcademIQ automatically prepares the remote database during `npm run build` when both `DATABASE_URL` and `DIRECT_URL` are present. That step runs Prisma migrations and then seeds the course taxonomy before the Next.js build continues.
 
 ## Local Verification
 

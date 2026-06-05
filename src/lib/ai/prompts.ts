@@ -85,7 +85,7 @@ export function buildQuestionGenerationPrompt(payload: {
     .join("\n\n");
 
   return `
-You are generating exam questions for ANATOMIQ.
+You are generating exam questions for AcademIQ.
 
 Course: ${payload.courseName}
 Topic: ${payload.topicName}

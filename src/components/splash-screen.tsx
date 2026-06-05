@@ -45,7 +45,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
           <div className="relative h-32 w-32 sm:h-40 sm:w-40">
             <Image
               src="/anatomiQ.png"
-              alt="AnatomiQ"
+              alt="AcademIQ"
               fill
               className="object-contain drop-shadow-2xl"
               priority
@@ -62,7 +62,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
           }`}
         >
           <h1 className="text-4xl font-bold text-white sm:text-5xl" style={{ fontFamily: "var(--font-display)" }}>
-            AnatomiQ
+            AcademIQ
           </h1>
         </div>
       </div>

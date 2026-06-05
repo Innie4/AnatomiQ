@@ -3,8 +3,8 @@ import { test, expect } from '@playwright/test';
 test.describe('Smoke Tests - Critical Paths', () => {
   test('homepage loads successfully', async ({ page }) => {
     await page.goto('/');
-    await expect(page.getByText('ANATOMIQ').first()).toBeVisible();
-    await expect(page).toHaveTitle(/anatomiq/i);
+    await expect(page.getByText('AcademIQ').first()).toBeVisible();
+    await expect(page).toHaveTitle(/academiq/i);
   });
 
   test('exam page loads and shows topic selection', async ({ page }) => {
