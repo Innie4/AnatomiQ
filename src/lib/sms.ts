@@ -55,6 +55,6 @@ export async function sendSms(payload: SmsPayload): Promise<boolean> {
 export async function sendPasswordResetSms(phoneNumber: string, otp: string) {
   return sendSms({
     to: phoneNumber,
-    message: `Your AnatomiQ password reset code is ${otp}. It expires in 10 minutes.`,
+    message: `Your AcademIQ password reset code is ${otp}. It expires in 10 minutes.`,
   });
 }

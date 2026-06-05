@@ -1,6 +1,6 @@
 # Social Authentication Setup Guide
 
-This guide explains how to set up Google, Facebook, and Apple Sign-In for AnatomiQ.
+This guide explains how to set up Google, Facebook, and Apple Sign-In for AcademIQ.
 
 ## Prerequisites
 
@@ -21,7 +21,7 @@ This guide explains how to set up Google, Facebook, and Apple Sign-In for Anatom
 1. Navigate to **APIs & Services > OAuth consent screen**
 2. Choose **External** user type
 3. Fill in required fields:
-   - App name: AnatomiQ
+   - App name: AcademIQ
    - User support email: support@anatomiq.com
    - Developer contact: your-email@example.com
 4. Add scopes: `email`, `profile`, `openid`
@@ -32,7 +32,7 @@ This guide explains how to set up Google, Facebook, and Apple Sign-In for Anatom
 1. Go to **APIs & Services > Credentials**
 2. Click **Create Credentials > OAuth client ID**
 3. Application type: **Web application**
-4. Name: AnatomiQ Web Client
+4. Name: AcademIQ Web Client
 5. Authorized JavaScript origins:
    - `http://localhost:3000` (development)
    - `https://anatomiq.com` (production)
@@ -58,7 +58,7 @@ GOOGLE_CLIENT_SECRET=your-client-secret
 2. Click **My Apps > Create App**
 3. Choose **Consumer** app type
 4. Fill in app details:
-   - Display name: AnatomiQ
+   - Display name: AcademIQ
    - Contact email: support@anatomiq.com
 
 ### Step 2: Add Facebook Login Product
@@ -99,7 +99,7 @@ FACEBOOK_CLIENT_SECRET=your-app-secret
 2. Navigate to **Certificates, Identifiers & Profiles**
 3. Click **Identifiers** and create new App ID
 4. Fill in details:
-   - Description: AnatomiQ
+   - Description: AcademIQ
    - Bundle ID: com.anatomiq.app
 5. Enable **Sign In with Apple** capability
 6. Save
@@ -107,7 +107,7 @@ FACEBOOK_CLIENT_SECRET=your-app-secret
 ### Step 2: Create Services ID
 
 1. Create new **Services ID**
-2. Description: AnatomiQ Web
+2. Description: AcademIQ Web
 3. Identifier: com.anatomiq.service
 4. Enable **Sign In with Apple**
 5. Configure:
@@ -118,7 +118,7 @@ FACEBOOK_CLIENT_SECRET=your-app-secret
 
 1. Go to **Keys** section
 2. Create new key
-3. Name: AnatomiQ Apple Sign In Key
+3. Name: AcademIQ Apple Sign In Key
 4. Enable **Sign In with Apple**
 5. Configure key with your Services ID
 6. Download the `.p8` key file (save securely!)

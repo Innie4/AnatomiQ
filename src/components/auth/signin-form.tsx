@@ -318,7 +318,7 @@ export function SignInForm() {
             </h3>
             <p className="mt-2 text-sm leading-6 text-slate-600">
               {biometricModal === "success"
-                ? "Taking you into AnatomiQ."
+                ? "Taking you into AcademIQ."
                 : "Use your device fingerprint, face unlock, or screen lock. Tap outside to fall back to password."}
             </p>
           </div>

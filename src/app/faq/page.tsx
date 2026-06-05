@@ -11,12 +11,12 @@ export default function FAQPage() {
       category: "General",
       questions: [
         {
-          q: "What is AnatomiQ?",
-          a: "AnatomiQ is an AI-powered anatomy learning and exam generation platform designed specifically for medical students and faculty at the University of Uyo.",
+          q: "What is AcademIQ?",
+          a: "AcademIQ is an AI-powered anatomy learning and exam generation platform designed specifically for medical students and faculty at the University of Uyo.",
         },
         {
-          q: "Is AnatomiQ free to use?",
-          a: "AnatomiQ offers a free tier with basic features. Premium tiers (STARTER and PRO) unlock unlimited exams, advanced features, and priority support.",
+          q: "Is AcademIQ free to use?",
+          a: "AcademIQ offers a free tier with basic features. Premium tiers (STARTER and PRO) unlock unlimited exams, advanced features, and priority support.",
         },
         {
           q: "What courses are available?",
@@ -79,7 +79,7 @@ export default function FAQPage() {
         <div className="text-center mb-12">
           <h1 className="text-4xl font-bold text-slate-900 mb-4">Frequently Asked Questions</h1>
           <p className="text-lg text-slate-600">
-            Find quick answers to common questions about AnatomiQ
+            Find quick answers to common questions about AcademIQ
           </p>
         </div>
 

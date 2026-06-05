@@ -6,7 +6,7 @@ export default function HelpPage() {
     {
       icon: Book,
       title: "Getting Started",
-      description: "Learn the basics of using AnatomiQ",
+      description: "Learn the basics of using AcademIQ",
       items: [
         "Creating your account",
         "Selecting your courses",
@@ -56,7 +56,7 @@ export default function HelpPage() {
           <HelpCircle className="h-16 w-16 text-blue-600 mx-auto mb-4" />
           <h1 className="text-4xl font-bold text-slate-900 mb-4">Help Center</h1>
           <p className="text-lg text-slate-600 max-w-2xl mx-auto">
-            Find answers to your questions and learn how to make the most of AnatomiQ
+            Find answers to your questions and learn how to make the most of AcademIQ
           </p>
         </div>
 

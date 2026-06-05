@@ -126,7 +126,7 @@ export async function processReferral(
                 userId: referrerId,
                 type: "REFERRAL_SUCCESS",
                 title: "Referral completed",
-                message: `${referredUser?.fullName || "A new user"} joined AnatomiQ with your referral code.`,
+                message: `${referredUser?.fullName || "A new user"} joined AcademIQ with your referral code.`,
                 link: "/referrals",
               },
             }),

@@ -126,7 +126,7 @@ model ExamResult {
 **Required:**
 - `/help` - User guide page
 - `/faq` - FAQ with categories
-- `/about` - About AnatomiQ
+- `/about` - About AcademIQ
 - `/contact` - Contact/support form
 - `/terms` - Terms of service
 - `/privacy` - Privacy policy

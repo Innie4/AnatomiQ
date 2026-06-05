@@ -16,8 +16,8 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">1. Introduction</h2>
             <p className="text-slate-700 leading-relaxed">
-              AnatomiQ (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains
-              how we collect, use, disclose, and safeguard your information when you use our platform. By using AnatomiQ,
+              AcademIQ (&quot;we&quot;, &quot;our&quot;, or &quot;us&quot;) is committed to protecting your privacy. This Privacy Policy explains
+              how we collect, use, disclose, and safeguard your information when you use our platform. By using AcademIQ,
               you consent to the practices described in this policy.
             </p>
           </section>
@@ -128,7 +128,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">9. Third-Party Links</h2>
             <p className="text-slate-700 leading-relaxed">
-              AnatomiQ may contain links to external websites. We are not responsible for the privacy practices or content
+              AcademIQ may contain links to external websites. We are not responsible for the privacy practices or content
               of third-party sites. We encourage you to review their privacy policies before providing any information.
             </p>
           </section>
@@ -136,7 +136,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">10. Children&apos;s Privacy</h2>
             <p className="text-slate-700 leading-relaxed">
-              AnatomiQ is intended for users 18 years and older. We do not knowingly collect information from children
+              AcademIQ is intended for users 18 years and older. We do not knowingly collect information from children
               under 18 without parental consent. If we discover we have collected such information, we will delete it
               immediately.
             </p>
@@ -146,7 +146,7 @@ export default function PrivacyPage() {
             <h2 className="text-2xl font-bold text-slate-900 mb-4">11. Changes to This Policy</h2>
             <p className="text-slate-700 leading-relaxed">
               We may update this Privacy Policy periodically. We will notify you of significant changes via email or
-              in-app notification. Your continued use of AnatomiQ after changes are posted constitutes acceptance of
+              in-app notification. Your continued use of AcademIQ after changes are posted constitutes acceptance of
               the updated policy.
             </p>
           </section>

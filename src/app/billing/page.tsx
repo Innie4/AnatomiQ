@@ -85,7 +85,7 @@ export default function BillingPage() {
 
   const downloadInvoice = (payment: Payment) => {
     const lines = [
-      "AnatomiQ Invoice",
+      "AcademIQ Invoice",
       `Reference: ${payment.paystackReference}`,
       `Date: ${formatDate(payment.paidAt || payment.createdAt)}`,
       `Plan: ${payment.subscription.tier} - ${payment.subscription.billingPeriod}`,

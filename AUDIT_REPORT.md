@@ -1,4 +1,4 @@
-# AnatomiQ - Complete System Audit Report
+# AcademIQ - Complete System Audit Report
 **Date:** 2026-05-12  
 **Version:** Latest (post-referral & profile integration)
 
@@ -342,7 +342,7 @@
 
 ## 💡 CONCLUSION
 
-**Current State:** AnatomiQ has a **solid core foundation** with:
+**Current State:** AcademIQ has a **solid core foundation** with:
 - ✅ Complete exam generation and grading flow
 - ✅ Authentication with referral system
 - ✅ Payment integration (Paystack & Flutterwave)

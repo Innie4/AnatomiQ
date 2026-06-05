@@ -58,7 +58,7 @@ export async function POST(request: NextRequest) {
         name: user.fullName,
       },
       customizations: {
-        title: "AnatomiQ Subscription",
+        title: "AcademIQ Subscription",
         description: `${tier} Plan (${billingPeriod})`,
         logo: `${process.env.NEXT_PUBLIC_APP_URL}/anatomiQ.png`,
       },

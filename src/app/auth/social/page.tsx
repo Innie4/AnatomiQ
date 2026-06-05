@@ -158,7 +158,7 @@ export default function SocialAuthPage() {
             <Image src="/anatomiQ.png" alt={APP_NAME} fill className="object-contain" priority />
           </div>
           <div>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">ANATOMIQ</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">AcademIQ</p>
             <h1 className="text-2xl font-bold text-slate-900">
               {mode === "signup" ? "Finish your signup" : "Finishing your sign-in"}
             </h1>
@@ -170,7 +170,7 @@ export default function SocialAuthPage() {
             <Loader2 className="h-8 w-8 animate-spin text-blue-600" />
             <div>
               <p className="text-lg font-semibold text-slate-900">Preparing your account</p>
-              <p className="mt-1 text-sm text-slate-600">We are linking your social account to your ANATOMIQ session.</p>
+              <p className="mt-1 text-sm text-slate-600">We are linking your social account to your AcademIQ session.</p>
             </div>
           </div>
         )}
@@ -255,7 +255,7 @@ export default function SocialAuthPage() {
                 </>
               ) : (
                 <>
-                  Continue to ANATOMIQ
+                  Continue to AcademIQ
                   <ArrowRight className="h-4 w-4" />
                 </>
               )}

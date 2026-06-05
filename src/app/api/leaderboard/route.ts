@@ -56,7 +56,7 @@ export async function GET(request: NextRequest) {
       return {
         rank: index + 1,
         userId: entry.userId,
-        fullName: user?.fullName || "AnatomiQ Student",
+        fullName: user?.fullName || "AcademIQ Student",
         department: user?.department || "Human Anatomy",
         score: examsCompleted * 100 + correctAnswers * 10,
         examsCompleted,

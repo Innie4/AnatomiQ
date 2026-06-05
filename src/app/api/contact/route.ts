@@ -39,16 +39,16 @@ export async function POST(request: NextRequest) {
     if (supportEmail) {
       await sendEmail({
         to: supportEmail,
-        subject: `AnatomiQ contact: ${validation.data.subject}`,
+        subject: `AcademIQ contact: ${validation.data.subject}`,
         html: `
-          <h2>New AnatomiQ contact message</h2>
+          <h2>New AcademIQ contact message</h2>
           <p><strong>From:</strong> ${escapeHtml(validation.data.name)} (${escapeHtml(validation.data.email)})</p>
           <p><strong>Subject:</strong> ${escapeHtml(validation.data.subject)}</p>
           <p><strong>Message:</strong></p>
           <p style="white-space: pre-wrap;">${escapeHtml(validation.data.message)}</p>
           <p><strong>Message ID:</strong> ${contact.id}</p>
         `,
-        text: `New AnatomiQ contact message
+        text: `New AcademIQ contact message
 
 From: ${validation.data.name} <${validation.data.email}>
 Subject: ${validation.data.subject}

@@ -214,7 +214,7 @@ export function SignupForm() {
           <div className="inline-flex rounded-full border border-white/30 bg-white/10 px-3 py-1 text-xs font-semibold uppercase tracking-[0.24em] text-white/90">
             New account
           </div>
-          <h2 className="mt-6 text-3xl font-bold leading-tight">Join ANATOMIQ with a setup that stays organised.</h2>
+          <h2 className="mt-6 text-3xl font-bold leading-tight">Join AcademIQ with a setup that stays organised.</h2>
           <p className="mt-4 text-sm leading-6 text-white/85">
             Create your account with email or social, then keep your department, course, faculty, and referral details in one clean flow.
           </p>

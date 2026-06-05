@@ -110,7 +110,7 @@ export function ReferralCard() {
           <h3 className="text-xl font-bold">Refer & Earn</h3>
         </div>
         <p className="text-blue-100 text-sm">
-          Share your referral code and help others discover AnatomiQ
+          Share your referral code and help others discover AcademIQ
         </p>
       </div>
 

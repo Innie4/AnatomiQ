@@ -477,7 +477,7 @@ export default function ProfilePage() {
                 <div className="flex items-center justify-between rounded-2xl border border-slate-200 bg-slate-50 p-4 dark:border-slate-800 dark:bg-slate-950">
                   <div>
                     <p className="font-black text-slate-950 dark:text-white">Theme</p>
-                    <p className="text-sm text-slate-600 dark:text-slate-300">Toggle between light and dark mode across AnatomiQ.</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-300">Toggle between light and dark mode across AcademIQ.</p>
                   </div>
                   <div className="flex items-center gap-3">
                     <span className="text-sm font-bold text-slate-600 dark:text-slate-300">Light</span>
@@ -552,7 +552,7 @@ export default function ProfilePage() {
               <ShieldAlert className="h-8 w-8" />
             </div>
             <h3 id="guest-edit-title" className="mt-5 text-2xl font-black text-slate-950 dark:text-white">Create an account to edit</h3>
-            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Guest sessions can explore AnatomiQ, but saving profile, courses, referrals, biometrics, or passwords needs a real account.</p>
+            <p className="mt-2 text-sm leading-6 text-slate-600 dark:text-slate-300">Guest sessions can explore AcademIQ, but saving profile, courses, referrals, biometrics, or passwords needs a real account.</p>
             <div className="mt-6 grid grid-cols-2 gap-3">
               <Link href="/signin" className="rounded-2xl border border-slate-300 px-4 py-3 text-sm font-black text-slate-800 dark:border-slate-700 dark:text-white">Log in</Link>
               <Link href="/signup" className="rounded-2xl bg-gradient-to-br from-[#0969da] to-[#0ca678] px-4 py-3 text-sm font-black text-white">Sign up</Link>

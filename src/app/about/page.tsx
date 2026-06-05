@@ -28,9 +28,9 @@ export default function AboutPage() {
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 py-16 px-4">
       <div className="mx-auto max-w-6xl">
         <div className="text-center mb-16">
-          <h1 className="text-5xl font-bold text-slate-900 mb-6">About AnatomiQ</h1>
+          <h1 className="text-5xl font-bold text-slate-900 mb-6">About AcademIQ</h1>
           <p className="text-xl text-slate-600 max-w-3xl mx-auto leading-relaxed">
-            AnatomiQ is an AI-powered anatomy learning and exam generation platform designed specifically for
+            AcademIQ is an AI-powered anatomy learning and exam generation platform designed specifically for
             medical students and faculty at the University of Uyo.
           </p>
         </div>
@@ -39,17 +39,17 @@ export default function AboutPage() {
           <h2 className="text-3xl font-bold text-slate-900 mb-4">Our Story</h2>
           <div className="text-slate-700 space-y-4 leading-relaxed">
             <p>
-              Founded in 2026, AnatomiQ was born from a simple observation: medical students needed better,
+              Founded in 2026, AcademIQ was born from a simple observation: medical students needed better,
               more personalized tools to prepare for their anatomy exams. Traditional study methods weren&apos;t
               keeping pace with the demands of modern medical education.
             </p>
             <p>
-              We built AnatomiQ to bridge that gap. By combining artificial intelligence with pedagogy,
+              We built AcademIQ to bridge that gap. By combining artificial intelligence with pedagogy,
               we create exam questions that are directly grounded in your actual course materials—ensuring
               that every practice session is relevant, accurate, and aligned with your curriculum.
             </p>
             <p>
-              Today, AnatomiQ serves hundreds of medical students across multiple disciplines including
+              Today, AcademIQ serves hundreds of medical students across multiple disciplines including
               Anatomy, Physiology, Biochemistry, Pharmacology, Pathology, Microbiology, and Law. Our platform
               continues to evolve based on student feedback and the latest advances in educational technology.
             </p>
@@ -81,7 +81,7 @@ export default function AboutPage() {
         <div className="bg-gradient-to-br from-blue-600 to-green-600 rounded-2xl p-8 text-center text-white shadow-xl">
           <h2 className="text-3xl font-bold mb-4">Join Thousands of Students</h2>
           <p className="text-lg mb-6 opacity-90">
-            Start your journey with AnatomiQ today and experience the future of medical education.
+            Start your journey with AcademIQ today and experience the future of medical education.
           </p>
           <div className="flex gap-4 justify-center text-center">
             <div className="bg-white/20 backdrop-blur-sm rounded-xl px-6 py-4">

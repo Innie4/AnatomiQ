@@ -15,7 +15,7 @@ export function getWebAuthnRequestMeta(request: Request) {
   return {
     origin,
     rpID,
-    rpName: "AnatomiQ",
+    rpName: "AcademIQ",
   };
 }
 

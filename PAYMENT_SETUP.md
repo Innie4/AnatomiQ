@@ -1,6 +1,6 @@
 # Payment Integration Setup Guide
 
-AnatomiQ uses two payment gateways for maximum reliability:
+AcademIQ uses two payment gateways for maximum reliability:
 - **Paystack** (Primary) - Most popular in Nigeria
 - **Flutterwave** (Backup) - Alternative option
 
@@ -241,4 +241,4 @@ Before going live:
 
 - **Paystack**: [https://paystack.com/support](https://paystack.com/support)
 - **Flutterwave**: [https://flutterwave.com/support](https://flutterwave.com/support)
-- **AnatomiQ**: Create an issue on GitHub
+- **AcademIQ**: Create an issue on GitHub

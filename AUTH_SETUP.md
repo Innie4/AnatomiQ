@@ -1,6 +1,6 @@
 # Authentication Setup Guide
 
-This guide explains how to configure all authentication providers for AnatomiQ.
+This guide explains how to configure all authentication providers for AcademIQ.
 
 ## Features
 

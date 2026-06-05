@@ -73,7 +73,7 @@ export function PWAInstall() {
             <Download className="h-6 w-6 text-blue-600" />
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-slate-900 mb-1">Install AnatomiQ</h3>
+            <h3 className="font-bold text-slate-900 mb-1">Install AcademIQ</h3>
             <p className="text-sm text-slate-600 mb-3">
               Install our app for faster access and offline support
             </p>

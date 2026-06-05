@@ -86,7 +86,7 @@ export async function sendPasswordResetEmail(
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #0969da;">Reset Your Password</h2>
-      <p>You requested to reset your password for your AnatomiQ account.</p>
+      <p>You requested to reset your password for your AcademIQ account.</p>
       <p>Click the button below to reset your password:</p>
       <a href="${resetUrl}" style="display: inline-block; padding: 12px 24px; background: #0969da; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Reset Password</a>
       <p>Or copy and paste this link into your browser:</p>
@@ -98,7 +98,7 @@ export async function sendPasswordResetEmail(
 
   const text = `Reset Your Password
 
-You requested to reset your password for your AnatomiQ account.
+You requested to reset your password for your AcademIQ account.
 
 Click this link to reset your password:
 ${resetUrl}
@@ -109,7 +109,7 @@ If you didn't request this, you can safely ignore this email.`;
 
   return sendEmail({
     to: email,
-    subject: "Reset Your AnatomiQ Password",
+    subject: "Reset Your AcademIQ Password",
     html,
     text,
   });
@@ -118,19 +118,19 @@ If you didn't request this, you can safely ignore this email.`;
 export async function sendPasswordResetOtpEmail(email: string, otp: string): Promise<boolean> {
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-      <h2 style="color: #0969da;">Your AnatomiQ Reset Code</h2>
-      <p>Use this one-time password to reset your AnatomiQ account password:</p>
+      <h2 style="color: #0969da;">Your AcademIQ Reset Code</h2>
+      <p>Use this one-time password to reset your AcademIQ account password:</p>
       <div style="font-size: 32px; letter-spacing: 8px; font-weight: 700; color: #0f1419; margin: 24px 0;">${otp}</div>
       <p style="color: #999; font-size: 14px;">This code expires in 10 minutes.</p>
       <p style="color: #999; font-size: 14px;">If you didn't request this, you can safely ignore this email.</p>
     </div>
   `;
 
-  const text = `Your AnatomiQ reset code is ${otp}. It expires in 10 minutes.`;
+  const text = `Your AcademIQ reset code is ${otp}. It expires in 10 minutes.`;
 
   return sendEmail({
     to: email,
-    subject: "Your AnatomiQ Password Reset Code",
+    subject: "Your AcademIQ Password Reset Code",
     html,
     text,
   });
@@ -146,7 +146,7 @@ export async function sendVerificationEmail(
   const html = `
     <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
       <h2 style="color: #0969da;">Verify Your Email</h2>
-      <p>Welcome to AnatomiQ! Please verify your email address to complete your registration.</p>
+      <p>Welcome to AcademIQ! Please verify your email address to complete your registration.</p>
       <p>Click the button below to verify your email:</p>
       <a href="${verifyUrl}" style="display: inline-block; padding: 12px 24px; background: #0969da; color: white; text-decoration: none; border-radius: 8px; margin: 20px 0;">Verify Email</a>
       <p>Or copy and paste this link into your browser:</p>
@@ -157,7 +157,7 @@ export async function sendVerificationEmail(
 
   const text = `Verify Your Email
 
-Welcome to AnatomiQ! Please verify your email address to complete your registration.
+Welcome to AcademIQ! Please verify your email address to complete your registration.
 
 Click this link to verify your email:
 ${verifyUrl}
@@ -166,7 +166,7 @@ This link will expire in 1 hour.`;
 
   return sendEmail({
     to: email,
-    subject: "Verify Your AnatomiQ Email",
+    subject: "Verify Your AcademIQ Email",
     html,
     text,
   });

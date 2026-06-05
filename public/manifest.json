@@ -1,6 +1,6 @@
 {
-  "name": "AnatomiQ - Medical Exam Prep",
-  "short_name": "AnatomiQ",
+  "name": "AcademIQ - Medical Exam Prep",
+  "short_name": "AcademIQ",
   "description": "AI-powered anatomy learning and exam generation platform for medical students",
   "start_url": "/",
   "display": "standalone",

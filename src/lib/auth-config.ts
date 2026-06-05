@@ -45,7 +45,7 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       });
 
       if (!existingUser) {
-        const fullName = user.name?.trim() || user.email.split("@")[0] || "AnatomiQ User";
+        const fullName = user.name?.trim() || user.email.split("@")[0] || "AcademIQ User";
         const referralCode = await generateUniqueReferralCode(fullName);
 
         const createdUser = await db.facultyUser.create({
