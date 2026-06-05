@@ -78,7 +78,7 @@ export async function ensureCourseAndTopicHierarchy(params: {
       name: courseName,
       slug: courseSlug,
       department,
-      description: `${courseName} learning material in ANATOMIQ.`,
+      description: `${courseName} learning material in AcademIQ.`,
     },
   });
   console.log("[materials] Course ready:", course.id);

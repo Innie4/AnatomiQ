@@ -10,7 +10,7 @@ export const metadata: Metadata = {
     template: `%s | ${APP_NAME}`,
   },
   description:
-    "ANATOMIQ is a public AI-powered learning and exam generation platform for all University of Uyo students. Study any course, generate topic-grounded exams, and track your progress.",
+    "AcademIQ is a public AI-powered learning and exam generation platform for all University of Uyo students. Study any course, generate topic-grounded exams, and track your progress.",
   icons: {
     icon: "/anatomiQ.png",
     shortcut: "/anatomiQ.png",

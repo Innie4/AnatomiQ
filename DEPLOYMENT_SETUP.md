@@ -10,7 +10,7 @@ The `ADMIN_UPLOAD_KEY` environment variable is not set in your Vercel deployment
 
 ### Step 1: Go to Vercel Dashboard
 1. Go to https://vercel.com/dashboard
-2. Find and click on your `AnatomiQ` project
+2. Find and click on your `AcademIQ` project
 3. Click on the "Settings" tab
 
 ### Step 2: Add Environment Variables

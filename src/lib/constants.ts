@@ -1,4 +1,4 @@
-export const APP_NAME = "ANATOMIQ";
+export const APP_NAME = "AcademIQ";
 export const APP_TAGLINE = "Smarter learning. Better recall.";
 
 export const MAX_UPLOAD_SIZE_MB = 50;

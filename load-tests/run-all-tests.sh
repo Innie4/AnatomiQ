@@ -7,7 +7,7 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 echo "======================================"
-echo "  AnatomiQ Load & Security Tests"
+echo "  AcademIQ Load & Security Tests"
 echo "======================================"
 echo ""
 

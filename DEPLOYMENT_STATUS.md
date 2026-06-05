@@ -35,7 +35,7 @@ vercel --prod
 
 #### Option 3: Force Rebuild via Vercel Dashboard
 1. Go to https://vercel.com/dashboard
-2. Select the "anatomiq" project
+2. Select the "academiq" project
 3. Go to Deployments tab
 4. Click "Redeploy" on the latest deployment
 

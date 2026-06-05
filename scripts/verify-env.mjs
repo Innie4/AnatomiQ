@@ -51,7 +51,7 @@ async function main() {
   );
   const bucket = getRequiredEnv("SUPABASE_STORAGE_BUCKET");
   const objectKey = `healthchecks/${Date.now()}-env-check.txt`;
-  const payload = Buffer.from("ANATOMIQ env verification");
+  const payload = Buffer.from("AcademIQ env verification");
 
   const upload = await supabase.storage.from(bucket).upload(objectKey, payload, {
     contentType: "text/plain",

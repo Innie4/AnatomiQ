@@ -59,7 +59,7 @@ if (databaseUrl.startsWith("file:")) {
 
 validateSupabaseDatabaseUrls();
 
-console.log("Preparing remote ANATOMIQ database...");
+console.log("Preparing remote AcademIQ database...");
 run("npx", ["prisma", "generate"]);
 run("npx", ["prisma", "migrate", "deploy"], { attempts: 3 });
 run("npx", ["tsx", "prisma/seed.ts"], { attempts: 2 });

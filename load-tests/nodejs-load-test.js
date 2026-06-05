@@ -273,7 +273,7 @@ function printReport() {
 
 async function runLoadTests() {
   console.log('='.repeat(60));
-  console.log('AnatomiQ Load Testing Suite');
+  console.log('AcademIQ Load Testing Suite');
   console.log('='.repeat(60));
   console.log('');
   console.log(`Target URL: ${BASE_URL}`);
