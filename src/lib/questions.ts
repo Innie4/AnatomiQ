@@ -232,10 +232,10 @@ function normalizeManualOptions(type: QuestionType, options?: string[]) {
     return undefined;
   }
 
-  const normalized = (options ?? []).map((option) => option.trim()).filter(Boolean).slice(0, 4);
+  const normalized = (options ?? []).map((option) => option.trim()).filter(Boolean);
 
-  if (normalized.length !== 4) {
-    throw new UserInputError("MCQ questions require exactly four options.");
+  if (!normalized.length) {
+    throw new UserInputError("MCQ questions require at least one option.");
   }
 
   return normalized;
@@ -246,14 +246,10 @@ function ensureAnswerMatchesOptions(answer: string, options?: string[]) {
     return answer;
   }
 
-  const answerIndex = ["A", "B", "C", "D"].indexOf(answer.trim().toUpperCase());
-  const resolved = answerIndex >= 0 ? options[answerIndex] : answer.trim();
+  const normalizedAnswer = answer.trim().toUpperCase();
+  const answerIndex = normalizedAnswer.length === 1 ? "ABCDEFGHIJKLMNOPQRSTUVWXYZ".indexOf(normalizedAnswer) : -1;
 
-  if (!options.some((option) => normalizeComparableAnswer(option) === normalizeComparableAnswer(resolved))) {
-    throw new UserInputError("The answer must match one of the provided options.");
-  }
-
-  return resolved;
+  return answerIndex >= 0 && answerIndex < options.length ? options[answerIndex] : answer.trim();
 }
 
 async function buildManualQuestionRecord(

@@ -1,7 +1,7 @@
 import { Difficulty, QuestionType } from "@prisma/client";
 
 import { UserInputError } from "@/lib/errors";
-import { normalizeWhitespace, tokenSimilarity } from "@/lib/text";
+import { normalizeWhitespace } from "@/lib/text";
 
 export type ManualQuestionBatchItem = {
   manualOrder?: number;
@@ -35,16 +35,15 @@ function mapDifficulty(value: string | undefined, fallback: Difficulty) {
   throw new UserInputError(`Invalid difficulty value: ${value}`);
 }
 
+const OPTION_LABELS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ";
+
 function normalizeOptionLine(line: string) {
-  return line.replace(/^[-*]\s*/, "").replace(/^[A-D][.)]\s*/i, "").trim();
+  return line.replace(/^[-*]\s*/, "").replace(/^[A-Z][.)]\s*/i, "").trim();
 }
 
-function normalizeComparableAnswer(value: string) {
-  return value.trim().toLowerCase().replace(/[^a-z0-9\s]/g, " ").replace(/\s+/g, " ").trim();
-}
-
-function answerMatchesOption(option: string, answer: string) {
-  return normalizeComparableAnswer(option) === normalizeComparableAnswer(answer) || tokenSimilarity(option, answer) >= 1;
+function getAnswerOptionIndex(answer: string) {
+  const normalized = answer.trim().toUpperCase();
+  return normalized.length === 1 ? OPTION_LABELS.indexOf(normalized) : -1;
 }
 
 function splitBlocks(input: string) {
@@ -136,16 +135,12 @@ function parseLegacyBlocks(params: {
     }
 
     if (params.type === QuestionType.MCQ) {
-      if (options.length !== 4) {
-        throw new UserInputError(`Question block ${index + 1} must include exactly four options for MCQ uploads.`);
+      if (!options.length) {
+        throw new UserInputError(`Question block ${index + 1} must include options for MCQ uploads.`);
       }
 
-      const answerIndex = ["A", "B", "C", "D"].indexOf(rawAnswer.trim().toUpperCase());
-      const answer = answerIndex >= 0 ? options[answerIndex] : rawAnswer;
-
-      if (!options.some((option) => answerMatchesOption(option, answer))) {
-        throw new UserInputError(`Question block ${index + 1} has an answer that does not match the provided options.`);
-      }
+      const answerIndex = getAnswerOptionIndex(rawAnswer);
+      const answer = answerIndex >= 0 && answerIndex < options.length ? options[answerIndex] : rawAnswer;
 
       return {
         manualOrder: index + 1,
@@ -257,37 +252,23 @@ function parseNumberedEntries(lines: string[], label: string) {
 }
 
 function parseOptionEntry(lines: string[]) {
-  const directSplit = lines
+  const compact = lines.map((line) => line.trim()).filter(Boolean).join(" ");
+  const labelMatches = [...compact.matchAll(/(?:^|[\s|])([A-Z])[.)]\s+/g)];
+
+  if (labelMatches.length >= 2) {
+    return labelMatches
+      .map((match, index) => {
+        const contentStart = match.index + match[0].length;
+        const contentEnd = labelMatches[index + 1]?.index ?? compact.length;
+        return compact.slice(contentStart, contentEnd).replace(/\s*\|\s*$/, "").trim();
+      })
+      .filter(Boolean);
+  }
+
+  return lines
     .flatMap((line) => line.split(/\s*\|\s*/g))
     .map((value) => normalizeOptionLine(value))
     .filter(Boolean);
-
-  if (directSplit.length === 4) {
-    return directSplit;
-  }
-
-  const parsed: string[] = [];
-
-  for (const line of lines) {
-    const fragments = line.match(/[A-D][.)]\s*[^A-D]+(?=(?:\s+[A-D][.)]\s*)|$)/gi);
-
-    if (fragments?.length) {
-      for (const fragment of fragments) {
-        const normalized = normalizeOptionLine(fragment);
-        if (normalized) {
-          parsed.push(normalized);
-        }
-      }
-      continue;
-    }
-
-    const normalized = normalizeOptionLine(line);
-    if (normalized) {
-      parsed.push(normalized);
-    }
-  }
-
-  return parsed.filter(Boolean);
 }
 
 function ensureMatchingNumbers(
@@ -378,16 +359,12 @@ function parseNumberedSections(params: {
 
       const parsedOptions = parseOptionEntry(options?.get(manualOrder) ?? []);
 
-      if (parsedOptions.length !== 4) {
-        throw new UserInputError(`Options for question ${manualOrder} must contain exactly four choices.`);
+      if (!parsedOptions.length) {
+        throw new UserInputError(`Options for question ${manualOrder} must include at least one choice.`);
       }
 
-      const answerIndex = ["A", "B", "C", "D"].indexOf(rawAnswer.trim().toUpperCase());
-      const answer = answerIndex >= 0 ? parsedOptions[answerIndex] : rawAnswer;
-
-      if (!parsedOptions.some((option) => answerMatchesOption(option, answer))) {
-        throw new UserInputError(`Answer ${manualOrder} does not match the provided options.`);
-      }
+      const answerIndex = getAnswerOptionIndex(rawAnswer);
+      const answer = answerIndex >= 0 && answerIndex < parsedOptions.length ? parsedOptions[answerIndex] : rawAnswer;
 
       return {
         manualOrder,
