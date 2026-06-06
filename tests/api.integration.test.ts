@@ -110,7 +110,7 @@ Explanations
           manualOrder: 3,
           type: "MCQ",
           stem: "Which chamber forms the apex of the heart?",
-          options: ["Right ventricle", "Left ventricle", "Right atrium", "Left atrium"],
+          options: ["Right ventricle", "Left ventricle", "Right atrium"],
           answer: "Left ventricle",
           explanation: "The apex is formed by the left ventricle.",
           difficulty: "FOUNDATIONAL",
@@ -195,7 +195,7 @@ Explanations
   }
 });
 
-test("manual upload API returns validation errors without a 500", async () => {
+test("manual upload API accepts MCQs with variable option counts", async () => {
   const material = await createTestMaterial();
   const adminKey = process.env.ADMIN_UPLOAD_KEY ?? "";
 
@@ -220,11 +220,17 @@ Explanation: The apex is formed by the left ventricle.`,
         }),
       }),
     );
-    const payload = (await response.json()) as { error?: string };
+    const payload = (await response.json()) as { createdCount: number; totalSubmitted: number; error?: string };
 
-    assert.equal(response.status, 422);
-    assert.match(payload.error ?? "", /must include exactly four options/i);
+    assert.equal(response.status, 200, payload.error);
+    assert.equal(payload.createdCount, 1);
+    assert.equal(payload.totalSubmitted, 1);
   } finally {
+    await db.question.deleteMany({
+      where: {
+        materialId: material.id,
+      },
+    });
     await cleanupCourse(material.course.id);
   }
 });

@@ -169,6 +169,50 @@ EXPLANATIONS
   assert.equal(parsed[2].answer, "50 Hz");
 });
 
+test("manual question batch parser accepts wrapped and variable MCQ options", () => {
+  const parsed = parseManualQuestionBatch({
+    type: QuestionType.MCQ,
+    defaultDifficulty: Difficulty.INTERMEDIATE,
+    input: `QUESTIONS
+
+1. What news does the first Messenger bring from Rome to Antony?
+2. Which label can still point to a fifth option?
+
+OPTIONS
+
+1. A. News of Fulvia's death | B. News that Pompey has surrendered | C. Mandates and updates from Octavius
+Caesar | D. News of an invasion by Parthia
+2. A. First choice | B. Second choice | C. Third choice | D. Fourth choice | E. Fifth choice
+
+ANSWERS
+
+1. C
+2. E
+
+EXPLANATIONS
+
+1. The PDF can wrap a single labeled option across lines.
+2. Manual uploads are not limited to four choices.`,
+  });
+
+  assert.equal(parsed.length, 2);
+  assert.deepEqual(parsed[0].options, [
+    "News of Fulvia's death",
+    "News that Pompey has surrendered",
+    "Mandates and updates from Octavius Caesar",
+    "News of an invasion by Parthia",
+  ]);
+  assert.equal(parsed[0].answer, "Mandates and updates from Octavius Caesar");
+  assert.deepEqual(parsed[1].options, [
+    "First choice",
+    "Second choice",
+    "Third choice",
+    "Fourth choice",
+    "Fifth choice",
+  ]);
+  assert.equal(parsed[1].answer, "Fifth choice");
+});
+
 test("manual question batch parser supports large numbered MCQ banks", () => {
   const total = 200;
   const numberedLines = (prefix: string) =>

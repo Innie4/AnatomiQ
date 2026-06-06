@@ -62,20 +62,20 @@ export const createManualQuestionSchema = z
   })
   .merge(manualQuestionBaseSchema)
   .superRefine((value, ctx) => {
-    if (value.type === "MCQ" && value.options?.length !== 4) {
+    if (value.type === "MCQ" && !value.options?.length) {
       ctx.addIssue({
         code: z.ZodIssueCode.custom,
-        message: "MCQ questions require exactly four options.",
+        message: "MCQ questions require at least one option.",
         path: ["options"],
       });
     }
   });
 
 export const updateManualQuestionSchema = manualQuestionBaseSchema.superRefine((value, ctx) => {
-  if (value.type === "MCQ" && value.options?.length !== 4) {
+  if (value.type === "MCQ" && !value.options?.length) {
     ctx.addIssue({
       code: z.ZodIssueCode.custom,
-      message: "MCQ questions require exactly four options.",
+      message: "MCQ questions require at least one option.",
       path: ["options"],
     });
   }
