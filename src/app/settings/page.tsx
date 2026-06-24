@@ -53,11 +53,11 @@ export default function SettingsPage() {
 
   const applyTheme = (theme: "light" | "dark") => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("anatomiq:theme", theme);
+    localStorage.setItem("academiq:theme", theme);
   };
 
   const loadSettings = useCallback(async () => {
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     if (!token) {
       router.push("/signin");
       return;
@@ -98,7 +98,7 @@ export default function SettingsPage() {
       return;
     }
 
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     const response = await fetch("/api/profile", {
       method: "PATCH",
       headers: {
@@ -158,7 +158,7 @@ export default function SettingsPage() {
     setError("");
     try {
       if (enabled) {
-        const token = localStorage.getItem("anatomiq:auth-token");
+        const token = localStorage.getItem("academiq:auth-token");
         const optionsResponse = await fetch("/api/auth/biometric/register-options", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },

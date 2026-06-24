@@ -28,7 +28,7 @@ export default function LeaderboardPage() {
     setLoading(true);
     setError("");
     try {
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       if (!token) {
         router.push("/signin");
         return;

@@ -60,7 +60,7 @@ export default function ContactPage() {
           <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-lg">
             <Mail className="h-8 w-8 text-blue-600 mx-auto mb-3" />
             <h3 className="font-bold text-slate-900 mb-2">Email Support</h3>
-            <p className="text-sm text-slate-600">support@anatomiq.com</p>
+            <p className="text-sm text-slate-600">support@academiq.com</p>
           </div>
           <div className="bg-white rounded-2xl border border-slate-200 p-6 text-center shadow-lg">
             <MessageSquare className="h-8 w-8 text-green-600 mx-auto mb-3" />

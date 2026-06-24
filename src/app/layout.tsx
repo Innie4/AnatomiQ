@@ -32,9 +32,9 @@ export const metadata: Metadata = {
   description:
     "AcademIQ is a public AI-powered learning and exam generation platform for all University of Uyo students. Study any course, generate topic-grounded exams, and track your progress.",
   icons: {
-    icon: "/anatomiQ.png",
-    shortcut: "/anatomiQ.png",
-    apple: "/anatomiQ.png",
+    icon: "/academiQ.png",
+    shortcut: "/academiQ.png",
+    apple: "/academiQ.png",
   },
   manifest: "/manifest.json",
   appleWebApp: {

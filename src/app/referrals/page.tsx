@@ -25,7 +25,7 @@ export default function ReferralsPage() {
   const [qrCode, setQrCode] = useState("");
 
   const loadStats = useCallback(async () => {
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     if (!token) return;
 
     const response = await fetch("/api/referral", {

@@ -1,6 +1,6 @@
-const CACHE_NAME = 'anatomiq-v1';
-const STATIC_CACHE = 'anatomiq-static-v1';
-const DYNAMIC_CACHE = 'anatomiq-dynamic-v1';
+const CACHE_NAME = 'academiq-v1';
+const STATIC_CACHE = 'academiq-static-v1';
+const DYNAMIC_CACHE = 'academiq-dynamic-v1';
 
 // Assets to cache on install
 const STATIC_ASSETS = [
@@ -164,7 +164,7 @@ async function syncExamResults() {
 
 function openExamResultQueue() {
   return new Promise((resolve, reject) => {
-    const request = indexedDB.open('anatomiq-offline', 1);
+    const request = indexedDB.open('academiq-offline', 1);
 
     request.onupgradeneeded = () => {
       request.result.createObjectStore('exam-results', {

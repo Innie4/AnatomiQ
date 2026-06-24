@@ -27,7 +27,7 @@ export async function POST(request: NextRequest) {
 
     // Create a guest user with a unique identifier
     const guestId = `guest-${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
-    const guestEmail = `${guestId}@guest.anatomiq.local`;
+    const guestEmail = `${guestId}@guest.academiq.local`;
 
     const guestUser = await db.facultyUser.create({
       data: {

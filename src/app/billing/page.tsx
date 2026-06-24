@@ -42,7 +42,7 @@ export default function BillingPage() {
 
     const fetchBillingHistory = async () => {
       try {
-        const token = localStorage.getItem("anatomiq:auth-token");
+        const token = localStorage.getItem("academiq:auth-token");
         if (!token) {
           if (!cancelled) router.push("/signin");
           return;
@@ -116,7 +116,7 @@ export default function BillingPage() {
     const url = URL.createObjectURL(blob);
     const anchor = document.createElement("a");
     anchor.href = url;
-    anchor.download = `anatomiq-invoice-${payment.paystackReference}.pdf`;
+    anchor.download = `academiq-invoice-${payment.paystackReference}.pdf`;
     anchor.click();
     URL.revokeObjectURL(url);
   };

@@ -42,8 +42,8 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
   const isUploadActive = pathname?.startsWith("/admin/upload");
 
   function logout() {
-    sessionStorage.removeItem("anatomiq:admin-key");
-    localStorage.removeItem("anatomiq:admin-key");
+    sessionStorage.removeItem("academiq:admin-key");
+    localStorage.removeItem("academiq:admin-key");
     router.push("/admin");
     router.refresh();
   }
@@ -52,7 +52,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-slate-50">
       <aside className="fixed left-0 top-0 z-40 hidden h-screen w-72 flex-col border-r border-slate-200 bg-white lg:flex">
         <div className="flex h-16 items-center gap-3 border-b border-slate-200 px-6">
-          <Image src="/anatomiQ.png" alt={APP_NAME} width={36} height={36} className="object-contain" />
+          <Image src="/academiQ.png" alt={APP_NAME} width={36} height={36} className="object-contain" />
           <div>
             <div className="text-sm font-bold text-slate-900">Admin Dashboard</div>
             <div className="text-xs text-slate-500">{APP_NAME} operations</div>
@@ -149,7 +149,7 @@ export function AdminLayout({ children }: { children: React.ReactNode }) {
       <header className="fixed top-0 z-40 w-full border-b border-slate-200 bg-white/95 px-4 py-3 backdrop-blur lg:hidden">
         <div className="flex items-center justify-between">
           <Link href="/admin" className="flex items-center gap-2 font-bold text-slate-900">
-            <Image src="/anatomiQ.png" alt={APP_NAME} width={32} height={32} className="object-contain" />
+            <Image src="/academiQ.png" alt={APP_NAME} width={32} height={32} className="object-contain" />
             Admin
           </Link>
           <button onClick={logout} className="rounded-lg border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-700">

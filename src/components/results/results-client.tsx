@@ -45,7 +45,7 @@ export function ResultsClient() {
 
   useEffect(() => {
     setMounted(true);
-    const raw = sessionStorage.getItem("anatomiq:last-result");
+    const raw = sessionStorage.getItem("academiq:last-result");
     if (raw) {
       const parsed = JSON.parse(raw) as StoredResult;
       setResult(parsed);

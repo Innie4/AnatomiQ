@@ -64,7 +64,7 @@ export function ExamSessionClient() {
   // Load exam from sessionStorage
   useEffect(() => {
     setMounted(true);
-    const stored = sessionStorage.getItem("anatomiq:active-exam");
+    const stored = sessionStorage.getItem("academiq:active-exam");
     if (!stored) {
       router.push("/exam");
       return;
@@ -170,7 +170,7 @@ export function ExamSessionClient() {
         throw new Error(gradePayload.error || "Could not grade this exam.");
       }
 
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       const duration =
         examData.config.durationMinutes > 0 && typeof timeLeft === "number"
           ? examData.config.durationMinutes * 60 - timeLeft
@@ -199,7 +199,7 @@ export function ExamSessionClient() {
       }
 
       sessionStorage.setItem(
-        "anatomiq:last-result",
+        "academiq:last-result",
         JSON.stringify({
           submittedAt: new Date().toISOString(),
           timedOut,
@@ -213,7 +213,7 @@ export function ExamSessionClient() {
       );
 
       // Clear active exam
-      sessionStorage.removeItem("anatomiq:active-exam");
+      sessionStorage.removeItem("academiq:active-exam");
 
       startTransition(() => {
         router.push("/results");

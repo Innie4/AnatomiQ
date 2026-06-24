@@ -53,7 +53,7 @@ export default function ForgotPasswordPage() {
       <div className="w-full max-w-2xl">
         <div className="mb-8 text-center">
           <div className="mb-4 flex items-center justify-center gap-3">
-            <Image src="/anatomiQ.png" alt={APP_NAME} width={52} height={52} className="object-contain" priority />
+            <Image src="/academiQ.png" alt={APP_NAME} width={52} height={52} className="object-contain" priority />
             <h1 className="text-3xl font-black text-slate-950 dark:text-white">{APP_NAME}</h1>
           </div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">Account recovery</p>

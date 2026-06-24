@@ -22,7 +22,7 @@ This guide explains how to set up Google, Facebook, and Apple Sign-In for Academ
 2. Choose **External** user type
 3. Fill in required fields:
    - App name: AcademIQ
-   - User support email: support@anatomiq.com
+   - User support email: support@academiq.com
    - Developer contact: your-email@example.com
 4. Add scopes: `email`, `profile`, `openid`
 5. Save and continue
@@ -35,10 +35,10 @@ This guide explains how to set up Google, Facebook, and Apple Sign-In for Academ
 4. Name: AcademIQ Web Client
 5. Authorized JavaScript origins:
    - `http://localhost:3000` (development)
-   - `https://anatomiq.com` (production)
+   - `https://academiq.com` (production)
 6. Authorized redirect URIs:
    - `http://localhost:3000/api/auth/callback/google`
-   - `https://anatomiq.com/api/auth/callback/google`
+   - `https://academiq.com/api/auth/callback/google`
 7. Click **Create** and save your Client ID and Client Secret
 
 ### Step 4: Add to Environment Variables
@@ -59,21 +59,21 @@ GOOGLE_CLIENT_SECRET=your-client-secret
 3. Choose **Consumer** app type
 4. Fill in app details:
    - Display name: AcademIQ
-   - Contact email: support@anatomiq.com
+   - Contact email: support@academiq.com
 
 ### Step 2: Add Facebook Login Product
 
 1. In your app dashboard, click **Add Product**
 2. Find **Facebook Login** and click **Set Up**
 3. Choose **Web** platform
-4. Enter site URL: `https://anatomiq.com`
+4. Enter site URL: `https://academiq.com`
 
 ### Step 3: Configure OAuth Settings
 
 1. Go to **Facebook Login > Settings**
 2. Add Valid OAuth Redirect URIs:
    - `http://localhost:3000/api/auth/callback/facebook`
-   - `https://anatomiq.com/api/auth/callback/facebook`
+   - `https://academiq.com/api/auth/callback/facebook`
 3. Enable **Use Strict Mode for Redirect URIs**
 4. Save changes
 
@@ -100,7 +100,7 @@ FACEBOOK_CLIENT_SECRET=your-app-secret
 3. Click **Identifiers** and create new App ID
 4. Fill in details:
    - Description: AcademIQ
-   - Bundle ID: com.anatomiq.app
+   - Bundle ID: com.academiq.app
 5. Enable **Sign In with Apple** capability
 6. Save
 
@@ -108,11 +108,11 @@ FACEBOOK_CLIENT_SECRET=your-app-secret
 
 1. Create new **Services ID**
 2. Description: AcademIQ Web
-3. Identifier: com.anatomiq.service
+3. Identifier: com.academiq.service
 4. Enable **Sign In with Apple**
 5. Configure:
-   - Domains: `anatomiq.com`
-   - Return URLs: `https://anatomiq.com/api/auth/callback/apple`
+   - Domains: `academiq.com`
+   - Return URLs: `https://academiq.com/api/auth/callback/apple`
 
 ### Step 3: Create Private Key
 
@@ -132,7 +132,7 @@ FACEBOOK_CLIENT_SECRET=your-app-secret
 ### Step 5: Add to Environment Variables
 
 ```bash
-APPLE_CLIENT_ID=com.anatomiq.service
+APPLE_CLIENT_ID=com.academiq.service
 APPLE_CLIENT_SECRET=generate-jwt-token-see-below
 APPLE_TEAM_ID=your-team-id
 APPLE_KEY_ID=your-key-id

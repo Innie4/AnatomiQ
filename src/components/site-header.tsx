@@ -16,7 +16,7 @@ export function SiteHeader() {
         <Link href="/" className="flex items-center gap-3">
           <div className="relative h-11 w-11">
             <Image
-              src="/anatomiQ.png"
+              src="/academiQ.png"
               alt={APP_NAME}
               width={44}
               height={44}

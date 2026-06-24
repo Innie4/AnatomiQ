@@ -86,8 +86,8 @@ export function SignInForm() {
         throw new Error(result.error || "Biometric login failed.");
       }
 
-      localStorage.setItem("anatomiq:auth-token", result.token);
-      localStorage.setItem("anatomiq:user", JSON.stringify(result.user));
+      localStorage.setItem("academiq:auth-token", result.token);
+      localStorage.setItem("academiq:user", JSON.stringify(result.user));
       setBiometricModal("success");
       window.setTimeout(() => router.push(callbackUrl), 650);
     } catch (err) {
@@ -116,8 +116,8 @@ export function SignInForm() {
         throw new Error(result.error || "Failed to sign in");
       }
 
-      localStorage.setItem("anatomiq:auth-token", result.token);
-      localStorage.setItem("anatomiq:user", JSON.stringify(result.user));
+      localStorage.setItem("academiq:auth-token", result.token);
+      localStorage.setItem("academiq:user", JSON.stringify(result.user));
 
       router.push(callbackUrl);
     } catch (err) {
@@ -142,8 +142,8 @@ export function SignInForm() {
         throw new Error(result.error || "Failed to sign in as guest");
       }
 
-      localStorage.setItem("anatomiq:auth-token", result.token);
-      localStorage.setItem("anatomiq:user", JSON.stringify(result.user));
+      localStorage.setItem("academiq:auth-token", result.token);
+      localStorage.setItem("academiq:user", JSON.stringify(result.user));
 
       router.push(callbackUrl);
     } catch (err) {

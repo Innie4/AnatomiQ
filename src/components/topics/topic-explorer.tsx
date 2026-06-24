@@ -37,7 +37,7 @@ export function TopicExplorer({
 
   useEffect(() => {
     async function loadSelectedCourses() {
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       if (!token) {
         return;
       }

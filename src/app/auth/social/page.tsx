@@ -103,8 +103,8 @@ export default function SocialAuthPage() {
           throw new Error("Unable to create an app session");
         }
 
-        localStorage.setItem("anatomiq:auth-token", payload.token);
-        localStorage.setItem("anatomiq:user", JSON.stringify(payload.user));
+        localStorage.setItem("academiq:auth-token", payload.token);
+        localStorage.setItem("academiq:user", JSON.stringify(payload.user));
         router.replace(nextPath);
       } catch (exchangeError) {
         setError(exchangeError instanceof Error ? exchangeError.message : "Unable to continue");
@@ -140,8 +140,8 @@ export default function SocialAuthPage() {
         throw new Error(payload.error || "Unable to save your profile");
       }
 
-      localStorage.setItem("anatomiq:auth-token", payload.token);
-      localStorage.setItem("anatomiq:user", JSON.stringify(payload.user));
+      localStorage.setItem("academiq:auth-token", payload.token);
+      localStorage.setItem("academiq:user", JSON.stringify(payload.user));
       router.replace(nextPath);
     } catch (submitError) {
       setError(submitError instanceof Error ? submitError.message : "Unable to save your profile");
@@ -155,7 +155,7 @@ export default function SocialAuthPage() {
       <div className="w-full max-w-2xl rounded-[2rem] border border-white/80 bg-white/95 p-8 shadow-[0_30px_80px_rgba(15,23,42,0.12)] backdrop-blur-xl">
         <div className="mb-8 flex items-center gap-3">
           <div className="relative h-12 w-12">
-            <Image src="/anatomiQ.png" alt={APP_NAME} fill className="object-contain" priority />
+            <Image src="/academiQ.png" alt={APP_NAME} fill className="object-contain" priority />
           </div>
           <div>
             <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-400">AcademIQ</p>

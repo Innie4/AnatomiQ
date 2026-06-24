@@ -110,7 +110,7 @@ export function UploadDashboard() {
   // Load admin key from sessionStorage and verify access
   useEffect(() => {
     setMounted(true);
-    const storedKey = sessionStorage.getItem("anatomiq:admin-key");
+    const storedKey = sessionStorage.getItem("academiq:admin-key");
     if (!storedKey) {
       router.push("/upload");
       return;

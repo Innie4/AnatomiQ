@@ -60,7 +60,7 @@ export async function POST(request: NextRequest) {
       customizations: {
         title: "AcademIQ Subscription",
         description: `${tier} Plan (${billingPeriod})`,
-        logo: `${process.env.NEXT_PUBLIC_APP_URL}/anatomiQ.png`,
+        logo: `${process.env.NEXT_PUBLIC_APP_URL}/academiQ.png`,
       },
       meta: {
         userId: user.id,

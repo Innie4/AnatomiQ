@@ -21,7 +21,7 @@ export function NotificationBell() {
   const menuRef = useRef<HTMLDivElement>(null);
 
   const loadNotifications = useCallback(async () => {
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     if (!token) {
       setNotifications([]);
       setUnreadCount(0);
@@ -57,7 +57,7 @@ export function NotificationBell() {
   }, []);
 
   async function markAllRead() {
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     if (!token) return;
 
     const response = await fetch("/api/notifications/mark-all-read", {
@@ -72,7 +72,7 @@ export function NotificationBell() {
   }
 
   async function markRead(id: string) {
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     if (!token) return;
 
     const response = await fetch(`/api/notifications/${id}/read`, {

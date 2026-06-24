@@ -190,8 +190,8 @@ export function SignupForm() {
         throw new Error(result.error || "Failed to create account");
       }
 
-      localStorage.setItem("anatomiq:auth-token", result.token);
-      localStorage.setItem("anatomiq:user", JSON.stringify(result.user));
+      localStorage.setItem("academiq:auth-token", result.token);
+      localStorage.setItem("academiq:user", JSON.stringify(result.user));
       router.push(callbackUrl);
     } catch (err) {
       setError(err instanceof Error ? err.message : "Something went wrong");

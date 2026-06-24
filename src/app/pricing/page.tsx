@@ -28,7 +28,7 @@ export default function PricingPage() {
 
     try {
       // Check if user is logged in
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       if (!token) {
         // Redirect to signin with callback
         router.push(`/signin?callbackUrl=/pricing&tier=${tier}&period=${period}`);
@@ -85,7 +85,7 @@ export default function PricingPage() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="relative h-12 w-12">
               <Image
-                src="/anatomiQ.png"
+                src="/academiQ.png"
                 alt={APP_NAME}
                 width={48}
                 height={48}

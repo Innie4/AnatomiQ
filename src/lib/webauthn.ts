@@ -3,8 +3,8 @@ import { isoBase64URL } from "@simplewebauthn/server/helpers";
 import type { WebAuthnCredential } from "@prisma/client";
 import type { AuthenticatorTransportFuture } from "@simplewebauthn/types";
 
-export const WEBAUTHN_REGISTER_CHALLENGE_COOKIE = "anatomiq:webauthn-register";
-export const WEBAUTHN_LOGIN_CHALLENGE_COOKIE = "anatomiq:webauthn-login";
+export const WEBAUTHN_REGISTER_CHALLENGE_COOKIE = "academiq:webauthn-register";
+export const WEBAUTHN_LOGIN_CHALLENGE_COOKIE = "academiq:webauthn-login";
 
 export function getWebAuthnRequestMeta(request: Request) {
   const url = new URL(request.url);

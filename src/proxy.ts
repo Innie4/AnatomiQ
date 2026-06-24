@@ -21,7 +21,7 @@ const publicRoutes = [
   "/api/topic-question-types",
   "/_next",
   "/favicon.ico",
-  "/anatomiQ.png",
+  "/academiQ.png",
 ];
 
 export function proxy(request: NextRequest) {
@@ -30,8 +30,8 @@ export function proxy(request: NextRequest) {
   // Check for auth token on protected routes
   if (!publicRoutes.some((route) => pathname.startsWith(route))) {
     const token =
-      request.cookies.get("anatomiq_auth_token")?.value ||
-      request.cookies.get("anatomiq:auth-token")?.value;
+      request.cookies.get("academiq_auth_token")?.value ||
+      request.cookies.get("academiq:auth-token")?.value;
     const hasToken =
       token ||
       request.headers.get("authorization") ||

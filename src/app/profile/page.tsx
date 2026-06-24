@@ -93,11 +93,11 @@ export default function ProfilePage() {
 
   const applyTheme = (theme: ThemePreference) => {
     document.documentElement.classList.toggle("dark", theme === "dark");
-    localStorage.setItem("anatomiq:theme", theme);
+    localStorage.setItem("academiq:theme", theme);
   };
 
   const loadProfile = useCallback(async () => {
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     if (!token) {
       router.push("/signin");
       return;
@@ -125,7 +125,7 @@ export default function ProfilePage() {
         avatarUrl: data.avatarUrl || "",
       });
       applyTheme(preferences.theme);
-      localStorage.setItem("anatomiq:user", JSON.stringify(normalized));
+      localStorage.setItem("academiq:user", JSON.stringify(normalized));
     } catch (loadError) {
       setError(loadError instanceof Error ? loadError.message : "Failed to load profile");
     } finally {
@@ -144,7 +144,7 @@ export default function ProfilePage() {
       return null;
     }
 
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     const response = await fetch("/api/profile", {
       method: "PATCH",
       headers: {
@@ -190,7 +190,7 @@ export default function ProfilePage() {
 
     setSaving(true);
     setError("");
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     const form = new FormData();
     form.append("file", file);
 
@@ -227,7 +227,7 @@ export default function ProfilePage() {
 
     try {
       await patchProfile({ themePreference: theme });
-      localStorage.setItem("anatomiq:user", JSON.stringify(updated));
+      localStorage.setItem("academiq:user", JSON.stringify(updated));
     } catch (themeError) {
       setProfile(previous);
       applyTheme(previous.preferences.theme);
@@ -248,7 +248,7 @@ export default function ProfilePage() {
 
     try {
       await patchProfile({ [key]: value });
-      localStorage.setItem("anatomiq:user", JSON.stringify(updated));
+      localStorage.setItem("academiq:user", JSON.stringify(updated));
     } catch (preferenceError) {
       setProfile(previous);
       setError(preferenceError instanceof Error ? preferenceError.message : "Unable to update notification preference");
@@ -268,7 +268,7 @@ export default function ProfilePage() {
 
     try {
       if (enabled) {
-        const token = localStorage.getItem("anatomiq:auth-token");
+        const token = localStorage.getItem("academiq:auth-token");
         const optionsResponse = await fetch("/api/auth/biometric/register-options", {
           method: "POST",
           headers: { Authorization: `Bearer ${token}` },
@@ -315,7 +315,7 @@ export default function ProfilePage() {
     setSaving(true);
     setError("");
     try {
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       const response = await fetch("/api/auth/change-password", {
         method: "POST",
         headers: {
@@ -354,7 +354,7 @@ export default function ProfilePage() {
     if (!confirm("Delete your account permanently?")) return;
     if (prompt('Type "DELETE" to confirm.') !== "DELETE") return;
 
-    const token = localStorage.getItem("anatomiq:auth-token");
+    const token = localStorage.getItem("academiq:auth-token");
     const response = await fetch("/api/auth/delete-account", {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` },

@@ -25,7 +25,7 @@ export function ReferralCard() {
 
   const fetchReferralStats = useCallback(async () => {
     try {
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       if (!token) return;
 
       const response = await fetch("/api/referral", {

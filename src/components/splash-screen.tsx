@@ -44,7 +44,7 @@ export function SplashScreen({ onComplete }: { onComplete: () => void }) {
         >
           <div className="relative h-32 w-32 sm:h-40 sm:w-40">
             <Image
-              src="/anatomiQ.png"
+              src="/academiQ.png"
               alt="AcademIQ"
               fill
               className="object-contain drop-shadow-2xl"

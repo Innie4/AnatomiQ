@@ -53,7 +53,7 @@ test.describe('Exam Results and Review', () => {
     await page.goto('/');
     await page.evaluate(() => {
       sessionStorage.setItem(
-        'anatomiq:active-exam',
+        'academiq:active-exam',
         JSON.stringify({
           selection: {
             topicName: 'Timed Anatomy',
@@ -90,8 +90,8 @@ test.describe('Exam Results and Review', () => {
     await expect(page.getByText('0/1')).toBeVisible();
 
     const stored = await page.evaluate(() => ({
-      activeExam: sessionStorage.getItem('anatomiq:active-exam'),
-      lastResult: JSON.parse(sessionStorage.getItem('anatomiq:last-result') ?? '{}'),
+      activeExam: sessionStorage.getItem('academiq:active-exam'),
+      lastResult: JSON.parse(sessionStorage.getItem('academiq:last-result') ?? '{}'),
     }));
 
     expect(gradeRequests).toBe(1);

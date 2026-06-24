@@ -27,7 +27,7 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
   const fetchUserCourses = useCallback(async () => {
     try {
       if (typeof window === "undefined") return;
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       if (!token) {
         setLoading(false);
         return;
@@ -54,7 +54,7 @@ export function CourseSelector({ onCoursesChange, compact = false }: CourseSelec
     setSaving(true);
     try {
       if (typeof window === "undefined") return;
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       if (!token) {
         setSaving(false);
         return;

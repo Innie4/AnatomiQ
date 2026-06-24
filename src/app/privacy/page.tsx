@@ -112,7 +112,7 @@ export default function PrivacyPage() {
               <li>Request data portability in a machine-readable format</li>
             </ul>
             <p className="text-slate-700 leading-relaxed mt-3">
-              To exercise these rights, visit your Profile settings or contact us at privacy@anatomiq.com.
+              To exercise these rights, visit your Profile settings or contact us at privacy@academiq.com.
             </p>
           </section>
 
@@ -154,7 +154,7 @@ export default function PrivacyPage() {
           <section>
             <h2 className="text-2xl font-bold text-slate-900 mb-4">12. Contact Us</h2>
             <p className="text-slate-700 leading-relaxed">
-              For questions about this Privacy Policy or to exercise your rights, contact us at privacy@anatomiq.com
+              For questions about this Privacy Policy or to exercise your rights, contact us at privacy@academiq.com
               or through our Contact page.
             </p>
           </section>

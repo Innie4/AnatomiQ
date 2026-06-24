@@ -10,7 +10,7 @@ export class UploadPage {
   async authenticate(adminKey: string) {
     await this.page.goto('/');
     await this.page.evaluate((key) => {
-      sessionStorage.setItem('anatomiq:admin-key', key);
+      sessionStorage.setItem('academiq:admin-key', key);
     }, adminKey);
   }
 

@@ -86,7 +86,7 @@ function ResetPasswordForm() {
       <section className="glass-panel w-full max-w-xl rounded-[2rem] border border-white/80 p-6 shadow-[0_30px_90px_rgba(15,23,42,0.14)] sm:p-8">
         <div className="mb-8 text-center">
           <div className="mb-4 flex items-center justify-center gap-3">
-            <Image src="/anatomiQ.png" alt={APP_NAME} width={52} height={52} className="object-contain" priority />
+            <Image src="/academiQ.png" alt={APP_NAME} width={52} height={52} className="object-contain" priority />
             <h1 className="text-3xl font-black text-slate-950 dark:text-white">{APP_NAME}</h1>
           </div>
           <p className="text-sm font-semibold uppercase tracking-[0.22em] text-sky-700 dark:text-sky-300">Reset by {modeLabel}</p>

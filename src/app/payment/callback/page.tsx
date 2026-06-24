@@ -17,7 +17,7 @@ export default function PaymentCallbackPage() {
 
   const verifyPayment = useCallback(async (ref: string) => {
     try {
-      const token = localStorage.getItem("anatomiq:auth-token");
+      const token = localStorage.getItem("academiq:auth-token");
       const response = await fetch(`/api/payment/verify?reference=${ref}`, {
         headers: {
           Authorization: `Bearer ${token}`,

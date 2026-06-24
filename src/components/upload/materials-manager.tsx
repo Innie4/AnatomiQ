@@ -80,8 +80,8 @@ export function MaterialsManager({ adminKey }: { adminKey: string }) {
 
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeItem("anatomiq:admin-key");
-          sessionStorage.setItem("anatomiq:key-cleared", "true");
+          localStorage.removeItem("academiq:admin-key");
+          sessionStorage.setItem("academiq:key-cleared", "true");
           window.location.reload();
           return;
         }

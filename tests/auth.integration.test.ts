@@ -104,7 +104,7 @@ test("password reset supports phone OTP and guests cannot edit profile settings"
     const guest = await db.facultyUser.create({
       data: {
         fullName: "Guest Lockdown",
-        email: `guest-lockdown-${suffix}@guest.anatomiq.local`,
+        email: `guest-lockdown-${suffix}@guest.academiq.local`,
         department: "Guest",
         isGuest: true,
         isActive: true,
@@ -162,7 +162,7 @@ test("signup, login, and guest auth routes issue durable sessions", async () => 
     assert.equal(signupResponse.status, 201);
     assert.equal(typeof signupPayload.token, "string");
     assert.equal(signupPayload.user.email, email);
-    assert.match(signupResponse.headers.get("set-cookie") || "", /anatomiq_auth_token=/);
+    assert.match(signupResponse.headers.get("set-cookie") || "", /academiq_auth_token=/);
 
     const loginResponse = await loginRoute(
       new Request("http://localhost/api/auth/login", {
@@ -181,7 +181,7 @@ test("signup, login, and guest auth routes issue durable sessions", async () => 
 
     assert.equal(loginResponse.status, 200);
     assert.equal(loginPayload.user.email, email);
-    assert.match(loginResponse.headers.get("set-cookie") || "", /anatomiq_auth_token=/);
+    assert.match(loginResponse.headers.get("set-cookie") || "", /academiq_auth_token=/);
 
     const guestResponse = await guestRoute(
       new Request("http://localhost/api/auth/guest", {
@@ -195,7 +195,7 @@ test("signup, login, and guest auth routes issue durable sessions", async () => 
 
     assert.equal(guestResponse.status, 200);
     assert.equal(guestPayload.user.isGuest, true);
-    assert.match(guestResponse.headers.get("set-cookie") || "", /anatomiq_auth_token=/);
+    assert.match(guestResponse.headers.get("set-cookie") || "", /academiq_auth_token=/);
 
     await db.facultyUser.delete({
       where: {

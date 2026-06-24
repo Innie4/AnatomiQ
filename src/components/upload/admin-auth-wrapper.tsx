@@ -12,12 +12,12 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
 
   useEffect(() => {
     setMounted(true);
-    const savedKey = sessionStorage.getItem("anatomiq:admin-key") ?? localStorage.getItem("anatomiq:admin-key");
-    const wasCleared = sessionStorage.getItem("anatomiq:key-cleared");
+    const savedKey = sessionStorage.getItem("academiq:admin-key") ?? localStorage.getItem("academiq:admin-key");
+    const wasCleared = sessionStorage.getItem("academiq:key-cleared");
 
     if (wasCleared) {
       setError("Invalid admin key. Please enter a valid key.");
-      sessionStorage.removeItem("anatomiq:key-cleared");
+      sessionStorage.removeItem("academiq:key-cleared");
     } else if (savedKey) {
       setAdminKey(savedKey);
     }
@@ -37,7 +37,7 @@ export function AdminAuthWrapper({ children }: { children: (adminKey: string) =>
           throw new Error("Invalid admin key. Please enter a valid key.");
         }
 
-        sessionStorage.setItem("anatomiq:admin-key", trimmedKey);
+        sessionStorage.setItem("academiq:admin-key", trimmedKey);
         setAdminKey(trimmedKey);
       } catch (err) {
         setError(err instanceof Error ? err.message : "Authentication failed.");

@@ -58,7 +58,7 @@ function VerifyEmailContent() {
           <div className="flex items-center justify-center gap-3 mb-4">
             <div className="relative h-12 w-12">
               <Image
-                src="/anatomiQ.png"
+                src="/academiQ.png"
                 alt={APP_NAME}
                 width={48}
                 height={48}

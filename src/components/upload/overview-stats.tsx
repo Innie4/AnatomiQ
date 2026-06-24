@@ -42,9 +42,9 @@ export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string;
 
       if (!response.ok) {
         if (response.status === 401) {
-          localStorage.removeItem("anatomiq:admin-key");
-          sessionStorage.removeItem("anatomiq:admin-key");
-          sessionStorage.setItem("anatomiq:key-cleared", "true");
+          localStorage.removeItem("academiq:admin-key");
+          sessionStorage.removeItem("academiq:admin-key");
+          sessionStorage.setItem("academiq:key-cleared", "true");
           window.location.reload();
           return;
         }
@@ -75,8 +75,8 @@ export function OverviewStats({ adminKey, autoLoad = true }: { adminKey: string;
 
         if (!response.ok) {
           if (response.status === 401) {
-            localStorage.removeItem("anatomiq:admin-key");
-            sessionStorage.setItem("anatomiq:key-cleared", "true");
+            localStorage.removeItem("academiq:admin-key");
+            sessionStorage.setItem("academiq:key-cleared", "true");
             window.location.reload();
             return;
           }

@@ -12,7 +12,7 @@ async function main() {
 
   // Check if admin already exists
   const existingAdmin = await prisma.facultyUser.findUnique({
-    where: { email: "admin@anatomiq.local" },
+    where: { email: "admin@academiq.local" },
   });
 
   if (!existingAdmin) {
@@ -20,7 +20,7 @@ async function main() {
     await prisma.facultyUser.create({
       data: {
         id: randomUUID(),
-        email: "admin@anatomiq.local",
+        email: "admin@academiq.local",
         passwordHash: adminPasswordHash,
         fullName: "Admin User",
         department: "University of Uyo",

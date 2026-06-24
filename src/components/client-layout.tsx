@@ -14,7 +14,7 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
     setMounted(true);
 
     // Initialize splash state from sessionStorage on mount
-    const splashShown = sessionStorage.getItem("anatomiq:splash-shown");
+    const splashShown = sessionStorage.getItem("academiq:splash-shown");
     if (splashShown === "true") {
       setShowSplash(false);
       setHasShownSplash(true);
@@ -24,14 +24,14 @@ export function ClientLayout({ children }: { children: React.ReactNode }) {
       document.documentElement.classList.toggle("dark", theme === "dark");
     };
 
-    applyTheme(localStorage.getItem("anatomiq:theme") || "light");
+    applyTheme(localStorage.getItem("academiq:theme") || "light");
   }, []);
 
   const handleSplashComplete = () => {
     setShowSplash(false);
     setHasShownSplash(true);
     if (typeof window !== "undefined") {
-      sessionStorage.setItem("anatomiq:splash-shown", "true");
+      sessionStorage.setItem("academiq:splash-shown", "true");
     }
   };
 

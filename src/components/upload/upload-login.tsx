@@ -31,7 +31,7 @@ export function UploadLogin() {
       }
 
       // Store the key in sessionStorage
-      sessionStorage.setItem("anatomiq:admin-key", adminKey);
+      sessionStorage.setItem("academiq:admin-key", adminKey);
 
       // Navigate to dashboard
       router.push("/upload/dashboard");

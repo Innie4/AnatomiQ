@@ -6,7 +6,7 @@ export default function Loading() {
       <div className="glass-panel rounded-[2rem] border border-white/80 px-8 py-6 text-center">
         <div className="mx-auto mb-4 h-16 w-16">
           <Image
-            src="/anatomiQ.png"
+            src="/academiQ.png"
             alt="AcademIQ"
             width={64}
             height={64}

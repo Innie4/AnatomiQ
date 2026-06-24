@@ -73,7 +73,7 @@ STORAGE_MODE="supabase"
 SUPABASE_URL="https://your-project-ref.supabase.co"
 NEXT_PUBLIC_SUPABASE_URL="https://your-project-ref.supabase.co"
 SUPABASE_SERVICE_ROLE_KEY="your-supabase-service-role-key"
-SUPABASE_STORAGE_BUCKET="anatomiq-materials"
+SUPABASE_STORAGE_BUCKET="academiq-materials"
 NEXT_PUBLIC_APP_URL="http://localhost:3000"
 ```
 
@@ -89,7 +89,7 @@ OPENAI_EMBEDDING_MODEL="text-embedding-3-small"
 ## Remote Setup
 
 1. Create a free Supabase project
-2. Create a public storage bucket named `anatomiq-materials`
+2. Create a public storage bucket named `academiq-materials`
 3. Add the values from `.env.example` to Vercel
 4. Add the same database and storage values to your local `.env` if you want local admin uploads to hit the remote services too
 

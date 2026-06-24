@@ -353,7 +353,7 @@ export function ExamClient({
       }
 
       sessionStorage.setItem(
-        "anatomiq:active-exam",
+        "academiq:active-exam",
         JSON.stringify({
           ...data,
           config: {

@@ -71,7 +71,7 @@ export function AppNavigation() {
 
   useEffect(() => {
     try {
-      const storedUser = localStorage.getItem("anatomiq:user");
+      const storedUser = localStorage.getItem("academiq:user");
       if (storedUser) {
         const parsed = JSON.parse(storedUser) as { avatarUrl?: string | null };
         const newUrl = parsed.avatarUrl || null;
@@ -118,7 +118,7 @@ export function AppNavigation() {
             <div className="flex items-center gap-3">
               <div className="relative h-10 w-10">
                 <Image
-                  src="/anatomiQ.png"
+                  src="/academiQ.png"
                   alt={APP_NAME}
                   width={40}
                   height={40}
@@ -187,7 +187,7 @@ export function AppNavigation() {
           <Link href="/" className="flex items-center gap-2">
             <div className="relative h-9 w-9">
               <Image
-                src="/anatomiQ.png"
+                src="/academiQ.png"
                 alt={APP_NAME}
                 width={36}
                 height={36}

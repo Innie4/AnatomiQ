@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 import type { FacultyUser } from "@prisma/client";
 
-export const AUTH_COOKIE_NAME = "anatomiq_auth_token";
+export const AUTH_COOKIE_NAME = "academiq_auth_token";
 const AUTH_COOKIE_MAX_AGE = 60 * 60 * 24 * 7;
 
 export function setAuthCookie(response: NextResponse, token: string) {

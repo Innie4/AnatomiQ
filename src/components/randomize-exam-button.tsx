@@ -149,7 +149,7 @@ export function RandomizeExamButton({ className }: { className?: string }) {
       const examData = await response.json();
 
       // Store in sessionStorage
-      sessionStorage.setItem("anatomiq:active-exam", JSON.stringify(examData));
+      sessionStorage.setItem("academiq:active-exam", JSON.stringify(examData));
 
       // Navigate to exam session
       router.push("/exam-session");

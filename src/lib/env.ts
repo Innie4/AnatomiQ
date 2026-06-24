@@ -13,7 +13,7 @@ export const env = {
   localStorageDir: getEnv("LOCAL_STORAGE_DIR") || "storage",
   supabaseUrl: getEnv("SUPABASE_URL") || getEnv("NEXT_PUBLIC_SUPABASE_URL"),
   supabaseServiceRoleKey: getEnv("SUPABASE_SERVICE_ROLE_KEY"),
-  supabaseStorageBucket: getEnv("SUPABASE_STORAGE_BUCKET") || "anatomiq-materials",
+  supabaseStorageBucket: getEnv("SUPABASE_STORAGE_BUCKET") || "academiq-materials",
   awsAccessKeyId: getEnv("AWS_ACCESS_KEY_ID"),
   awsSecretAccessKey: getEnv("AWS_SECRET_ACCESS_KEY"),
   awsRegion: getEnv("AWS_REGION"),
