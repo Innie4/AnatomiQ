@@ -1,11 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useMemo, useState } from "react";
 
-import { CourseSelector } from "@/components/courses/course-selector";
 import { FadeIn } from "@/components/motion/fade-in";
-import { useCourses } from "@/hooks/use-courses";
 
 type TopicCard = {
   id: string;
@@ -31,98 +28,8 @@ export function TopicExplorer({
   search?: string;
   activeCourse?: string;
 }) {
-  const { courses } = useCourses();
-  const [selectedCourses, setSelectedCourses] = useState<string[]>([]);
-  const [activeSemester, setActiveSemester] = useState<"FIRST" | "SECOND">("FIRST");
-
-  useEffect(() => {
-    async function loadSelectedCourses() {
-      const token = localStorage.getItem("academiq:auth-token");
-      if (!token) {
-        return;
-      }
-
-      const response = await fetch("/api/profile", {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-
-      if (response.ok) {
-        const data = await response.json();
-        setSelectedCourses(data.selectedCourses || []);
-      }
-    }
-
-    void loadSelectedCourses();
-  }, []);
-
-  const availableCourseSlugs = useMemo(
-    () => (selectedCourses.length ? selectedCourses : courses.map((course) => course.slug)),
-    [courses, selectedCourses],
-  );
-  const semesterCourses = useMemo(
-    () =>
-      courses.filter(
-        (course) => course.semester === activeSemester && availableCourseSlugs.includes(course.slug),
-      ),
-    [activeSemester, availableCourseSlugs, courses],
-  );
-
   return (
     <div className="space-y-10">
-      <section className="rounded-[2rem] border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
-        <div className="grid gap-6 lg:grid-cols-[1fr_1.1fr]">
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">My courses</p>
-            <h2 className="mt-2 text-2xl font-bold text-slate-950">Select your offered courses first</h2>
-            <p className="mt-2 text-sm leading-6 text-slate-600">
-              Your topics and quiz links can then be narrowed to a specific course from your first or second semester list.
-            </p>
-            <div className="mt-5">
-              <CourseSelector onCoursesChange={setSelectedCourses} />
-            </div>
-          </div>
-
-          <div>
-            <p className="text-sm font-semibold uppercase tracking-[0.18em] text-slate-500">Quiz course</p>
-            <div className="mt-3 grid grid-cols-2 gap-2 rounded-xl bg-slate-100 p-1">
-              {(["FIRST", "SECOND"] as const).map((semester) => (
-                <button
-                  key={semester}
-                  type="button"
-                  onClick={() => setActiveSemester(semester)}
-                  className={`rounded-lg px-4 py-3 text-sm font-semibold ${
-                    activeSemester === semester ? "bg-white text-[#0969da] shadow-sm" : "text-slate-600"
-                  }`}
-                >
-                  {semester === "FIRST" ? "First semester" : "Second semester"}
-                </button>
-              ))}
-            </div>
-            <div className="mt-4 space-y-2">
-              {semesterCourses.map((course) => (
-                <Link
-                  key={course.id}
-                  href={`/topics?course=${course.slug}${search ? `&q=${encodeURIComponent(search)}` : ""}`}
-                  className={`flex items-center justify-between rounded-xl border px-4 py-3 text-sm font-semibold ${
-                    activeCourse === course.slug
-                      ? "border-[#0969da] bg-[#f0f6ff] text-[#0969da]"
-                      : "border-slate-200 bg-white text-slate-700 hover:border-slate-300"
-                  }`}
-                >
-                  <span>{course.code} - {course.name}</span>
-                  <span>{activeCourse === course.slug ? "Selected" : "Select"}</span>
-                </Link>
-              ))}
-              {!semesterCourses.length ? (
-                <div className="rounded-xl border border-slate-200 bg-slate-50 p-4 text-sm text-slate-600">
-                  Select courses for this semester to make them available for quiz setup.
-                </div>
-              ) : null}
-            </div>
-          </div>
-        </div>
-      </section>
-
       <section className="glass-panel rounded-[2rem] border border-white/80 p-6 shadow-[0_20px_70px_rgba(31,78,126,0.1)] sm:p-8">
         <p className="text-sm font-semibold uppercase tracking-[0.18em] text-sky-700">Topic explorer</p>
         <div className="mt-3 flex flex-col gap-4 lg:flex-row lg:items-end lg:justify-between">
