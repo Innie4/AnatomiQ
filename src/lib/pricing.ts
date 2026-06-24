@@ -60,6 +60,27 @@ export const PRICING = {
     },
     badge: "Best Value",
   },
+  PREMIUM: {
+    name: "Premium",
+    tier: "PREMIUM" as const,
+    monthly: 2500,
+    annual: 25000, // ~2 months free
+    features: [
+      "Everything in Pro",
+      "AI-powered question generation",
+      "Personalized study recommendations",
+      "Detailed performance analytics",
+      "Priority 24/7 support",
+      "Ad-free experience",
+      "Downloadable study materials",
+      "Multi-device sync",
+    ],
+    limits: {
+      examsPerDay: null,
+      questionsPerExam: null,
+      timerEnabled: true,
+    },
+  },
 } as const;
 
 export type SubscriptionTier = keyof typeof PRICING;

@@ -68,6 +68,7 @@ export default function PricingPage() {
 
   const starterSavings = calculateAnnualSavings("STARTER");
   const proSavings = calculateAnnualSavings("PRO");
+  const premiumSavings = calculateAnnualSavings("PREMIUM");
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-green-50 py-16 px-4">
@@ -132,13 +133,13 @@ export default function PricingPage() {
         {billingPeriod === "ANNUAL" && (
           <div className="mb-8 mx-auto max-w-2xl rounded-2xl bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 p-4 text-center">
             <p className="text-sm font-semibold text-slate-900">
-              🎉 Save up to ₦{Math.max(starterSavings, proSavings).toLocaleString()} per year with annual billing!
+              🎉 Save up to ₦{Math.max(starterSavings, proSavings, premiumSavings).toLocaleString()} per year with annual billing!
             </p>
           </div>
         )}
 
         {/* Pricing Cards */}
-        <div className="grid gap-8 md:grid-cols-3 max-w-6xl mx-auto">
+        <div className="grid gap-8 md:grid-cols-4 max-w-7xl mx-auto">
           <PricingCard
             name={PRICING.FREE.name}
             tier={PRICING.FREE.tier}
@@ -171,6 +172,18 @@ export default function PricingPage() {
             annualPrice={PRICING.PRO.annual}
             features={PRICING.PRO.features}
             badge={PRICING.PRO.badge}
+            billingPeriod={billingPeriod}
+            onSubscribe={handleSubscribe}
+            loading={loading}
+            showPaymentOptions={true}
+          />
+
+          <PricingCard
+            name={PRICING.PREMIUM.name}
+            tier={PRICING.PREMIUM.tier}
+            monthlyPrice={PRICING.PREMIUM.monthly}
+            annualPrice={PRICING.PREMIUM.annual}
+            features={PRICING.PREMIUM.features}
             billingPeriod={billingPeriod}
             onSubscribe={handleSubscribe}
             loading={loading}
